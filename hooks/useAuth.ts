@@ -5,6 +5,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { firebaseAuth, firebaseDb } from "@/lib/firebase";
 import type { UserDoc } from "@/lib/types";
+import { fireEvent } from "@/lib/metaPixel";
 
 // Handles both pre-migration (searchesUsed/searchesLimit) and new (leadsUsed/leadsLimit) documents
 function normalizeUserDoc(data: Record<string, unknown>): UserDoc {
@@ -40,6 +41,8 @@ export function useAuth() {
           };
           await setDoc(ref, newDoc);
           setUserDoc(newDoc as unknown as UserDoc);
+          // Fire CompleteRegistration pixel + CAPI event
+          fireEvent("CompleteRegistration", {}, { email: firebaseUser.email || undefined }).catch(() => {});
           firebaseUser.getIdToken().then((token) => {
             fetch("/api/email/welcome", { method: "POST", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
           }).catch(() => {});

@@ -2,10 +2,18 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import { fireEvent } from "@/lib/metaPixel";
+
+const PLAN_AMOUNTS_INR: Record<string, number> = {
+  starter: 499,
+  growth: 999,
+  pro: 2499,
+  agency: 4999,
+};
 
 const PLANS = [
   {
@@ -99,6 +107,10 @@ export default function PricingPage() {
   const [paying, setPaying] = useState<string | null>(null);
   const [payError, setPayError] = useState<string | null>(null);
 
+  useEffect(() => {
+    fireEvent("ViewContent", { content_name: "Pricing Plans" });
+  }, []);
+
   const handleSelectPlan = async (planId: string) => {
     if (planId === "free") {
       router.push("/auth");
@@ -156,6 +168,12 @@ export default function PricingPage() {
         },
         modal: { ondismiss: () => setPaying(null) },
       };
+
+      await fireEvent(
+        "InitiateCheckout",
+        { value: PLAN_AMOUNTS_INR[planId] || 0, currency: "INR", content_name: planId },
+        { email: user.email || undefined }
+      );
 
       const rzp = new window.Razorpay(options);
       rzp.open();

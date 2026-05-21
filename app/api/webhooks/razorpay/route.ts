@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { createHmac } from "crypto";
 import { Timestamp } from "firebase-admin/firestore";
-import { PLAN_LIMITS, Plan } from "@/lib/types";
+import { PLAN_LIMITS, PLAN_PRICES, Plan } from "@/lib/types";
+import { sendCAPIEvent } from "@/lib/metaCapi";
 
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
@@ -57,6 +58,17 @@ export async function POST(req: NextRequest) {
       planExpiresAt,
       subscriptionStatus: "active",
     });
+
+    // Server-side Purchase event via CAPI
+    const userEmail = planData.email as string | undefined;
+    const planAmountINR = (PLAN_PRICES[plan] ?? 0) / 100;
+    sendCAPIEvent({
+      eventName: "Purchase",
+      eventId: `purchase_${subscriptionId}_${Date.now()}`,
+      eventSourceUrl: "https://localleads.sahajta.com/pricing",
+      userData: { email: userEmail },
+      customData: { value: planAmountINR, currency: "INR", content_name: plan },
+    }).catch(() => {});
   } else if (event === "subscription.cancelled") {
     await userDocRef.update({
       subscriptionId: null,

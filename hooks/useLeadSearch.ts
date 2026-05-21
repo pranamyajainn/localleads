@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { firebaseAuth } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { firebaseAuth, firebaseDb } from "@/lib/firebase";
 import type { Lead, RawPlace } from "@/lib/types";
+import { fireEvent } from "@/lib/metaPixel";
 
 const delay = (ms: number) => new Promise<void>((res) => setTimeout(res, ms));
 
@@ -277,7 +279,7 @@ export function useLeadSearch() {
   );
 
   const enrichAndFilterResults = useCallback(
-    async (headers: Record<string, string>, maxLeads: number) => {
+    async (headers: Record<string, string>, maxLeads: number, startTrialEligible = false) => {
       const places = Array.from(allRawPlaces.current.values());
       let processed = 0;
       let found = 0;
@@ -317,6 +319,14 @@ export function useLeadSearch() {
             setPhoneCount(found);
             setResults((prev) => [...prev, lead]);
 
+            // StartTrial: fire once on first lead for free-plan users with no prior leads
+            if (found === 1 && startTrialEligible) {
+              const currentUser = firebaseAuth().currentUser;
+              fireEvent("StartTrial", { plan: "free" }, {
+                email: currentUser?.email || undefined,
+              }).catch(() => {});
+            }
+
             if (found >= maxLeads) {
               shouldStop.current = true;
               break;
@@ -349,6 +359,20 @@ export function useLeadSearch() {
       try {
         headers = await getAuthHeaders();
 
+        // Check StartTrial eligibility: free plan with zero leads used so far
+        let startTrialEligible = false;
+        const currentUser = firebaseAuth().currentUser;
+        if (currentUser) {
+          try {
+            const snap = await getDoc(doc(firebaseDb(), "users", currentUser.uid));
+            if (snap.exists()) {
+              const d = snap.data();
+              startTrialEligible =
+                d.plan === "free" && (d.leadsUsed ?? d.searchesUsed ?? 0) === 0;
+            }
+          } catch { /* ignore */ }
+        }
+
         const localities = localitiesInput
           ? localitiesInput.split(",").map((s) => s.trim()).filter(Boolean)
           : [city];
@@ -362,7 +386,7 @@ export function useLeadSearch() {
 
         if (!shouldStop.current) {
           setStatus(`Qualifying ${allRawPlaces.current.size} unique businesses...`);
-          await enrichAndFilterResults(headers, maxLeads);
+          await enrichAndFilterResults(headers, maxLeads, startTrialEligible);
         }
 
         if (!shouldStop.current) {
