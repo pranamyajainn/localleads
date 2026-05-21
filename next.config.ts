@@ -1,7 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Proxy Firebase Auth handler through our own origin so the OAuth flow is
+  // same-origin with the app. Without this, authDomain points cross-site to
+  // *.firebaseapp.com and Chrome/Safari's third-party-storage blocking breaks
+  // both signInWithRedirect and the popup handshake.
+  // See: https://firebase.google.com/docs/auth/web/redirect-best-practices
+  async rewrites() {
+    return [
+      {
+        source: "/__/auth/:path*",
+        destination: "https://local-leads-244de.firebaseapp.com/__/auth/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
