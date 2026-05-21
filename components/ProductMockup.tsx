@@ -96,10 +96,11 @@ export function ProductMockup() {
       </div>
 
       {/* Dashboard body */}
-      <div style={{ display: "grid", gridTemplateColumns: "260px 1fr" }}>
+      <div className="mockup-grid" style={{ display: "grid", gridTemplateColumns: "260px 1fr" }}>
 
         {/* Left — Search panel */}
         <div
+          className="mockup-left"
           style={{
             padding: 28,
             borderRight: "1px solid rgba(255,255,255,0.06)",
@@ -249,7 +250,7 @@ export function ProductMockup() {
         </div>
 
         {/* Right — Results with blur on last 2 */}
-        <div style={{ padding: "8px 0", position: "relative", overflow: "hidden" }}>
+        <div className="mockup-right" style={{ padding: "8px 0", position: "relative", overflow: "hidden" }}>
           {RESULTS.map((r, i) => {
             const blurred = i >= 3;
             return (
@@ -368,6 +369,21 @@ export function ProductMockup() {
           )}
         </div>
       </div>
+      <style>{`
+        @media (max-width: 767px) {
+          .mockup-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .mockup-left {
+            border-right: none !important;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+          }
+          .mockup-right {
+            overflow: visible !important;
+            height: auto !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
