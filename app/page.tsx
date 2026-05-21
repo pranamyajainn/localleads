@@ -67,11 +67,33 @@ const PLANS = [
     name: "Growth",
     price: "₹999",
     period: "/month",
-    note: "For freelancers closing 5+ websites/month",
+    note: "For freelancers closing 5-10 sites/month",
     features: ["2,000 leads / month", "CSV export", "All cities & categories"],
     missing: [],
     cta: "Get Growth",
     href: "/auth?plan=growth",
+    featured: false,
+  },
+  {
+    name: "Pro",
+    price: "₹2,499",
+    period: "/month",
+    note: "For full-time freelancers & small agencies",
+    features: ["10,000 leads / month", "CSV export", "Priority support", "All cities"],
+    missing: [],
+    cta: "Get Pro",
+    href: "/auth?plan=pro",
+    featured: false,
+  },
+  {
+    name: "Agency",
+    price: "₹4,999",
+    period: "/month",
+    note: "For agencies running multi-city campaigns",
+    features: ["50,000 leads / month", "CSV export", "Priority support", "Dedicated onboarding", "All cities"],
+    missing: [],
+    cta: "Get Agency",
+    href: "/auth?plan=agency",
     featured: false,
   },
 ];
@@ -781,7 +803,7 @@ export default function LandingPage() {
 
       {/* ── Pricing ──────────────────────────────────────────────────────────── */}
       <section id="pricing" className="section-pad" style={{ padding: "100px 40px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1300, margin: "0 auto" }}>
           <ScrollReveal>
             <div style={{ marginBottom: 52 }}>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#22C55E", marginBottom: 14 }}>
@@ -791,26 +813,25 @@ export default function LandingPage() {
                 Start free. Scale when ready.
               </h2>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#555", margin: 0, lineHeight: 1.65 }}>
-                ₹499/month is ₹17/day.{" "}
-                <strong style={{ color: "#777" }}>Your first website sale pays it back 20 times over.</strong>{" "}
-                No credit card. Cancel anytime.
+                Pay only for leads that qualify — businesses with a phone number and no website.{" "}
+                <strong style={{ color: "#777" }}>No credit card. Cancel anytime.</strong>
               </p>
             </div>
           </ScrollReveal>
 
-          <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1.15fr 1fr", alignItems: "stretch" }}>
+          <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", alignItems: "stretch" }}>
             {PLANS.map((plan, i) => (
               <ScrollReveal key={i} delay={i * 60}>
-                <div className={i === 1 ? "pricing-card pricing-card-featured" : "pricing-card"} style={{
-                  padding: plan.featured ? "44px 32px" : "32px 24px",
+                <div className={plan.featured ? "pricing-card pricing-card-featured" : "pricing-card"} style={{
+                  padding: plan.featured ? "44px 24px" : "28px 18px",
                   position: "relative",
                   display: "flex", flexDirection: "column", height: "100%",
                   background: plan.featured ? "rgba(34,197,94,0.04)" : "transparent",
                   border: plan.featured
                     ? "2px solid rgba(34,197,94,0.45)"
                     : "1px solid rgba(255,255,255,0.07)",
-                  marginLeft: i === 1 ? -1 : 0,
-                  marginRight: i === 1 ? -1 : 0,
+                  marginLeft: plan.featured ? -1 : 0,
+                  marginRight: plan.featured ? -1 : 0,
                   zIndex: plan.featured ? 2 : 1,
                 }}>
                   {plan.featured && (

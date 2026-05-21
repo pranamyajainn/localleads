@@ -455,7 +455,7 @@ details[open] .faq-chevron { transform: rotate(180deg); color: #22C55E; }
   .testimonial-grid { grid-template-columns: 1fr !important; }
 }
 
-/* Pricing 3-col */
+/* Pricing responsive */
 @media (max-width: 767px) {
   .pricing-grid {
     grid-template-columns: 1fr !important;
@@ -467,11 +467,13 @@ details[open] .faq-chevron { transform: rotate(180deg); color: #22C55E; }
     margin-right: 0 !important;
   }
 }
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1099px) {
   .pricing-grid {
-    grid-template-columns: 1fr !important;
-    max-width: 440px;
-    margin: 0 auto;
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .pricing-card-featured {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 }
 
