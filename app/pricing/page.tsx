@@ -85,19 +85,38 @@ export default function PricingPage() {
       router.push(`/auth?plan=${planId}`);
       return;
     }
+
+    // Step 4: guard against missing key (baked in at build time)
+    if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+      console.error("Razorpay key missing from client bundle");
+      setPayError("Payment configuration error. Please contact support.");
+      return;
+    }
+
     setPaying(planId);
     setPayError(null);
     try {
       const loaded = await loadRazorpayScript();
-      if (!loaded) throw new Error("Failed to load payment gateway.");
+      if (!loaded) {
+        console.error("Razorpay checkout.js failed to load");
+        throw new Error("Failed to load payment gateway.");
+      }
+
       const token = await user.getIdToken();
       const orderRes = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ plan: planId }),
       });
-      if (!orderRes.ok) throw new Error("Failed to create order.");
+      if (!orderRes.ok) {
+        const errBody = await orderRes.text().catch(() => "(unreadable)");
+        console.error("Order creation failed:", orderRes.status, orderRes.statusText, errBody);
+        throw new Error("Failed to create order.");
+      }
+
       const { order_id, amount, currency } = await orderRes.json();
+      console.log("Order created:", { order_id, amount, currency, planId });
+
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount, currency,
@@ -113,7 +132,11 @@ export default function PricingPage() {
               headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
               body: JSON.stringify({ ...response, plan: planId }),
             });
-            if (!verifyRes.ok) throw new Error("Payment verification failed.");
+            if (!verifyRes.ok) {
+              const errBody = await verifyRes.text().catch(() => "(unreadable)");
+              console.error("Verification failed:", verifyRes.status, errBody);
+              throw new Error("Payment verification failed.");
+            }
             router.push("/payment/success");
           } catch {
             setPayError("Payment succeeded but verification failed. Please contact support.");
@@ -121,9 +144,12 @@ export default function PricingPage() {
         },
         modal: { ondismiss: () => setPaying(null) },
       };
+
+      console.log("Opening Razorpay modal");
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
+      console.error("Payment flow error:", err);
       setPayError(err instanceof Error ? err.message : "Payment failed.");
       setPaying(null);
     }
