@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   description:
     "LocalLeads surfaces local Indian businesses with no website and a live phone number. Ready to call in minutes.",
   keywords: ["local leads", "freelancer India", "business leads", "no website businesses"],
+  icons: { icon: "/favicon.png" },
+  openGraph: {
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    title: "LocalLeads — Find businesses with no website",
+    description:
+      "Scan Google Maps and find local businesses with a phone number and no website. Ready to call in minutes.",
+  },
 };
 
 export default function RootLayout({

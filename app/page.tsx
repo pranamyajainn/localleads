@@ -239,6 +239,10 @@ export default function LandingPage() {
           style={{
             display: "flex", flexDirection: "column", justifyContent: "center",
             padding: "80px 48px 80px 32px",
+            position: "relative",
+            backgroundImage: "url(/hero-illustration.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
           <div
