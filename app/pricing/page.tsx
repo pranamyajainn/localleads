@@ -230,10 +230,10 @@ export default function PricingPage() {
                   position: "relative",
                   display: "flex", flexDirection: "column",
                   padding: plan.featured ? "44px 32px" : "32px 24px",
-                  background: plan.featured ? "rgba(34,197,94,0.04)" : "transparent",
+                  background: plan.featured ? "rgba(34,197,94,0.04)" : "#0D0D0D",
                   border: plan.featured
                     ? "2px solid rgba(34,197,94,0.45)"
-                    : "1px solid rgba(255,255,255,0.07)",
+                    : "1px solid rgba(255,255,255,0.13)",
                   marginLeft: i === 1 ? -1 : 0,
                   marginRight: i === 1 ? -1 : 0,
                   zIndex: plan.featured ? 2 : 1,
@@ -251,10 +251,10 @@ export default function PricingPage() {
                 )}
 
                 <div style={{ marginBottom: 20, marginTop: plan.featured ? 24 : 0 }}>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: plan.featured ? "#22C55E" : "#444", margin: "0 0 4px" }}>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: plan.featured ? "#22C55E" : "#777", margin: "0 0 4px" }}>
                     {plan.name}
                   </p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: plan.featured ? "#555" : "#333", margin: 0 }}>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: plan.featured ? "#555" : "#555", margin: 0 }}>
                     {plan.note}
                   </p>
                 </div>
@@ -264,7 +264,7 @@ export default function PricingPage() {
                     fontFamily: "var(--font-serif)",
                     fontSize: plan.featured ? 54 : 40,
                     fontWeight: plan.featured ? 400 : 300,
-                    color: plan.featured ? "#EDEDED" : "#444",
+                    color: plan.featured ? "#EDEDED" : "#AAAAAA",
                     lineHeight: 1,
                   }}>
                     {plan.display}
@@ -276,7 +276,7 @@ export default function PricingPage() {
                   {[plan.searches, plan.leads, plan.csv ? "CSV export" : null, plan.support ? "Priority support" : null]
                     .filter(Boolean)
                     .map((f) => (
-                      <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-sans)", fontSize: 14, color: plan.featured ? "#EDEDED" : "#555" }}>
+                      <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-sans)", fontSize: 14, color: plan.featured ? "#EDEDED" : "#888" }}>
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
                         {f}
                       </li>
@@ -322,7 +322,15 @@ export default function PricingPage() {
           })}
         </div>
 
-        <p style={{ textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 12, color: "#2E2E2E", marginTop: 32 }}>
+        <p style={{ textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 13, color: "#444", marginTop: 28, marginBottom: 4 }}>
+          Need unlimited searches?{" "}
+          <a href="mailto:contact@sahajta.com" style={{ color: "#22C55E", textDecoration: "none" }}>
+            contact@sahajta.com
+          </a>
+          {" "}for Enterprise
+        </p>
+
+        <p style={{ textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 12, color: "#2E2E2E", marginTop: 12 }}>
           Payments are processed securely by Razorpay. Cancel anytime.
         </p>
       </div>

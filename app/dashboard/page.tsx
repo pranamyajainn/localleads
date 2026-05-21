@@ -133,12 +133,20 @@ export default function DashboardPage() {
         display: "flex", alignItems: "center", justifyContent: "space-between",
         borderBottom: "1px solid rgba(255,255,255,0.06)",
       }}>
-        <span style={{
-          fontFamily: "var(--font-sans)", fontSize: 12, color: "#333",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220,
-        }}>
-          {user?.email}
-        </span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, overflow: "hidden" }}>
+          <span style={{
+            fontFamily: "var(--font-sans)", fontSize: 12, color: "#333",
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220,
+          }}>
+            {user?.email}
+          </span>
+          <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, color: "#2A2A2A", whiteSpace: "nowrap" }}>
+            Need help?{" "}
+            <a href="mailto:contact@sahajta.com" style={{ color: "#3A3A3A", textDecoration: "none" }}>
+              contact@sahajta.com
+            </a>
+          </span>
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <Link
             href="/pricing"
@@ -150,6 +158,9 @@ export default function DashboardPage() {
           >
             Upgrade
           </Link>
+          <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "#2E2E2E", letterSpacing: "0.02em" }}>
+            {user?.displayName || "Account"}
+          </span>
           <button
             onClick={handleSignOut}
             title="Sign out"
@@ -363,13 +374,20 @@ export default function DashboardPage() {
               )}
               <span style={{
                 fontFamily: "ui-monospace, monospace",
-                fontSize: 11, color: "#3A3A3A", lineHeight: 1.5,
+                fontSize: 11, color: "#666", lineHeight: 1.5,
               }}>
                 {status}
               </span>
             </div>
           )}
         </div>
+
+        {/* ── Progress bar ────────────────────────────────────────────────── */}
+        {isSearching && (
+          <div style={{ width: "100%", maxWidth: 580, marginTop: 10, height: 2, background: "rgba(255,255,255,0.05)", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: "45%", background: "#22C55E", animation: "progressSlide 1.5s ease-in-out infinite" }} />
+          </div>
+        )}
 
         {/* ── Results ─────────────────────────────────────────────────────── */}
         {hasResults && (
@@ -456,6 +474,10 @@ export default function DashboardPage() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes progressSlide {
+          0%   { transform: translateX(-120%); }
+          100% { transform: translateX(280%); }
+        }
         @keyframes dashFadeUp {
           from { opacity: 0; transform: translateY(8px); }
           to   { opacity: 1; transform: translateY(0); }
