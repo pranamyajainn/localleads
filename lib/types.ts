@@ -9,6 +9,8 @@ export interface UserDoc {
   searchesLimit: number;
   planExpiresAt: Timestamp | null;
   createdAt: Timestamp;
+  welcomeEmailSent?: boolean;
+  upgradeEmailSent?: boolean;
 }
 
 export interface Lead {

@@ -31,6 +31,9 @@ export function useAuth() {
           };
           await setDoc(ref, newDoc);
           setUserDoc(newDoc as unknown as UserDoc);
+          firebaseUser.getIdToken().then((token) => {
+            fetch("/api/email/welcome", { method: "POST", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+          }).catch(() => {});
         } else {
           setUserDoc(snap.data() as UserDoc);
         }

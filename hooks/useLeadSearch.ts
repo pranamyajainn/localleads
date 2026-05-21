@@ -333,6 +333,7 @@ export function useLeadSearch() {
 
         if (creditRes.status === 403) {
           const data = await creditRes.json();
+          fetch("/api/email/upgrade-nudge", { method: "POST", headers }).catch(() => {});
           setError(data.message || "Search limit reached. Upgrade to continue.");
           setIsSearching(false);
           setStatus("Limit reached");
