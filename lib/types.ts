@@ -14,6 +14,8 @@ export interface UserDoc {
   createdAt: Timestamp;
   welcomeEmailSent?: boolean;
   upgradeEmailSent?: boolean;
+  subscriptionId?: string;
+  subscriptionStatus?: "active" | "cancelling" | "halted" | null;
 }
 
 export interface Lead {

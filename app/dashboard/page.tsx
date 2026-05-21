@@ -141,9 +141,29 @@ export default function DashboardPage() {
     }
   }, [results.length]);
 
+  const [cancelling, setCancelling] = useState(false);
+
   const handleSignOut = async () => {
     await signOut(firebaseAuth());
     router.replace("/");
+  };
+
+  const handleCancelPlan = async () => {
+    if (!user || cancelling) return;
+    if (!confirm("Cancel your subscription? You keep access until the end of your billing period.")) return;
+    setCancelling(true);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch("/api/razorpay/cancel-subscription", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) refreshUserDoc();
+    } catch {
+      // silent
+    } finally {
+      setCancelling(false);
+    }
   };
 
   const leadsUsed = userDoc ? (userDoc.leadsUsed ?? 0) : 0;
@@ -271,6 +291,33 @@ export default function DashboardPage() {
           >
             {isPaidPlan ? "Change plan" : "Upgrade plan"}
           </Link>
+
+          {/* Cancel plan */}
+          {isPaidPlan && userDoc?.subscriptionStatus === "active" && (
+            <button
+              onClick={handleCancelPlan}
+              disabled={cancelling}
+              style={{
+                background: "none", border: "none", padding: "8px 0 0",
+                fontFamily: "var(--font-sans)", fontSize: 9,
+                color: "#2A2A2A", cursor: cancelling ? "not-allowed" : "pointer",
+                textAlign: "left", letterSpacing: "0.08em", textTransform: "uppercase",
+                opacity: cancelling ? 0.5 : 1,
+              }}
+            >
+              {cancelling ? "Cancelling…" : "Cancel subscription"}
+            </button>
+          )}
+          {isPaidPlan && userDoc?.subscriptionStatus === "cancelling" && (
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 9, color: "#3A3A3A", margin: "8px 0 0", letterSpacing: "0.05em" }}>
+              Cancels at period end
+            </p>
+          )}
+          {isPaidPlan && userDoc?.subscriptionStatus === "halted" && (
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 9, color: "#F59E0B", margin: "8px 0 0", letterSpacing: "0.05em" }}>
+              Payment halted — update payment
+            </p>
+          )}
 
           {/* Divider */}
           <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "28px 0" }} />

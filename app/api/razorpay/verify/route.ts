@@ -12,11 +12,11 @@ export async function POST(req: NextRequest) {
   const { uid } = auth;
 
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan } = await req.json();
+    const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature, plan } = await req.json();
 
-    // Verify Razorpay signature
+    // Subscription signature: HMAC-SHA256(payment_id + "|" + subscription_id)
     const expectedSignature = createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .update(`${razorpay_payment_id}|${razorpay_subscription_id}`)
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
@@ -36,6 +36,8 @@ export async function POST(req: NextRequest) {
       leadsUsed: 0,
       leadsLimit: PLAN_LIMITS[plan as Plan],
       planExpiresAt,
+      subscriptionId: razorpay_subscription_id,
+      subscriptionStatus: "active",
     });
 
     return NextResponse.json({ success: true });

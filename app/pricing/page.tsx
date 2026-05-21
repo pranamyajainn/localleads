@@ -121,28 +121,27 @@ export default function PricingPage() {
       if (!loaded) throw new Error("Failed to load payment gateway.");
 
       const token = await user.getIdToken();
-      const orderRes = await fetch("/api/razorpay/create-order", {
+      const subRes = await fetch("/api/razorpay/create-subscription", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ plan: planId }),
       });
-      if (!orderRes.ok) {
-        const errBody = await orderRes.text().catch(() => "(unreadable)");
-        console.error("Order creation failed:", orderRes.status, errBody);
-        throw new Error("Failed to create order.");
+      if (!subRes.ok) {
+        const errBody = await subRes.text().catch(() => "(unreadable)");
+        console.error("Subscription creation failed:", subRes.status, errBody);
+        throw new Error("Failed to create subscription.");
       }
 
-      const { order_id, amount, currency } = await orderRes.json();
+      const { subscription_id } = await subRes.json();
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount, currency,
+        subscription_id,
         name: "LocalLeads",
-        description: `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan`,
-        order_id,
+        description: `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan — Monthly`,
         prefill: { email: user.email },
         theme: { color: "#22C55E" },
-        handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+        handler: async (response: { razorpay_payment_id: string; razorpay_subscription_id: string; razorpay_signature: string }) => {
           try {
             const verifyRes = await fetch("/api/razorpay/verify", {
               method: "POST",
