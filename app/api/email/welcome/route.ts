@@ -37,6 +37,9 @@ export async function POST(req: NextRequest) {
       html: `<!DOCTYPE html>
 <html>
 <body style="font-family:Arial,sans-serif;color:#333;max-width:560px;margin:0 auto;padding:32px 24px;background:#fff;line-height:1.7;font-size:15px">
+  <div style="margin-bottom: 24px;">
+    <img src="https://localleads.sahajta.com/favicon.png" alt="LocalLeads" width="48" height="48" style="display: block;" />
+  </div>
   <p>Hi ${firstName},</p>
   <p>Welcome to LocalLeads.</p>
   <p>You have 1 free search waiting. Here is exactly what to do with it:</p>
