@@ -18,22 +18,22 @@ import { SearchTicker } from "@/components/SearchTicker";
 const TESTIMONIALS = [
   {
     initials: "AV",
-    name: "Web Designer",
-    role: "Pune",
+    name: "Arjun V.",
+    role: "Web Designer · Pune",
     result: "₹36,000 in 10 days",
     quote: "Found 23 restaurants in Pune with no website. Called 8. Three said yes immediately. Built all three with AI tools in 4 days. ₹12,000 each.",
   },
   {
     initials: "PS",
-    name: "Freelance Developer",
-    role: "Bangalore",
+    name: "Priya S.",
+    role: "Freelance Developer · Bangalore",
     result: "₹20,000 first week",
     quote: "I had no idea this many local businesses had no website. Found 40 salons in Indiranagar and HSR. My pitch: I found you on Maps, you have no website, want one? It worked.",
   },
   {
     initials: "VT",
-    name: "Agency Founder",
-    role: "Mumbai",
+    name: "Varun T.",
+    role: "Agency Founder · Mumbai",
     result: "8 clients in one month",
     quote: "₹10,000 per website is the minimum. We average ₹18,000 now. LocalLeads is our main lead source. Eight clients last month from searches that took 20 minutes.",
   },
@@ -175,7 +175,7 @@ export default function LandingPage() {
             }}
           >
             <span style={{ display: "block", width: 28, height: 1, background: "#22C55E", flexShrink: 0 }} />
-            For Indian web freelancers who want paying clients
+            For Indian web freelancers who are tired of guessing who to pitch
           </div>
 
           {/* H1 — architectural, commanding */}
@@ -189,11 +189,11 @@ export default function LandingPage() {
               margin: "0 0 32px",
             }}
           >
-            Find businesses
+            Every day, businesses in your city
             <br />
-            with no website.
+            need a website.
             <br />
-            <span style={{ color: "#22C55E", fontStyle: "italic" }}>Get paid.</span>
+            <span style={{ color: "#22C55E", fontStyle: "italic" }}>They just don't know you yet.</span>
           </h1>
 
           {/* Body */}
@@ -205,15 +205,13 @@ export default function LandingPage() {
             }}
           >
             LocalLeads scans Google Maps and shows you local businesses
-            with a phone number and{" "}
-            <strong style={{ color: "#EDEDED", fontWeight: 500 }}>no website</strong>.
-            Call them. Build one with AI. Charge{" "}
-            <strong style={{ color: "#EDEDED", fontWeight: 500 }}>₹10,000–25,000</strong>.
+            with a phone number and no website. Call them with a reason,
+            not a guess. Build one with AI. Charge ₹10,000 and beyond.
           </p>
 
           {/* CTAs */}
           <div className="animate-fade-up-delay-2" style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 30 }}>
-            <Link href="/auth" className="btn-gold">Find Leads Free</Link>
+            <Link href="/auth" className="btn-gold">Show Me Who Needs a Website</Link>
             <a href="#how-it-works" className="btn-ghost-sm">See how it works →</a>
           </div>
 
@@ -225,11 +223,11 @@ export default function LandingPage() {
               fontFamily: "var(--font-sans)", fontSize: 12, color: "#333",
             }}
           >
-            <span>✓ Free forever</span>
+            <span>Free forever</span>
             <span style={{ color: "#1E1E1E" }}>·</span>
-            <span>✓ Google Sign-in</span>
+            <span>Google Sign-in</span>
             <span style={{ color: "#1E1E1E" }}>·</span>
-            <span>✓ No credit card</span>
+            <span>No credit card</span>
           </div>
         </div>
 
@@ -268,18 +266,18 @@ export default function LandingPage() {
             }}>
               {[
                 {
-                  val: "10-40",
-                  sub: "Leads per search",
+                  val: "10–40",
+                  sub: "qualified leads per search",
                   note: "Businesses with no website and a live phone number, in any Indian city you pick",
                 },
                 {
                   val: "2 min",
-                  sub: "Time to get leads",
+                  sub: "Results in under 2 minutes",
                   note: "Type a business type and city. Get a contact list ready to call",
                 },
                 {
-                  val: "₹10k-25k",
-                  sub: "Per website built",
+                  val: "₹10k+",
+                  sub: "is the floor, not the ceiling",
                   note: "Standard market rate in India for a small business website",
                 },
               ].map((s, i) => (
@@ -433,25 +431,25 @@ export default function LandingPage() {
               </p>
 
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", lineHeight: 1.82, margin: "0 0 16px", position: "relative" }}>
-                A developer from Pune. Good at the work. Spending{" "}
-                <strong style={{ color: "#EDEDED" }}>two hours every morning</strong>{" "}
-                just trying to figure out who to pitch to.
-              </p>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", lineHeight: 1.82, margin: "0 0 16px", position: "relative" }}>
-                Instagram DMs. Sulekha. Cold WhatsApp. The work wasn't the problem.{" "}
-                <strong style={{ color: "#EDEDED" }}>Finding the work was the problem.</strong>
+                A web developer in Pune was spending two hours every morning just finding someone to pitch.
+                Instagram DMs. Sulekha. Cold WhatsApp. The work was not the problem. Finding the work was.
               </p>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.82, margin: "0 0 16px", position: "relative" }}>
-                One morning: "restaurants, Pune" on LocalLeads.
-                31 businesses. No website. Real phone numbers.{" "}
-                <strong style={{ color: "#EDEDED" }}>Someone to call right now.</strong>
+                One morning he searched "restaurants, Pune" on LocalLeads. Thirty-one businesses. No website.
+                Real numbers. People he could call right now — with a reason.
               </p>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#EDEDED", lineHeight: 1.65, margin: "0 0 8px", fontWeight: 500, position: "relative" }}>
-                Called 8. Three answered. Two had been meaning to get a website for years.
+                He called eight. Three answered. Two had been meaning to get a website for years. He built all three in a week.
               </p>
 
-              <p style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#22C55E", margin: "8px 0 36px", fontStyle: "italic", position: "relative", lineHeight: 1.2 }}>
-                Three clients. Two weeks. No cold outreach.
+              <p style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#22C55E", margin: "8px 0 24px", fontStyle: "italic", position: "relative", lineHeight: 1.2 }}>
+                ₹36,000. No cold outreach. No guessing.
+              </p>
+
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#555", lineHeight: 1.78, margin: "0 0 36px", position: "relative" }}>
+                That conversation starts differently when you can say: "I found you on Google Maps — you have no website,
+                I build them for businesses like yours starting at ₹10,000." That is not a pitch. That is an observation.
+                Observations are hard to argue with.
               </p>
 
               <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative" }}>
@@ -984,20 +982,20 @@ export default function LandingPage() {
               fontWeight: 700, color: "#EDEDED", lineHeight: 1.05,
               letterSpacing: "-0.03em", margin: "0 0 16px",
             }}>
-              The leads are already there.
+              The businesses are already there.
               <br />
-              <span style={{ color: "#22C55E", fontStyle: "italic" }}>Are you?</span>
+              <span style={{ color: "#22C55E", fontStyle: "italic" }}>Someone is going to call them this week.</span>
             </h2>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", margin: "0 0 44px", lineHeight: 1.68 }}>
-              Every day you wait, someone else might be calling them.
-              <br />
-              First search is free. No credit card. 30 seconds to sign in.
+              Takes 30 seconds to sign in. Your first search is free — no card needed.
+              If you make one call and it goes nowhere, you have lost nothing.
+              If it goes somewhere, you know what to do next.
             </p>
             <Link href="/auth" className="btn-gold" style={{ display: "inline-block", marginBottom: 30 }}>
-              Find My First Leads Free
+              Find My First Leads — It's Free
             </Link>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#3A3A3A", margin: "0 0 20px" }}>
-              Join <strong style={{ color: "#555" }}>847+ Indian freelancers</strong>
+              Join <strong style={{ color: "#555" }}>847+ Indian freelancers</strong> already using LocalLeads
             </p>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap", fontFamily: "var(--font-sans)", fontSize: 12, color: "#333" }}>
               <span>✓ Google Sign-in only</span>
