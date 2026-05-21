@@ -35,7 +35,9 @@ export function SearchTicker() {
     <div
       style={{
         border: "1px solid rgba(255,255,255,0.07)",
-        background: "#060606",
+        backgroundColor: "rgba(8, 8, 8, 0.75)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
         display: "flex",
         flexDirection: "column",
         height: "100%",
@@ -50,7 +52,7 @@ export function SearchTicker() {
           display: "flex",
           alignItems: "center",
           gap: 9,
-          background: "#040404",
+          backgroundColor: "rgba(4, 4, 4, 0.75)",
           flexShrink: 0,
         }}
       >
@@ -111,7 +113,7 @@ export function SearchTicker() {
         style={{
           padding: "12px 18px",
           borderTop: "1px solid rgba(255,255,255,0.05)",
-          background: "#040404",
+          backgroundColor: "rgba(4, 4, 4, 0.75)",
           flexShrink: 0,
         }}
       >

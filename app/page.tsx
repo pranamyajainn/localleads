@@ -241,9 +241,8 @@ export default function LandingPage() {
             padding: "80px 48px 80px 32px",
             position: "relative",
             backgroundImage: "url(/hero-illustration.png)",
-            backgroundSize: "contain",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center right",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
           <div
