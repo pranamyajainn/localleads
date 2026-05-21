@@ -277,7 +277,7 @@ export function useLeadSearch() {
   );
 
   const enrichAndFilterResults = useCallback(
-    async (headers: Record<string, string>) => {
+    async (headers: Record<string, string>, maxLeads: number) => {
       const places = Array.from(allRawPlaces.current.values());
       let processed = 0;
       let found = 0;
@@ -316,6 +316,11 @@ export function useLeadSearch() {
             found++;
             setPhoneCount(found);
             setResults((prev) => [...prev, lead]);
+
+            if (found >= maxLeads) {
+              shouldStop.current = true;
+              break;
+            }
           }
         }
 
@@ -326,7 +331,7 @@ export function useLeadSearch() {
   );
 
   const performSearch = useCallback(
-    async (bType: string, city: string, localitiesInput: string) => {
+    async (bType: string, city: string, localitiesInput: string, maxLeads = Infinity) => {
       if (!bType || !city || isSearching) return;
 
       // Reset state
@@ -357,7 +362,7 @@ export function useLeadSearch() {
 
         if (!shouldStop.current) {
           setStatus(`Qualifying ${allRawPlaces.current.size} unique businesses...`);
-          await enrichAndFilterResults(headers);
+          await enrichAndFilterResults(headers, maxLeads);
         }
 
         if (!shouldStop.current) {

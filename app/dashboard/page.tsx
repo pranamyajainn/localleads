@@ -12,6 +12,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLeadSearch } from "@/hooks/useLeadSearch";
 import type { Lead, SearchHistoryEntry } from "@/lib/types";
 
+const UPGRADE_PLANS = [
+  { id: "starter", name: "Starter", price: "₹499", leads: "500 leads / mo" },
+  { id: "growth", name: "Growth", price: "₹999", leads: "2,000 leads / mo", featured: true },
+  { id: "pro", name: "Pro", price: "₹2,499", leads: "10,000 leads / mo" },
+  { id: "agency", name: "Agency", price: "₹4,999", leads: "50,000 leads / mo" },
+];
+
 function ResultCard({ lead, index }: { lead: Lead; index: number }) {
   return (
     <div
@@ -100,7 +107,10 @@ export default function DashboardPage() {
   const [bType, setBType] = useState("");
   const [city, setCity] = useState("");
   const [localities, setLocalities] = useState("");
+  const [maxLeadsStr, setMaxLeadsStr] = useState("50");
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [searchHistory, setSearchHistory] = useState<SearchHistoryEntry[]>([]);
+  const maxLeadsInitialized = useRef(false);
   const resultsEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -141,6 +151,18 @@ export default function DashboardPage() {
     }
   }, [results.length]);
 
+  // Initialize maxLeadsStr to min(50, leadsLeft) once user doc loads
+  const leadsUsed = userDoc ? (userDoc.leadsUsed ?? 0) : 0;
+  const leadsLimit = userDoc ? (userDoc.leadsLimit ?? 20) : 20;
+  const leadsLeft = Math.max(0, leadsLimit - leadsUsed);
+
+  useEffect(() => {
+    if (!maxLeadsInitialized.current && leadsLeft > 0) {
+      maxLeadsInitialized.current = true;
+      setMaxLeadsStr(String(Math.min(50, leadsLeft)));
+    }
+  }, [leadsLeft]);
+
   const [cancelling, setCancelling] = useState(false);
 
   const handleSignOut = async () => {
@@ -166,24 +188,26 @@ export default function DashboardPage() {
     }
   };
 
-  const leadsUsed = userDoc ? (userDoc.leadsUsed ?? 0) : 0;
-  const leadsLimit = userDoc ? (userDoc.leadsLimit ?? 20) : 20;
-  const leadsLeft = Math.max(0, leadsLimit - leadsUsed);
+  const usedPct = leadsLimit > 0 ? Math.min(100, Math.round((leadsUsed / leadsLimit) * 100)) : 100;
   const leadsPct = leadsLimit > 0 ? Math.round((leadsLeft / leadsLimit) * 100) : 0;
 
   const daysRemaining = userDoc?.planExpiresAt
     ? Math.max(0, Math.ceil((userDoc.planExpiresAt.toDate().getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : null;
 
-  const canSearch = leadsLeft > 0 && !isSearching;
+  const rawMaxLeads = parseInt(maxLeadsStr, 10) || 0;
+  const maxLeads = rawMaxLeads > 0 ? Math.min(rawMaxLeads, leadsLeft) : 0;
+
+  const hitLimit = !loading && userDoc !== null && leadsLeft === 0;
+  const canSearch = leadsLeft > 0 && !isSearching && maxLeads > 0;
   const isPaidPlan = userDoc?.plan !== "free" && userDoc?.plan !== undefined;
   const planLabel = userDoc?.plan
     ? userDoc.plan.charAt(0).toUpperCase() + userDoc.plan.slice(1)
     : "Free";
 
-  const handleSearch = () => performSearch(bType, city, localities);
+  const handleSearch = () => performSearch(bType, city, localities, maxLeads);
   const hasResults = results.length > 0;
-  const creditsBarColor = leadsLeft > leadsLimit * 0.2 ? "#22C55E" : leadsLeft > 0 ? "#F59E0B" : "#1E1E1E";
+  const creditsBarColor = leadsLeft > leadsLimit * 0.2 ? "#22C55E" : leadsLeft > 0 ? "#F59E0B" : "#EF4444";
 
   if (loading) {
     return (
@@ -205,12 +229,12 @@ export default function DashboardPage() {
         <div style={{
           display: "flex", alignItems: "center", gap: 5,
           padding: "4px 10px",
-          border: "1px solid rgba(34,197,94,0.2)",
-          background: "rgba(34,197,94,0.04)",
+          border: `1px solid ${leadsLeft > 0 ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`,
+          background: leadsLeft > 0 ? "rgba(34,197,94,0.04)" : "rgba(239,68,68,0.04)",
         }}>
-          <span style={{ width: 5, height: 5, borderRadius: "50%", background: leadsLeft > 0 ? "#22C55E" : "#333", display: "inline-block", flexShrink: 0 }} />
-          <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, color: leadsLeft > 0 ? "#22C55E" : "#444", letterSpacing: "0.02em" }}>
-            {leadsLeft} leads
+          <span style={{ width: 5, height: 5, borderRadius: "50%", background: leadsLeft > 0 ? "#22C55E" : "#EF4444", display: "inline-block", flexShrink: 0 }} />
+          <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, color: leadsLeft > 0 ? "#22C55E" : "#EF4444", letterSpacing: "0.02em" }}>
+            {leadsLeft} left
           </span>
         </div>
         <button
@@ -253,7 +277,7 @@ export default function DashboardPage() {
               <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "#444" }}>
                 {isPaidPlan ? "Leads this month" : "Leads (lifetime)"}
               </span>
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: leadsLeft > 0 ? "#EDEDED" : "#333" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: leadsLeft > 0 ? "#EDEDED" : "#EF4444" }}>
                 {leadsUsed}<span style={{ color: "#2A2A2A", fontWeight: 400 }}>/{leadsLimit}</span>
               </span>
             </div>
@@ -371,139 +395,253 @@ export default function DashboardPage() {
 
         <div className="main-inner">
 
-          {/* Search zone */}
-          <div className={`search-zone${isSearching ? " search-scanning" : ""}`}>
-
-            <div style={{ marginBottom: 28 }}>
-              <h1 style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "clamp(26px, 3.5vw, 34px)",
-                fontWeight: 700, lineHeight: 1.05,
-                letterSpacing: "-0.03em", color: "#EDEDED",
-                margin: "0 0 7px",
-              }}>
-                Find your next client.
-              </h1>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#444", margin: 0, lineHeight: 1.5 }}>
-                {isSearching
-                  ? `Scanning Google Maps — ${phoneCount} lead${phoneCount !== 1 ? "s" : ""} found so far`
-                  : "Enter a business type and city to begin."}
-              </p>
+          {/* ── Usage progress bar (always visible) ──────────────── */}
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 7 }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: leadsLeft === 0 ? "#EF4444" : "#555" }}>
+                {leadsUsed} of {leadsLimit} leads used{isPaidPlan ? " this month" : ""}
+              </span>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "#2E2E2E" }}>
+                {planLabel}{daysRemaining !== null ? ` · ${daysRemaining}d left` : ""}
+              </span>
             </div>
-
-            <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 26 }} />
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div className="field-wrap">
-                <input
-                  type="text"
-                  value={bType}
-                  onChange={(e) => setBType(e.target.value)}
-                  placeholder=" "
-                  disabled={isSearching}
-                  className="field-input input-dark"
-                  style={{ opacity: isSearching ? 0.45 : 1 }}
-                />
-                <label className="field-label">Business Type</label>
-              </div>
-              <div className="field-wrap">
-                <input
-                  type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && canSearch && bType && city) handleSearch();
-                  }}
-                  placeholder=" "
-                  disabled={isSearching}
-                  className="field-input input-dark"
-                  style={{ opacity: isSearching ? 0.45 : 1 }}
-                />
-                <label className="field-label">City</label>
-              </div>
-              <div className="field-wrap">
-                <textarea
-                  value={localities}
-                  onChange={(e) => setLocalities(e.target.value)}
-                  placeholder=" "
-                  disabled={isSearching}
-                  className="field-input input-dark"
-                  style={{ resize: "none", minHeight: 82, opacity: isSearching ? 0.45 : 1 }}
-                />
-                <label className="field-label">
-                  Localities <span style={{ textTransform: "none", letterSpacing: 0, color: "#2A2A2A" }}>(optional)</span>
-                </label>
-              </div>
-            </div>
-
-            {error && (
+            <div style={{ height: 4, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
               <div style={{
-                marginTop: 16, padding: "11px 14px",
-                border: "1px solid rgba(239,68,68,0.28)",
-                background: "rgba(239,68,68,0.05)",
-                fontFamily: "var(--font-sans)", fontSize: 12, color: "#F87171", lineHeight: 1.55,
-              }}>
-                {error}
-                {error.toLowerCase().includes("limit") && (
-                  <>{" "}<Link href="/pricing" style={{ textDecoration: "underline", color: "#22C55E" }}>Upgrade now</Link></>
-                )}
-              </div>
-            )}
-
-            <div style={{ marginTop: 20 }}>
-              {canSearch ? (
-                <button
-                  onClick={handleSearch}
-                  disabled={!bType || !city}
-                  className="btn-gold search-action"
-                  style={{
-                    width: "100%",
-                    opacity: (!bType || !city) ? 0.3 : 1,
-                    cursor: (!bType || !city) ? "not-allowed" : "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  }}
-                >
-                  Find leads
-                  <svg className="arrow-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </button>
-              ) : isSearching ? (
-                <button
-                  onClick={stopSearch}
-                  style={{
-                    width: "100%", padding: "14px 0",
-                    border: "1px solid rgba(239,68,68,0.28)",
-                    background: "transparent", color: "#F87171",
-                    fontFamily: "var(--font-sans)", fontSize: 12,
-                    fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase",
-                    cursor: "pointer",
-                  }}
-                >
-                  Stop Search
-                </button>
-              ) : (
-                <Link href="/pricing" className="btn-gold" style={{ width: "100%", textAlign: "center", display: "block" }}>
-                  Upgrade to Continue
-                </Link>
-              )}
+                height: "100%",
+                width: `${usedPct}%`,
+                background: creditsBarColor,
+                borderRadius: 2,
+                transition: "width 0.55s ease",
+              }} />
             </div>
-
-            {(isSearching || (status !== "Ready" && status !== "Results cleared.")) && (
-              <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", gap: 8 }}>
-                {isSearching && (
-                  <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E", display: "inline-block", flexShrink: 0 }} />
-                )}
-                <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#3A3A3A", lineHeight: 1.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {status}
-                </span>
-              </div>
-            )}
           </div>
 
+          {/* ── Upgrade wall (hard block when limit hit) ──────────── */}
+          {hitLimit ? (
+            <div style={{
+              background: "#0D0D0D",
+              border: "1px solid rgba(239,68,68,0.2)",
+              padding: "36px 28px 32px",
+            }}>
+              <div style={{ marginBottom: 28 }}>
+                <p style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "clamp(22px, 3vw, 28px)",
+                  fontWeight: 700, lineHeight: 1.1,
+                  letterSpacing: "-0.02em", color: "#EDEDED",
+                  margin: "0 0 10px",
+                }}>
+                  You have used all your leads this month.
+                </p>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555", margin: 0, lineHeight: 1.6 }}>
+                  {userDoc?.plan === "free"
+                    ? "Your free trial has ended. Upgrade to keep finding clients."
+                    : "Your monthly leads are exhausted. Upgrade for more capacity, or wait for your next billing cycle."}
+                </p>
+              </div>
+
+              <div className="wall-grid">
+                {UPGRADE_PLANS.map((p) => (
+                  <Link
+                    key={p.id}
+                    href="/pricing"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <div className={p.featured ? "wall-card wall-card-featured" : "wall-card"}>
+                      {p.featured && (
+                        <div style={{
+                          position: "absolute", top: 0, left: 0, right: 0,
+                          background: "#22C55E", padding: "3px 0", textAlign: "center",
+                          fontFamily: "var(--font-sans)", fontSize: 8, fontWeight: 800,
+                          letterSpacing: "0.14em", color: "#080808", textTransform: "uppercase",
+                        }}>
+                          Popular
+                        </div>
+                      )}
+                      <p style={{
+                        fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 700,
+                        letterSpacing: "0.12em", textTransform: "uppercase",
+                        color: p.featured ? "#22C55E" : "#555",
+                        margin: p.featured ? "16px 0 6px" : "0 0 6px",
+                      }}>
+                        {p.name}
+                      </p>
+                      <p style={{
+                        fontFamily: "var(--font-serif)", fontSize: 26, fontWeight: 400,
+                        color: p.featured ? "#EDEDED" : "#777",
+                        margin: "0 0 4px", lineHeight: 1,
+                      }}>
+                        {p.price}
+                      </p>
+                      <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, color: "#444", margin: "0 0 14px" }}>
+                        {p.leads}
+                      </p>
+                      <div style={{
+                        padding: "7px 0",
+                        background: p.featured ? "rgba(34,197,94,0.12)" : "rgba(255,255,255,0.04)",
+                        border: `1px solid ${p.featured ? "rgba(34,197,94,0.35)" : "rgba(255,255,255,0.08)"}`,
+                        fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700,
+                        color: p.featured ? "#22C55E" : "#444",
+                        textAlign: "center", letterSpacing: "0.08em", textTransform: "uppercase",
+                      }}>
+                        Upgrade
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : (
+            /* ── Search zone ──────────────────────────────────────── */
+            <div className={`search-zone${isSearching ? " search-scanning" : ""}`}>
+
+              <div style={{ marginBottom: 28 }}>
+                <h1 style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "clamp(26px, 3.5vw, 34px)",
+                  fontWeight: 700, lineHeight: 1.05,
+                  letterSpacing: "-0.03em", color: "#EDEDED",
+                  margin: "0 0 7px",
+                }}>
+                  Find your next client.
+                </h1>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#444", margin: 0, lineHeight: 1.5 }}>
+                  {isSearching
+                    ? `Scanning Google Maps — ${phoneCount} lead${phoneCount !== 1 ? "s" : ""} found so far`
+                    : "Enter a business type and city to begin."}
+                </p>
+              </div>
+
+              <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 26 }} />
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div className="field-wrap">
+                  <input
+                    type="text"
+                    value={bType}
+                    onChange={(e) => setBType(e.target.value)}
+                    placeholder=" "
+                    disabled={isSearching}
+                    className="field-input input-dark"
+                    style={{ opacity: isSearching ? 0.45 : 1 }}
+                  />
+                  <label className="field-label">Business Type</label>
+                </div>
+                <div className="field-wrap">
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && canSearch && bType && city) handleSearch();
+                    }}
+                    placeholder=" "
+                    disabled={isSearching}
+                    className="field-input input-dark"
+                    style={{ opacity: isSearching ? 0.45 : 1 }}
+                  />
+                  <label className="field-label">City</label>
+                </div>
+                <div className="field-wrap">
+                  <textarea
+                    value={localities}
+                    onChange={(e) => setLocalities(e.target.value)}
+                    placeholder=" "
+                    disabled={isSearching}
+                    className="field-input input-dark"
+                    style={{ resize: "none", minHeight: 82, opacity: isSearching ? 0.45 : 1 }}
+                  />
+                  <label className="field-label">
+                    Localities <span style={{ textTransform: "none", letterSpacing: 0, color: "#2A2A2A" }}>(optional)</span>
+                  </label>
+                </div>
+                <div className="field-wrap">
+                  <input
+                    type="number"
+                    value={maxLeadsStr}
+                    onChange={(e) => setMaxLeadsStr(e.target.value)}
+                    min={1}
+                    max={leadsLeft}
+                    placeholder=" "
+                    disabled={isSearching}
+                    className="field-input input-dark"
+                    style={{ opacity: isSearching ? 0.45 : 1 }}
+                  />
+                  <label className="field-label">
+                    Leads to Extract <span style={{ textTransform: "none", letterSpacing: 0, color: "#2A2A2A" }}>(max {leadsLeft})</span>
+                  </label>
+                </div>
+              </div>
+
+              {error && (
+                <div style={{
+                  marginTop: 16, padding: "11px 14px",
+                  border: "1px solid rgba(239,68,68,0.28)",
+                  background: "rgba(239,68,68,0.05)",
+                  fontFamily: "var(--font-sans)", fontSize: 12, color: "#F87171", lineHeight: 1.55,
+                }}>
+                  {error}
+                  {error.toLowerCase().includes("limit") && (
+                    <>{" "}<Link href="/pricing" style={{ textDecoration: "underline", color: "#22C55E" }}>Upgrade now</Link></>
+                  )}
+                </div>
+              )}
+
+              <div style={{ marginTop: 20 }}>
+                {isSearching ? (
+                  <button
+                    onClick={stopSearch}
+                    style={{
+                      width: "100%", padding: "14px 0",
+                      border: "1px solid rgba(239,68,68,0.28)",
+                      background: "transparent", color: "#F87171",
+                      fontFamily: "var(--font-sans)", fontSize: 12,
+                      fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Stop Search
+                  </button>
+                ) : canSearch ? (
+                  <button
+                    onClick={handleSearch}
+                    disabled={!bType || !city || maxLeads === 0}
+                    className="btn-gold search-action"
+                    style={{
+                      width: "100%",
+                      opacity: (!bType || !city || maxLeads === 0) ? 0.3 : 1,
+                      cursor: (!bType || !city || maxLeads === 0) ? "not-allowed" : "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    }}
+                  >
+                    Find leads
+                    <svg className="arrow-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </button>
+                ) : (
+                  <Link href="/pricing" className="btn-gold" style={{ width: "100%", textAlign: "center", display: "block" }}>
+                    Upgrade to Continue
+                  </Link>
+                )}
+              </div>
+
+              {(isSearching || (status !== "Ready" && status !== "Results cleared.")) && (
+                <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", gap: 8 }}>
+                  {isSearching && (
+                    <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E", display: "inline-block", flexShrink: 0 }} />
+                  )}
+                  <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#3A3A3A", lineHeight: 1.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {status}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Ghost cards */}
-          {!hasResults && !isSearching && <GhostCards />}
+          {!hitLimit && !hasResults && !isSearching && <GhostCards />}
 
           {/* Results */}
           {hasResults && (
@@ -571,75 +709,89 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* ── Search History ──────────────────────────────────────── */}
+          {/* ── Past Searches (collapsible) ─────────────────────── */}
           {searchHistory.length > 0 && (
             <div style={{ marginTop: 48 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+              <button
+                onClick={() => setHistoryOpen((o) => !o)}
+                style={{
+                  width: "100%", background: "none", border: "none", padding: 0,
+                  cursor: "pointer", display: "flex", alignItems: "center", gap: 12, marginBottom: 16,
+                }}
+              >
                 <div style={{ height: 1, flex: 1, background: "rgba(255,255,255,0.05)" }} />
-                <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2E2E2E", flexShrink: 0 }}>
-                  Search History
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2E2E2E", flexShrink: 0 }}>
+                  Past Searches
+                  <svg
+                    width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#2E2E2E" strokeWidth="2"
+                    style={{ transition: "transform 0.2s ease", transform: historyOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
                 </span>
                 <div style={{ height: 1, flex: 1, background: "rgba(255,255,255,0.05)" }} />
-              </div>
+              </button>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                {searchHistory.map((entry) => (
-                  <div
-                    key={entry.searchId}
-                    style={{
-                      background: "#0D0D0D",
-                      border: "1px solid rgba(255,255,255,0.055)",
-                      padding: "14px 18px",
-                      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
-                    }}
-                  >
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 500, color: "#777", margin: "0 0 3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {entry.businessType} · {entry.city}
-                        {entry.localities && <span style={{ color: "#444" }}> · {entry.localities}</span>}
-                      </p>
-                      <p style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#333", margin: 0 }}>
-                        {entry.leadsFound} lead{entry.leadsFound !== 1 ? "s" : ""}
-                        {entry.createdAt && (
-                          <span style={{ color: "#252525" }}>
-                            {" · "}
-                            {new Date(
-                              typeof entry.createdAt === "object" && "toDate" in entry.createdAt
-                                ? entry.createdAt.toDate()
-                                : entry.createdAt
-                            ).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                          </span>
-                        )}
-                      </p>
+              {historyOpen && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  {searchHistory.map((entry) => (
+                    <div
+                      key={entry.searchId}
+                      style={{
+                        background: "#0D0D0D",
+                        border: "1px solid rgba(255,255,255,0.055)",
+                        padding: "14px 18px",
+                        display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 500, color: "#777", margin: "0 0 3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {entry.businessType} · {entry.city}
+                          {entry.localities && <span style={{ color: "#444" }}> · {entry.localities}</span>}
+                        </p>
+                        <p style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#333", margin: 0 }}>
+                          {entry.leadsFound} lead{entry.leadsFound !== 1 ? "s" : ""}
+                          {entry.createdAt && (
+                            <span style={{ color: "#252525" }}>
+                              {" · "}
+                              {new Date(
+                                typeof entry.createdAt === "object" && "toDate" in entry.createdAt
+                                  ? entry.createdAt.toDate()
+                                  : entry.createdAt
+                              ).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      {isPaidPlan && entry.leads?.length > 0 && (
+                        <button
+                          onClick={() => exportHistoryCSV(entry)}
+                          style={{
+                            flexShrink: 0,
+                            background: "none",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                            padding: "5px 12px",
+                            fontFamily: "var(--font-sans)", fontSize: 10,
+                            fontWeight: 600, color: "#444",
+                            letterSpacing: "0.08em", textTransform: "uppercase",
+                            cursor: "pointer",
+                            display: "flex", alignItems: "center", gap: 6,
+                            transition: "border-color 0.15s ease, color 0.15s ease",
+                          }}
+                          className="history-dl-btn"
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                          </svg>
+                          CSV
+                        </button>
+                      )}
                     </div>
-                    {isPaidPlan && entry.leads?.length > 0 && (
-                      <button
-                        onClick={() => exportHistoryCSV(entry)}
-                        style={{
-                          flexShrink: 0,
-                          background: "none",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                          padding: "5px 12px",
-                          fontFamily: "var(--font-sans)", fontSize: 10,
-                          fontWeight: 600, color: "#444",
-                          letterSpacing: "0.08em", textTransform: "uppercase",
-                          cursor: "pointer",
-                          display: "flex", alignItems: "center", gap: 6,
-                          transition: "border-color 0.15s ease, color 0.15s ease",
-                        }}
-                        className="history-dl-btn"
-                      >
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7 10 12 15 17 10" />
-                          <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
-                        CSV
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -683,6 +835,28 @@ export default function DashboardPage() {
           max-width: 580px; margin: 0 auto;
           padding: 52px 32px 100px;
         }
+
+        /* ── Upgrade wall ─────────────────────────────────────────── */
+        .wall-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1px;
+          background: rgba(255,255,255,0.07);
+        }
+        .wall-card {
+          position: relative;
+          background: #0D0D0D;
+          padding: 18px 16px 16px;
+          display: flex; flex-direction: column;
+          transition: background 0.15s ease;
+          cursor: pointer;
+        }
+        .wall-card:hover { background: #111; }
+        .wall-card-featured {
+          background: rgba(34,197,94,0.04);
+          border: 1px solid rgba(34,197,94,0.25);
+        }
+        .wall-card-featured:hover { background: rgba(34,197,94,0.07); }
 
         /* ── Search zone ──────────────────────────────────────────── */
         .search-zone {
@@ -791,6 +965,7 @@ export default function DashboardPage() {
           .db-main { min-height: auto; }
           .main-inner { padding: 28px 18px 80px; }
           .search-zone { padding: 22px 18px 20px; }
+          .wall-grid { grid-template-columns: 1fr; }
         }
       `}</style>
     </div>
