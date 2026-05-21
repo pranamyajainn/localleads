@@ -9,11 +9,6 @@ export async function POST(req: NextRequest) {
 
   const { uid } = auth;
 
-  const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID!,
-    key_secret: process.env.RAZORPAY_KEY_SECRET!,
-  });
-
   try {
     const { plan } = await req.json();
 
@@ -21,12 +16,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
     }
 
-    const amount = PLAN_PRICES[plan] * 100; // Convert to paise
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      console.error("Razorpay server keys missing from environment");
+      return NextResponse.json({ error: "Payment not configured" }, { status: 500 });
+    }
+
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    const amount = PLAN_PRICES[plan] * 100; // paise
+
+    // receipt max = 40 chars (Razorpay API limit)
+    const receipt = `r_${uid.slice(-8)}_${Date.now()}`;
 
     const order = await razorpay.orders.create({
       amount,
       currency: "INR",
-      receipt: `order_${uid}_${Date.now()}`,
+      receipt,
       notes: { plan, uid },
     });
 
@@ -36,7 +44,7 @@ export async function POST(req: NextRequest) {
       currency: order.currency,
     });
   } catch (err) {
-    console.error("Razorpay order creation error:", err);
+    console.error("Razorpay order creation failed:", err);
     return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
   }
 }
