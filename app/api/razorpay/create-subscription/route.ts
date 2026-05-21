@@ -44,7 +44,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ subscription_id: subscription.id });
   } catch (err) {
-    console.error("Razorpay subscription creation failed:", err);
-    return NextResponse.json({ error: "Failed to create subscription" }, { status: 500 });
+    const rzpErr = err as { error?: { description?: string; code?: string }; message?: string };
+    const detail = rzpErr?.error?.description || rzpErr?.error?.code || rzpErr?.message || JSON.stringify(err);
+    console.error("Razorpay subscription creation failed:", JSON.stringify(err));
+    return NextResponse.json({ error: detail }, { status: 500 });
   }
 }
