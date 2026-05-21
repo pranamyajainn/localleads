@@ -29,7 +29,16 @@ export default function AuthPage() {
       router.replace("/dashboard");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Sign-in failed";
-      setError(msg.includes("popup-closed") ? "Sign-in cancelled." : "Something went wrong. Please try again.");
+      const code = (err as { code?: string }).code ?? "";
+      if (code.includes("popup-closed") || msg.includes("popup-closed")) {
+        setError("Sign-in cancelled.");
+      } else if (code === "auth/unauthorized-domain") {
+        setError("This domain isn't authorised in Firebase. Add it under Authentication → Settings → Authorised Domains.");
+      } else if (code === "auth/operation-not-allowed") {
+        setError("Google Sign-In is not enabled in Firebase Console. Enable it under Authentication → Sign-in method.");
+      } else {
+        setError(`Sign-in failed (${code || msg}). Please try again.`);
+      }
     } finally {
       setSigning(false);
     }
