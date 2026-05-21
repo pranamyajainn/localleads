@@ -44,8 +44,8 @@ const PLANS = [
     name: "Free",
     price: "₹0",
     period: "forever",
-    note: "Try one search in your city",
-    features: ["1 search / month", "10 leads shown"],
+    note: "Try LocalLeads, no card needed",
+    features: ["20 leads (lifetime)", "All cities & categories"],
     missing: ["CSV export", "Priority support"],
     cta: "Start Free",
     href: "/auth",
@@ -57,21 +57,21 @@ const PLANS = [
     period: "/month",
     note: "Most popular · first sale pays this back 20×",
     highlight: "Most popular",
-    features: ["10 searches / month", "Unlimited leads per search", "CSV export", "All cities & categories"],
+    features: ["500 leads / month", "CSV export", "All cities & categories"],
     missing: [],
     cta: "Get Starter — ₹499/mo",
     href: "/auth?plan=starter",
     featured: true,
   },
   {
-    name: "Pro",
+    name: "Growth",
     price: "₹999",
     period: "/month",
     note: "For freelancers closing 5+ websites/month",
-    features: ["50 searches / month", "Unlimited leads", "CSV export", "Priority support"],
+    features: ["2,000 leads / month", "CSV export", "All cities & categories"],
     missing: [],
-    cta: "Get Pro",
-    href: "/auth?plan=pro",
+    cta: "Get Growth",
+    href: "/auth?plan=growth",
     featured: false,
   },
 ];
@@ -987,7 +987,7 @@ export default function LandingPage() {
               <span style={{ color: "#22C55E", fontStyle: "italic" }}>Someone is going to call them this week.</span>
             </h2>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", margin: "0 0 44px", lineHeight: 1.68 }}>
-              Takes 30 seconds to sign in. Your first search is free — no card needed.
+              Takes 30 seconds to sign in. Your first 20 leads are free — no card needed.
               If you make one call and it goes nowhere, you have lost nothing.
               If it goes somewhere, you know what to do next.
             </p>
