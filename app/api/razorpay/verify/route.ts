@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
 
     await adminDb().collection("users").doc(uid).update({
       plan,
-      searchesUsed: 0,
-      searchesLimit: PLAN_LIMITS[plan as Plan],
+      leadsUsed: 0,
+      leadsLimit: PLAN_LIMITS[plan as Plan],
       planExpiresAt,
     });
 

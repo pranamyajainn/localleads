@@ -6,10 +6,11 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "firebase/auth";
-import { firebaseAuth } from "@/lib/firebase";
+import { collection, getDocs, orderBy, query, limit } from "firebase/firestore";
+import { firebaseAuth, firebaseDb } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
 import { useLeadSearch } from "@/hooks/useLeadSearch";
-import type { Lead } from "@/lib/types";
+import type { Lead, SearchHistoryEntry } from "@/lib/types";
 
 function ResultCard({ lead, index }: { lead: Lead; index: number }) {
   return (
@@ -73,6 +74,21 @@ function GhostCards() {
   );
 }
 
+function exportHistoryCSV(entry: SearchHistoryEntry) {
+  let csv = "Company Name,Phone Number,Google Maps Link\n";
+  entry.leads.forEach((lead) => {
+    csv += `"${lead.name.replace(/"/g, '""')}","${lead.phone}","${lead.mapsUrl}"\n`;
+  });
+  const bom = "﻿";
+  const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `leads_${entry.businessType}_${entry.city}_${entry.searchId.slice(0, 6)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const { user, userDoc, loading, refreshUserDoc } = useAuth();
@@ -84,11 +100,40 @@ export default function DashboardPage() {
   const [bType, setBType] = useState("");
   const [city, setCity] = useState("");
   const [localities, setLocalities] = useState("");
+  const [searchHistory, setSearchHistory] = useState<SearchHistoryEntry[]>([]);
   const resultsEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/auth");
   }, [user, loading, router]);
+
+  // Load search history
+  useEffect(() => {
+    if (!user) return;
+    const q = query(
+      collection(firebaseDb(), "users", user.uid, "searches"),
+      orderBy("createdAt", "desc"),
+      limit(10)
+    );
+    getDocs(q).then((snap) => {
+      setSearchHistory(snap.docs.map((d) => ({ searchId: d.id, ...d.data() })) as SearchHistoryEntry[]);
+    }).catch(() => {});
+  }, [user]);
+
+  // Refresh user doc + history after search finishes
+  useEffect(() => {
+    if (!isSearching && results.length > 0 && user) {
+      refreshUserDoc();
+      const q = query(
+        collection(firebaseDb(), "users", user.uid, "searches"),
+        orderBy("createdAt", "desc"),
+        limit(10)
+      );
+      getDocs(q).then((snap) => {
+        setSearchHistory(snap.docs.map((d) => ({ searchId: d.id, ...d.data() })) as SearchHistoryEntry[]);
+      }).catch(() => {});
+    }
+  }, [isSearching]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (results.length > 0) {
@@ -96,26 +141,29 @@ export default function DashboardPage() {
     }
   }, [results.length]);
 
-  useEffect(() => {
-    if (!isSearching && results.length > 0) refreshUserDoc();
-  }, [isSearching]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const handleSignOut = async () => {
     await signOut(firebaseAuth());
     router.replace("/");
   };
 
-  const creditsUsed = userDoc ? (userDoc.searchesUsed ?? 0) : 0;
-  const creditsTotal = userDoc ? (userDoc.searchesLimit ?? 1) : 1;
-  const creditsLeft = Math.max(0, creditsTotal - creditsUsed);
-  const creditsPct = creditsTotal > 0 ? Math.round((creditsLeft / creditsTotal) * 100) : 0;
-  const canSearch = creditsLeft > 0 && !isSearching;
-  const isPaidPlan = userDoc?.plan === "starter" || userDoc?.plan === "pro";
-  const maxLeads = isPaidPlan ? Infinity : 10;
-  const handleSearch = () => performSearch(bType, city, localities, maxLeads);
+  const leadsUsed = userDoc ? (userDoc.leadsUsed ?? 0) : 0;
+  const leadsLimit = userDoc ? (userDoc.leadsLimit ?? 20) : 20;
+  const leadsLeft = Math.max(0, leadsLimit - leadsUsed);
+  const leadsPct = leadsLimit > 0 ? Math.round((leadsLeft / leadsLimit) * 100) : 0;
+
+  const daysRemaining = userDoc?.planExpiresAt
+    ? Math.max(0, Math.ceil((userDoc.planExpiresAt.toDate().getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null;
+
+  const canSearch = leadsLeft > 0 && !isSearching;
+  const isPaidPlan = userDoc?.plan !== "free" && userDoc?.plan !== undefined;
+  const planLabel = userDoc?.plan
+    ? userDoc.plan.charAt(0).toUpperCase() + userDoc.plan.slice(1)
+    : "Free";
+
+  const handleSearch = () => performSearch(bType, city, localities);
   const hasResults = results.length > 0;
-  const planLabel = userDoc?.plan === "pro" ? "Pro" : userDoc?.plan === "starter" ? "Starter" : "Free";
-  const creditsBarColor = creditsLeft > 2 ? "#22C55E" : creditsLeft > 0 ? "#F59E0B" : "#1E1E1E";
+  const creditsBarColor = leadsLeft > leadsLimit * 0.2 ? "#22C55E" : leadsLeft > 0 ? "#F59E0B" : "#1E1E1E";
 
   if (loading) {
     return (
@@ -140,9 +188,9 @@ export default function DashboardPage() {
           border: "1px solid rgba(34,197,94,0.2)",
           background: "rgba(34,197,94,0.04)",
         }}>
-          <span style={{ width: 5, height: 5, borderRadius: "50%", background: creditsLeft > 0 ? "#22C55E" : "#333", display: "inline-block", flexShrink: 0 }} />
-          <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, color: creditsLeft > 0 ? "#22C55E" : "#444", letterSpacing: "0.02em" }}>
-            {creditsLeft} left
+          <span style={{ width: 5, height: 5, borderRadius: "50%", background: leadsLeft > 0 ? "#22C55E" : "#333", display: "inline-block", flexShrink: 0 }} />
+          <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, color: leadsLeft > 0 ? "#22C55E" : "#444", letterSpacing: "0.02em" }}>
+            {leadsLeft} leads
           </span>
         </div>
         <button
@@ -179,44 +227,50 @@ export default function DashboardPage() {
             {planLabel} plan
           </span>
 
-          {/* Credits bar */}
+          {/* Leads used */}
           <div style={{ marginBottom: 4 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "#444" }}>Searches left</span>
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: creditsLeft > 0 ? "#EDEDED" : "#333" }}>
-                {creditsLeft}<span style={{ color: "#2A2A2A", fontWeight: 400 }}>/{creditsTotal}</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "#444" }}>
+                {isPaidPlan ? "Leads this month" : "Leads (lifetime)"}
+              </span>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: leadsLeft > 0 ? "#EDEDED" : "#333" }}>
+                {leadsUsed}<span style={{ color: "#2A2A2A", fontWeight: 400 }}>/{leadsLimit}</span>
               </span>
             </div>
             <div style={{ height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
               <div style={{
                 height: "100%",
-                width: `${creditsPct}%`,
+                width: `${leadsPct}%`,
                 background: creditsBarColor,
                 borderRadius: 2,
                 transition: "width 0.55s ease",
               }} />
             </div>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, color: "#2A2A2A", margin: "6px 0 0", lineHeight: 1.5 }}>
+              {leadsLeft} leads left
+              {daysRemaining !== null && (
+                <span> · {daysRemaining}d remaining</span>
+              )}
+            </p>
           </div>
 
           {/* Upgrade CTA */}
-          {!isPaidPlan && (
-            <Link
-              href="/pricing"
-              className="upgrade-cta"
-              style={{
-                display: "block", marginTop: 18,
-                padding: "9px 12px",
-                background: "rgba(34,197,94,0.05)",
-                border: "1px solid rgba(34,197,94,0.18)",
-                fontFamily: "var(--font-sans)", fontSize: 10,
-                fontWeight: 700, color: "#22C55E",
-                textDecoration: "none", textAlign: "center",
-                letterSpacing: "0.1em", textTransform: "uppercase",
-              }}
-            >
-              Upgrade plan
-            </Link>
-          )}
+          <Link
+            href="/pricing"
+            className="upgrade-cta"
+            style={{
+              display: "block", marginTop: 16,
+              padding: "9px 12px",
+              background: "rgba(34,197,94,0.05)",
+              border: "1px solid rgba(34,197,94,0.18)",
+              fontFamily: "var(--font-sans)", fontSize: 10,
+              fontWeight: 700, color: "#22C55E",
+              textDecoration: "none", textAlign: "center",
+              letterSpacing: "0.1em", textTransform: "uppercase",
+            }}
+          >
+            {isPaidPlan ? "Change plan" : "Upgrade plan"}
+          </Link>
 
           {/* Divider */}
           <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "28px 0" }} />
@@ -253,10 +307,8 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          {/* Spacer pushes help to bottom */}
           <div style={{ flex: 1 }} />
 
-          {/* Help */}
           <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, color: "#1E1E1E", margin: 0, lineHeight: 1.7 }}>
             Questions?{" "}
             <a href="mailto:contact@sahajta.com" style={{ color: "#2A2A2A", textDecoration: "none" }}>
@@ -275,7 +327,6 @@ export default function DashboardPage() {
           {/* Search zone */}
           <div className={`search-zone${isSearching ? " search-scanning" : ""}`}>
 
-            {/* Header */}
             <div style={{ marginBottom: 28 }}>
               <h1 style={{
                 fontFamily: "var(--font-serif)",
@@ -288,14 +339,13 @@ export default function DashboardPage() {
               </h1>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#444", margin: 0, lineHeight: 1.5 }}>
                 {isSearching
-                  ? `Scanning Google Maps — ${phoneCount} contact${phoneCount !== 1 ? "s" : ""} found so far`
+                  ? `Scanning Google Maps — ${phoneCount} lead${phoneCount !== 1 ? "s" : ""} found so far`
                   : "Enter a business type and city to begin."}
               </p>
             </div>
 
             <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 26 }} />
 
-            {/* Inputs with floating labels */}
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div className="field-wrap">
                 <input
@@ -339,7 +389,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Error */}
             {error && (
               <div style={{
                 marginTop: 16, padding: "11px 14px",
@@ -354,7 +403,6 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Primary action */}
             <div style={{ marginTop: 20 }}>
               {canSearch ? (
                 <button
@@ -389,55 +437,36 @@ export default function DashboardPage() {
                   Stop Search
                 </button>
               ) : (
-                <Link
-                  href="/pricing"
-                  className="btn-gold"
-                  style={{ width: "100%", textAlign: "center", display: "block" }}
-                >
+                <Link href="/pricing" className="btn-gold" style={{ width: "100%", textAlign: "center", display: "block" }}>
                   Upgrade to Continue
                 </Link>
               )}
             </div>
 
-            {/* Status line */}
             {(isSearching || (status !== "Ready" && status !== "Results cleared.")) && (
-              <div style={{
-                marginTop: 16, paddingTop: 16,
-                borderTop: "1px solid rgba(255,255,255,0.05)",
-                display: "flex", alignItems: "center", gap: 8,
-              }}>
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", gap: 8 }}>
                 {isSearching && (
-                  <span
-                    className="pulse-dot"
-                    style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E", display: "inline-block", flexShrink: 0 }}
-                  />
+                  <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E", display: "inline-block", flexShrink: 0 }} />
                 )}
-                <span style={{
-                  fontFamily: "ui-monospace, monospace",
-                  fontSize: 11, color: "#3A3A3A", lineHeight: 1.5,
-                  flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>
+                <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#3A3A3A", lineHeight: 1.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {status}
                 </span>
               </div>
             )}
           </div>
 
-          {/* Ghost cards — empty state */}
+          {/* Ghost cards */}
           {!hasResults && !isSearching && <GhostCards />}
 
           {/* Results */}
           {hasResults && (
             <div style={{ marginTop: 28 }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 16 }}>
-                <span style={{
-                  fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 700,
-                  color: "#22C55E", letterSpacing: "-0.03em", lineHeight: 1,
-                }}>
+                <span style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 700, color: "#22C55E", letterSpacing: "-0.03em", lineHeight: 1 }}>
                   {phoneCount}
                 </span>
                 <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555" }}>
-                  qualified contacts
+                  qualified leads
                 </span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -463,7 +492,7 @@ export default function DashboardPage() {
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
-                  Export CSV — {phoneCount} contacts
+                  Export CSV — {phoneCount} leads
                 </button>
               ) : (
                 <Link
@@ -494,6 +523,78 @@ export default function DashboardPage() {
               </button>
             </div>
           )}
+
+          {/* ── Search History ──────────────────────────────────────── */}
+          {searchHistory.length > 0 && (
+            <div style={{ marginTop: 48 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                <div style={{ height: 1, flex: 1, background: "rgba(255,255,255,0.05)" }} />
+                <span style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2E2E2E", flexShrink: 0 }}>
+                  Search History
+                </span>
+                <div style={{ height: 1, flex: 1, background: "rgba(255,255,255,0.05)" }} />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                {searchHistory.map((entry) => (
+                  <div
+                    key={entry.searchId}
+                    style={{
+                      background: "#0D0D0D",
+                      border: "1px solid rgba(255,255,255,0.055)",
+                      padding: "14px 18px",
+                      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 500, color: "#777", margin: "0 0 3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {entry.businessType} · {entry.city}
+                        {entry.localities && <span style={{ color: "#444" }}> · {entry.localities}</span>}
+                      </p>
+                      <p style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#333", margin: 0 }}>
+                        {entry.leadsFound} lead{entry.leadsFound !== 1 ? "s" : ""}
+                        {entry.createdAt && (
+                          <span style={{ color: "#252525" }}>
+                            {" · "}
+                            {new Date(
+                              typeof entry.createdAt === "object" && "toDate" in entry.createdAt
+                                ? entry.createdAt.toDate()
+                                : entry.createdAt
+                            ).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    {isPaidPlan && entry.leads?.length > 0 && (
+                      <button
+                        onClick={() => exportHistoryCSV(entry)}
+                        style={{
+                          flexShrink: 0,
+                          background: "none",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                          padding: "5px 12px",
+                          fontFamily: "var(--font-sans)", fontSize: 10,
+                          fontWeight: 600, color: "#444",
+                          letterSpacing: "0.08em", textTransform: "uppercase",
+                          cursor: "pointer",
+                          display: "flex", alignItems: "center", gap: 6,
+                          transition: "border-color 0.15s ease, color 0.15s ease",
+                        }}
+                        className="history-dl-btn"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        CSV
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
@@ -521,28 +622,18 @@ export default function DashboardPage() {
         }
 
         /* ── Mobile bar ───────────────────────────────────────────── */
-        .mobile-bar {
-          display: none;
-        }
+        .mobile-bar { display: none; }
 
         /* ── Main ─────────────────────────────────────────────────── */
-        .db-main {
-          flex: 1;
-          position: relative;
-          min-height: 100vh;
-        }
+        .db-main { flex: 1; position: relative; min-height: 100vh; }
         .radial-glow {
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 380px;
+          position: absolute; top: 0; left: 0; right: 0; height: 380px;
           background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(34,197,94,0.055) 0%, transparent 68%);
           pointer-events: none;
         }
         .main-inner {
-          position: relative;
-          z-index: 1;
-          max-width: 580px;
-          margin: 0 auto;
+          position: relative; z-index: 1;
+          max-width: 580px; margin: 0 auto;
           padding: 52px 32px 100px;
         }
 
@@ -553,55 +644,34 @@ export default function DashboardPage() {
           padding: 32px 28px 28px;
           transition: box-shadow 0.5s ease;
         }
-        .search-scanning {
-          animation: searchGlow 2.5s ease-in-out infinite;
-        }
+        .search-scanning { animation: searchGlow 2.5s ease-in-out infinite; }
         @keyframes searchGlow {
           0%, 100% { box-shadow: 0 0 0 1px rgba(34,197,94,0.07), 0 0 28px rgba(34,197,94,0.04); }
           50%       { box-shadow: 0 0 0 1px rgba(34,197,94,0.28), 0 0 52px rgba(34,197,94,0.09); }
         }
 
         /* ── Floating labels ──────────────────────────────────────── */
-        .field-wrap {
-          position: relative;
-        }
+        .field-wrap { position: relative; }
         .field-label {
-          position: absolute;
-          top: 13px;
-          left: 15px;
-          font-family: var(--font-sans);
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: #3A3A3A;
+          position: absolute; top: 13px; left: 15px;
+          font-family: var(--font-sans); font-size: 10px; font-weight: 700;
+          letter-spacing: 0.12em; text-transform: uppercase; color: #3A3A3A;
           pointer-events: none;
           transition: top 0.15s ease, font-size 0.15s ease, color 0.15s ease, letter-spacing 0.15s ease;
           z-index: 1;
         }
-        .field-input {
-          padding-top: 26px !important;
-          padding-bottom: 8px !important;
-        }
+        .field-input { padding-top: 26px !important; padding-bottom: 8px !important; }
         .field-input:focus ~ .field-label,
         .field-input:not(:placeholder-shown) ~ .field-label {
-          top: 5px;
-          font-size: 8px;
-          color: #22C55E;
-          letter-spacing: 0.14em;
+          top: 5px; font-size: 8px; color: #22C55E; letter-spacing: 0.14em;
         }
 
         /* ── Ghost cards ──────────────────────────────────────────── */
-        .ghost-card {
-          background: #0D0D0D;
-          border: 1px solid rgba(255,255,255,0.04);
-        }
-        .ghost-line,
-        .ghost-pill {
+        .ghost-card { background: #0D0D0D; border: 1px solid rgba(255,255,255,0.04); }
+        .ghost-line, .ghost-pill {
           background: linear-gradient(90deg, #111 25%, #191919 50%, #111 75%);
           background-size: 200% 100%;
-          animation: shimmer 2.4s ease-in-out infinite;
-          border-radius: 2px;
+          animation: shimmer 2.4s ease-in-out infinite; border-radius: 2px;
         }
         @keyframes shimmer {
           0%   { background-position: 200% 0; }
@@ -610,69 +680,37 @@ export default function DashboardPage() {
 
         /* ── Result cards ─────────────────────────────────────────── */
         .result-card {
-          border: 1px solid rgba(255,255,255,0.055);
-          border-left: 2px solid transparent;
-          background: #0D0D0D;
-          padding: 16px 20px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          opacity: 0;
-          animation: fadeUp 0.22s ease forwards;
+          border: 1px solid rgba(255,255,255,0.055); border-left: 2px solid transparent;
+          background: #0D0D0D; padding: 16px 20px;
+          display: flex; align-items: center; justify-content: space-between; gap: 16px;
+          opacity: 0; animation: fadeUp 0.22s ease forwards;
           transition: border-left-color 0.18s ease, background 0.18s ease;
         }
-        .result-card:hover {
-          border-left-color: rgba(34,197,94,0.65);
-          background: #0F0F0F;
-        }
+        .result-card:hover { border-left-color: rgba(34,197,94,0.65); background: #0F0F0F; }
         .lead-name {
-          font-family: var(--font-sans);
-          font-size: 12px;
-          font-weight: 500;
-          color: #5A5A5A;
-          margin: 0 0 4px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: #5A5A5A;
+          margin: 0 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
         .maps-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          color: #282828;
-          font-size: 10px;
-          text-decoration: none;
-          font-family: var(--font-sans);
-          letter-spacing: 0.03em;
+          display: inline-flex; align-items: center; gap: 4px;
+          color: #282828; font-size: 10px; text-decoration: none;
+          font-family: var(--font-sans); letter-spacing: 0.03em;
           transition: color 0.15s ease;
         }
         .maps-link:hover { color: #555; }
         .lead-phone {
           font-family: ui-monospace, "SF Mono", monospace;
-          font-size: 14px;
-          letter-spacing: 0.04em;
-          color: #EDEDED;
-          white-space: nowrap;
+          font-size: 14px; letter-spacing: 0.04em; color: #EDEDED; white-space: nowrap;
         }
         .call-btn {
-          flex-shrink: 0;
-          padding: 6px 14px;
-          background: rgba(34,197,94,0.06);
-          border: 1px solid rgba(34,197,94,0.18);
-          color: #22C55E;
-          font-size: 10px;
-          font-weight: 700;
-          text-decoration: none;
-          font-family: var(--font-sans);
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
+          flex-shrink: 0; padding: 6px 14px;
+          background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.18);
+          color: #22C55E; font-size: 10px; font-weight: 700;
+          text-decoration: none; font-family: var(--font-sans);
+          letter-spacing: 0.1em; text-transform: uppercase;
           transition: background 0.15s ease, border-color 0.15s ease;
         }
-        .call-btn:hover {
-          background: rgba(34,197,94,0.13);
-          border-color: rgba(34,197,94,0.35);
-        }
+        .call-btn:hover { background: rgba(34,197,94,0.13); border-color: rgba(34,197,94,0.35); }
 
         /* ── Animations ───────────────────────────────────────────── */
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -680,36 +718,28 @@ export default function DashboardPage() {
           from { opacity: 0; transform: translateY(7px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50%      { opacity: 0.25; }
-        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
         .pulse-dot { animation: pulse 1.4s ease-in-out infinite; }
 
-        /* ── Hover micro-interactions ─────────────────────────────── */
+        /* ── Hover states ─────────────────────────────────────────── */
         .search-action:not(:disabled):hover .arrow-icon { transform: translateX(3px); }
         .arrow-icon { transition: transform 0.18s ease; }
         .upgrade-cta:hover { background: rgba(34,197,94,0.1) !important; }
         .signout-btn:hover { color: #555 !important; }
         .clear-btn:hover { color: #444 !important; }
         .icon-btn:hover { color: #888 !important; }
+        .history-dl-btn:hover { color: #888 !important; border-color: rgba(255,255,255,0.18) !important; }
 
         /* ── Mobile ───────────────────────────────────────────────── */
         @media (max-width: 767px) {
           .db-root { flex-direction: column; }
           .sidebar { display: none; }
           .mobile-bar {
-            display: flex;
-            height: 52px;
-            padding: 0 18px;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; height: 52px; padding: 0 18px;
+            align-items: center; justify-content: space-between;
             border-bottom: 1px solid rgba(255,255,255,0.06);
             background: rgba(6,6,6,0.97);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            flex-shrink: 0;
+            position: sticky; top: 0; z-index: 50; flex-shrink: 0;
           }
           .db-main { min-height: auto; }
           .main-inner { padding: 28px 18px 80px; }

@@ -6,6 +6,15 @@ import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { firebaseAuth, firebaseDb } from "@/lib/firebase";
 import type { UserDoc } from "@/lib/types";
 
+// Handles both pre-migration (searchesUsed/searchesLimit) and new (leadsUsed/leadsLimit) documents
+function normalizeUserDoc(data: Record<string, unknown>): UserDoc {
+  return {
+    ...data,
+    leadsUsed: (data.leadsUsed ?? data.searchesUsed ?? 0) as number,
+    leadsLimit: (data.leadsLimit ?? data.searchesLimit ?? 20) as number,
+  } as UserDoc;
+}
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [userDoc, setUserDoc] = useState<UserDoc | null>(null);
@@ -24,8 +33,8 @@ export function useAuth() {
           const newDoc = {
             email: firebaseUser.email!,
             plan: "free",
-            searchesUsed: 0,
-            searchesLimit: 1,
+            leadsUsed: 0,
+            leadsLimit: 20,
             planExpiresAt: null,
             createdAt: serverTimestamp(),
           };
@@ -35,7 +44,7 @@ export function useAuth() {
             fetch("/api/email/welcome", { method: "POST", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
           }).catch(() => {});
         } else {
-          setUserDoc(snap.data() as UserDoc);
+          setUserDoc(normalizeUserDoc(snap.data() as Record<string, unknown>));
         }
       } else {
         setUserDoc(null);
@@ -52,7 +61,7 @@ export function useAuth() {
     if (!currentUser) return;
     const ref = doc(firebaseDb(), "users", currentUser.uid);
     const snap = await getDoc(ref);
-    if (snap.exists()) setUserDoc(snap.data() as UserDoc);
+    if (snap.exists()) setUserDoc(normalizeUserDoc(snap.data() as Record<string, unknown>));
   };
 
   return { user, userDoc, loading, refreshUserDoc };

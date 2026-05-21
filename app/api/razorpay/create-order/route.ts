@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
-    const amount = PLAN_PRICES[plan] * 100; // paise
+    // PLAN_PRICES are already in paise — do NOT multiply by 100
+    const amount = PLAN_PRICES[plan];
 
     // receipt max = 40 chars (Razorpay API limit)
     const receipt = `r_${uid.slice(-8)}_${Date.now()}`;

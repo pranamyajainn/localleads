@@ -8,6 +8,17 @@ export async function POST(req: NextRequest) {
   if (auth instanceof NextResponse) return auth;
 
   const { uid } = auth;
+
+  let amount = 1;
+  try {
+    const body = await req.json();
+    if (typeof body?.amount === "number" && body.amount > 0) {
+      amount = body.amount;
+    }
+  } catch {
+    // no body or non-JSON — use default of 1
+  }
+
   const db = adminDb();
   const userRef = db.collection("users").doc(uid);
 
@@ -19,21 +30,22 @@ export async function POST(req: NextRequest) {
       if (!snap.exists) throw new Error("User not found");
 
       const data = snap.data()!;
-      const used = data.searchesUsed ?? 0;
-      const limit = data.searchesLimit ?? 1;
+      // Backward compat: support both pre-migration and new field names
+      const used = data.leadsUsed ?? data.searchesUsed ?? 0;
+      const limit = data.leadsLimit ?? data.searchesLimit ?? 20;
 
       if (used >= limit) {
         allowed = false;
         return;
       }
 
-      tx.update(userRef, { searchesUsed: FieldValue.increment(1) });
+      tx.update(userRef, { leadsUsed: FieldValue.increment(amount) });
       allowed = true;
     });
 
     if (!allowed) {
       return NextResponse.json(
-        { error: "Search limit reached", message: "Search limit reached. Upgrade to continue." },
+        { error: "Lead limit reached", message: "Lead limit reached. Upgrade to continue." },
         { status: 403 }
       );
     }

@@ -73,6 +73,7 @@ export function useLeadSearch() {
   const allRawPlaces = useRef(new Map<string, RawPlace>());
   const allResults = useRef<Lead[]>([]);
   const shouldStop = useRef(false);
+  const currentSearchParams = useRef({ bType: "", city: "", localities: "" });
 
   const getAuthHeaders = async (): Promise<Record<string, string>> => {
     const currentUser = firebaseAuth().currentUser;
@@ -276,14 +277,13 @@ export function useLeadSearch() {
   );
 
   const enrichAndFilterResults = useCallback(
-    async (headers: Record<string, string>, maxLeads: number) => {
+    async (headers: Record<string, string>) => {
       const places = Array.from(allRawPlaces.current.values());
       let processed = 0;
       let found = 0;
 
       for (const place of places) {
         if (shouldStop.current) break;
-        if (found >= maxLeads) break;
         processed++;
         setStatus(
           `Qualifying place [${processed}/${places.length}]... (Found: ${found} contacts)`
@@ -292,15 +292,31 @@ export function useLeadSearch() {
         const details = await fetchPlaceDetails(place.place_id, place.name, headers);
 
         if (details && details.phone && !details.website) {
-          const lead: Lead = {
-            name: details.name,
-            phone: details.phone,
-            mapsUrl: details.mapsUrl,
-          };
-          allResults.current.push(lead);
-          found++;
-          setPhoneCount(found);
-          setResults((prev) => [...prev, lead]);
+          // Deduct one lead credit per qualifying result
+          const creditRes = await fetch("/api/credits/deduct", {
+            method: "POST",
+            headers: { ...headers, "Content-Type": "application/json" },
+            body: JSON.stringify({ amount: 1 }),
+          });
+
+          if (creditRes.status === 403) {
+            fetch("/api/email/upgrade-nudge", { method: "POST", headers }).catch(() => {});
+            setError("Lead limit reached. Upgrade to continue.");
+            shouldStop.current = true;
+            break;
+          }
+
+          if (creditRes.ok) {
+            const lead: Lead = {
+              name: details.name,
+              phone: details.phone,
+              mapsUrl: details.mapsUrl,
+            };
+            allResults.current.push(lead);
+            found++;
+            setPhoneCount(found);
+            setResults((prev) => [...prev, lead]);
+          }
         }
 
         await delay(600);
@@ -310,39 +326,23 @@ export function useLeadSearch() {
   );
 
   const performSearch = useCallback(
-    async (bType: string, city: string, localitiesInput: string, maxLeads = Infinity) => {
+    async (bType: string, city: string, localitiesInput: string) => {
       if (!bType || !city || isSearching) return;
 
       // Reset state
       allRawPlaces.current.clear();
       allResults.current = [];
       shouldStop.current = false;
+      currentSearchParams.current = { bType, city, localities: localitiesInput };
       setResults([]);
       setPhoneCount(0);
       setError(null);
       setIsSearching(true);
 
+      let headers: Record<string, string> = {};
+
       try {
-        const headers = await getAuthHeaders();
-
-        // Deduct credit before starting
-        const creditRes = await fetch("/api/credits/deduct", {
-          method: "POST",
-          headers,
-        });
-
-        if (creditRes.status === 403) {
-          const data = await creditRes.json();
-          fetch("/api/email/upgrade-nudge", { method: "POST", headers }).catch(() => {});
-          setError(data.message || "Search limit reached. Upgrade to continue.");
-          setIsSearching(false);
-          setStatus("Limit reached");
-          return;
-        }
-
-        if (!creditRes.ok) {
-          throw new Error("Failed to start search");
-        }
+        headers = await getAuthHeaders();
 
         const localities = localitiesInput
           ? localitiesInput.split(",").map((s) => s.trim()).filter(Boolean)
@@ -357,14 +357,14 @@ export function useLeadSearch() {
 
         if (!shouldStop.current) {
           setStatus(`Qualifying ${allRawPlaces.current.size} unique businesses...`);
-          await enrichAndFilterResults(headers, maxLeads);
+          await enrichAndFilterResults(headers);
         }
 
         if (!shouldStop.current) {
           setStatus(
             `Complete. Found ${allResults.current.length} contacts from ${allRawPlaces.current.size} unique businesses.`
           );
-        } else {
+        } else if (!error) {
           setStatus("Search stopped.");
         }
       } catch (err) {
@@ -372,10 +372,24 @@ export function useLeadSearch() {
         setError(msg);
         setStatus("Error");
       } finally {
+        // Save search history if any leads were found
+        if (allResults.current.length > 0 && Object.keys(headers).length > 0) {
+          fetch("/api/searches/save", {
+            method: "POST",
+            headers: { ...headers, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              businessType: currentSearchParams.current.bType,
+              city: currentSearchParams.current.city,
+              localities: currentSearchParams.current.localities,
+              leadsFound: allResults.current.length,
+              leads: allResults.current,
+            }),
+          }).catch(() => {});
+        }
         setIsSearching(false);
       }
     },
-    [isSearching, processLocality, enrichAndFilterResults]
+    [isSearching, processLocality, enrichAndFilterResults, error]
   );
 
   const stopSearch = useCallback(() => {

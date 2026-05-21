@@ -11,43 +11,66 @@ const PLANS = [
   {
     id: "free",
     name: "Free",
-    price: 0,
     display: "₹0",
     period: "forever",
-    note: "Try one search in your city",
-    searches: "1 search / month",
-    leads: "10 leads shown",
+    note: "Try LocalLeads, no card needed",
+    leads: "20 leads lifetime",
     csv: false,
     support: false,
+    onboarding: false,
     cta: "Get Started",
     featured: false,
   },
   {
     id: "starter",
     name: "Starter",
-    price: 499,
     display: "₹499",
     period: "/ month",
-    note: "Most popular · first sale pays this back 20×",
-    searches: "10 searches / month",
-    leads: "Unlimited leads",
+    note: "For freelancers just starting out",
+    leads: "500 leads / month",
     csv: true,
     support: false,
-    cta: "Get Starter — ₹499/mo",
+    onboarding: false,
+    cta: "Get Starter",
+    featured: false,
+  },
+  {
+    id: "growth",
+    name: "Growth",
+    display: "₹999",
+    period: "/ month",
+    note: "Most popular · closes 5–10 sites/month",
+    leads: "2,000 leads / month",
+    csv: true,
+    support: false,
+    onboarding: false,
+    cta: "Get Growth",
     featured: true,
   },
   {
     id: "pro",
     name: "Pro",
-    price: 999,
-    display: "₹999",
+    display: "₹2,499",
     period: "/ month",
-    note: "For freelancers closing 5+ websites/month",
-    searches: "50 searches / month",
-    leads: "Unlimited leads",
+    note: "For full-time freelancers & small agencies",
+    leads: "10,000 leads / month",
     csv: true,
     support: true,
+    onboarding: false,
     cta: "Get Pro",
+    featured: false,
+  },
+  {
+    id: "agency",
+    name: "Agency",
+    display: "₹4,999",
+    period: "/ month",
+    note: "For agencies running multi-city campaigns",
+    leads: "50,000 leads / month",
+    csv: true,
+    support: true,
+    onboarding: true,
+    cta: "Get Agency",
     featured: false,
   },
 ];
@@ -76,7 +99,7 @@ export default function PricingPage() {
   const [paying, setPaying] = useState<string | null>(null);
   const [payError, setPayError] = useState<string | null>(null);
 
-  const handleSelectPlan = async (planId: string, price: number) => {
+  const handleSelectPlan = async (planId: string) => {
     if (planId === "free") {
       router.push("/auth");
       return;
@@ -86,9 +109,7 @@ export default function PricingPage() {
       return;
     }
 
-    // Step 4: guard against missing key (baked in at build time)
     if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
-      console.error("Razorpay key missing from client bundle");
       setPayError("Payment configuration error. Please contact support.");
       return;
     }
@@ -97,10 +118,7 @@ export default function PricingPage() {
     setPayError(null);
     try {
       const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        console.error("Razorpay checkout.js failed to load");
-        throw new Error("Failed to load payment gateway.");
-      }
+      if (!loaded) throw new Error("Failed to load payment gateway.");
 
       const token = await user.getIdToken();
       const orderRes = await fetch("/api/razorpay/create-order", {
@@ -110,12 +128,11 @@ export default function PricingPage() {
       });
       if (!orderRes.ok) {
         const errBody = await orderRes.text().catch(() => "(unreadable)");
-        console.error("Order creation failed:", orderRes.status, orderRes.statusText, errBody);
+        console.error("Order creation failed:", orderRes.status, errBody);
         throw new Error("Failed to create order.");
       }
 
       const { order_id, amount, currency } = await orderRes.json();
-      console.log("Order created:", { order_id, amount, currency, planId });
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -132,11 +149,7 @@ export default function PricingPage() {
               headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
               body: JSON.stringify({ ...response, plan: planId }),
             });
-            if (!verifyRes.ok) {
-              const errBody = await verifyRes.text().catch(() => "(unreadable)");
-              console.error("Verification failed:", verifyRes.status, errBody);
-              throw new Error("Payment verification failed.");
-            }
+            if (!verifyRes.ok) throw new Error("Payment verification failed.");
             router.push("/payment/success");
           } catch {
             setPayError("Payment succeeded but verification failed. Please contact support.");
@@ -145,11 +158,9 @@ export default function PricingPage() {
         modal: { ondismiss: () => setPaying(null) },
       };
 
-      console.log("Opening Razorpay modal");
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      console.error("Payment flow error:", err);
       setPayError(err instanceof Error ? err.message : "Payment failed.");
       setPaying(null);
     }
@@ -186,7 +197,7 @@ export default function PricingPage() {
         </div>
       </nav>
 
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "80px 40px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "80px 24px 100px" }}>
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 64 }}>
@@ -198,10 +209,10 @@ export default function PricingPage() {
             letterSpacing: "-0.03em", color: "#EDEDED",
             margin: "0 0 12px",
           }}>
-            Choose your plan.
+            Pay per lead, not per search.
           </h1>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#555", margin: 0, maxWidth: 400, marginLeft: "auto", marginRight: "auto" }}>
-            ₹499/month is ₹17/day. Your first website sale pays it back 20 times over.
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#555", margin: 0, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
+            Every plan charges you only for leads that qualify — businesses with a phone number and no website. Zero waste.
           </p>
         </div>
 
@@ -216,84 +227,76 @@ export default function PricingPage() {
           </div>
         )}
 
-        {/* Plans — Hick's Law: Starter is dominant */}
-        <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1.15fr 1fr", alignItems: "stretch" }}>
-          {PLANS.map((plan, i) => {
+        {/* Plans grid */}
+        <div className="pricing-grid-5">
+          {PLANS.map((plan) => {
             const isCurrent = !loading && currentPlan === plan.id;
             const isPayingThis = paying === plan.id;
 
             return (
               <div
                 key={plan.id}
-                className={plan.featured ? "pricing-card pricing-card-featured" : "pricing-card"}
-                style={{
-                  position: "relative",
-                  display: "flex", flexDirection: "column",
-                  padding: plan.featured ? "44px 32px" : "32px 24px",
-                  background: plan.featured ? "rgba(34,197,94,0.04)" : "#0D0D0D",
-                  border: plan.featured
-                    ? "2px solid rgba(34,197,94,0.45)"
-                    : "1px solid rgba(255,255,255,0.13)",
-                  marginLeft: i === 1 ? -1 : 0,
-                  marginRight: i === 1 ? -1 : 0,
-                  zIndex: plan.featured ? 2 : 1,
-                }}
+                className={plan.featured ? "price-card price-card-featured" : "price-card"}
               >
                 {plan.featured && (
                   <div style={{
                     position: "absolute", top: 0, left: 0, right: 0,
-                    background: "#22C55E", padding: "6px 0", textAlign: "center",
-                    fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800,
+                    background: "#22C55E", padding: "5px 0", textAlign: "center",
+                    fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 800,
                     letterSpacing: "0.15em", color: "#080808", textTransform: "uppercase",
                   }}>
                     Most popular
                   </div>
                 )}
 
-                <div style={{ marginBottom: 20, marginTop: plan.featured ? 24 : 0 }}>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: plan.featured ? "#22C55E" : "#777", margin: "0 0 4px" }}>
+                <div style={{ marginBottom: 16, marginTop: plan.featured ? 22 : 0 }}>
+                  <p style={{
+                    fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700,
+                    letterSpacing: "0.12em", textTransform: "uppercase",
+                    color: plan.featured ? "#22C55E" : "#666",
+                    margin: "0 0 3px",
+                  }}>
                     {plan.name}
                   </p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: plan.featured ? "#555" : "#555", margin: 0 }}>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "#444", margin: 0, lineHeight: 1.5 }}>
                     {plan.note}
                   </p>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
                   <span style={{
                     fontFamily: "var(--font-serif)",
-                    fontSize: plan.featured ? 54 : 40,
+                    fontSize: plan.featured ? 44 : 34,
                     fontWeight: plan.featured ? 400 : 300,
-                    color: plan.featured ? "#EDEDED" : "#AAAAAA",
+                    color: plan.featured ? "#EDEDED" : "#999",
                     lineHeight: 1,
+                    display: "block",
                   }}>
                     {plan.display}
                   </span>
-                  <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555" }}>{plan.period}</span>
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444" }}>{plan.period}</span>
                 </div>
 
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
-                  {[plan.searches, plan.leads, plan.csv ? "CSV export" : null, plan.support ? "Priority support" : null]
-                    .filter(Boolean)
-                    .map((f) => (
-                      <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-sans)", fontSize: 14, color: plan.featured ? "#EDEDED" : "#888" }}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-                        {f}
-                      </li>
-                    ))}
-                  {!plan.csv && (
-                    <li style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-sans)", fontSize: 14, color: "#2E2E2E" }}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2A2A2A" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                      CSV export
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 20px", flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+                  {[
+                    plan.leads,
+                    plan.csv ? "CSV export" : null,
+                    plan.support ? "Priority support" : null,
+                    plan.onboarding ? "Dedicated onboarding" : null,
+                    "All cities",
+                  ].filter(Boolean).map((f) => (
+                    <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-sans)", fontSize: 12, color: plan.featured ? "#EDEDED" : "#777" }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                      {f}
                     </li>
-                  )}
+                  ))}
                 </ul>
 
                 {isCurrent ? (
                   <div style={{
-                    textAlign: "center", padding: "12px 0",
+                    textAlign: "center", padding: "10px 0",
                     border: "1px solid rgba(34,197,94,0.3)",
-                    fontFamily: "var(--font-sans)", fontSize: 11,
+                    fontFamily: "var(--font-sans)", fontSize: 10,
                     letterSpacing: "0.12em", textTransform: "uppercase",
                     color: "#22C55E",
                   }}>
@@ -301,18 +304,18 @@ export default function PricingPage() {
                   </div>
                 ) : (
                   <button
-                    onClick={() => handleSelectPlan(plan.id, plan.price)}
+                    onClick={() => handleSelectPlan(plan.id)}
                     disabled={isPayingThis || !!paying}
                     className={plan.featured ? "btn-gold" : "btn-ghost"}
                     style={{
                       display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                       width: "100%", opacity: (isPayingThis || !!paying) ? 0.5 : 1,
                       cursor: (isPayingThis || !!paying) ? "not-allowed" : "pointer",
-                      fontSize: plan.featured ? 13 : 12,
+                      fontSize: plan.featured ? 12 : 11,
                     }}
                   >
                     {isPayingThis && (
-                      <span style={{ width: 14, height: 14, border: "1.5px solid currentColor", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
+                      <span style={{ width: 12, height: 12, border: "1.5px solid currentColor", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
                     )}
                     {plan.cta}
                   </button>
@@ -322,24 +325,22 @@ export default function PricingPage() {
           })}
         </div>
 
-        <p style={{ textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 13, color: "#444", marginTop: 28, marginBottom: 4 }}>
-          Need unlimited searches?{" "}
+        <p style={{ textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 13, color: "#444", marginTop: 32, marginBottom: 4 }}>
+          Need a custom volume plan?{" "}
           <a href="mailto:contact@sahajta.com" style={{ color: "#22C55E", textDecoration: "none" }}>
             contact@sahajta.com
           </a>
-          {" "}for Enterprise
         </p>
 
-        <p style={{ textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 12, color: "#2E2E2E", marginTop: 12 }}>
-          Payments are processed securely by Razorpay. Cancel anytime.
+        <p style={{ textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 12, color: "#2E2E2E", marginTop: 10 }}>
+          Payments processed securely by Razorpay. Cancel anytime.
         </p>
       </div>
 
       {/* Footer */}
       <footer style={{
         borderTop: "1px solid rgba(255,255,255,0.07)",
-        padding: "24px 40px",
-        textAlign: "center",
+        padding: "24px 40px", textAlign: "center",
         fontFamily: "var(--font-sans)", fontSize: 12, color: "#2E2E2E",
       }}>
         Built by Sahajta AI Solutions
@@ -347,6 +348,44 @@ export default function PricingPage() {
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        .pricing-grid-5 {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 0;
+          align-items: stretch;
+        }
+        .price-card {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          padding: 24px 18px 20px;
+          background: #0D0D0D;
+          border: 1px solid rgba(255,255,255,0.1);
+          margin-left: -1px;
+        }
+        .price-card-featured {
+          background: rgba(34,197,94,0.04);
+          border: 2px solid rgba(34,197,94,0.45);
+          padding: 36px 20px 24px;
+          z-index: 2;
+          margin-left: -1px;
+        }
+
+        @media (max-width: 900px) {
+          .pricing-grid-5 {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+        @media (max-width: 600px) {
+          .pricing-grid-5 {
+            grid-template-columns: 1fr;
+          }
+          .price-card, .price-card-featured {
+            margin-left: 0;
+            margin-top: -1px;
+          }
+        }
       `}</style>
     </div>
   );
