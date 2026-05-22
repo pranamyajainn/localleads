@@ -15,12 +15,17 @@ export async function POST(req: NextRequest) {
     const db = adminDb();
     const searchesRef = db.collection("users").doc(uid).collection("searches");
 
+    // Cap leads array at 500 items to stay under Firestore's 1MB document limit.
+    // totalLeadsFound preserves the real count even when the array is truncated.
+    const leadsToSave = Array.isArray(leads) ? leads.slice(0, 500) : [];
+
     await searchesRef.add({
       businessType,
       city,
       localities: localities || "",
       leadsFound,
-      leads,
+      totalLeadsFound: Array.isArray(leads) ? leads.length : leadsFound,
+      leads: leadsToSave,
       createdAt: FieldValue.serverTimestamp(),
     });
 

@@ -215,8 +215,8 @@ export default function AuthPage() {
 
           <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#333", lineHeight: 1.6, margin: "0 0 24px", textAlign: "center" }}>
             By continuing, you agree to our{" "}
-            <span style={{ color: "#444" }}>Terms of Service</span> and{" "}
-            <span style={{ color: "#444" }}>Privacy Policy</span>.
+            <a href="/terms" style={{ color: "#444", textDecoration: "underline" }}>Terms of Service</a> and{" "}
+            <a href="/privacy" style={{ color: "#444", textDecoration: "underline" }}>Privacy Policy</a>.
           </p>
 
           <p style={{ textAlign: "center", margin: 0 }}>

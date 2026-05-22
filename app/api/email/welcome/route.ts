@@ -42,12 +42,12 @@ export async function POST(req: NextRequest) {
   </div>
   <p>Hi ${firstName},</p>
   <p>Welcome to LocalLeads.</p>
-  <p>You have 1 free search waiting. Here is exactly what to do with it:</p>
+  <p>You have 20 free leads waiting. Here is exactly what to do with them:</p>
   <ol style="padding-left:20px;margin:0 0 20px">
     <li>Go to your dashboard</li>
     <li>Type a business type — start with "restaurants" or "salons"</li>
     <li>Enter your city and one or two localities you know</li>
-    <li>Hit search</li>
+    <li>Hit Find Leads</li>
   </ol>
   <p>You will see businesses with a live phone number and no website. Pick one. Call them today.</p>
   <p><strong>The pitch:</strong> "I found you on Google Maps — you have no website, I build them starting at &#8377;10,000. Interested?"</p>

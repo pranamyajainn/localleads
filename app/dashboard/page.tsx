@@ -191,8 +191,9 @@ export default function DashboardPage() {
   const usedPct = leadsLimit > 0 ? Math.min(100, Math.round((leadsUsed / leadsLimit) * 100)) : 100;
   const leadsPct = leadsLimit > 0 ? Math.round((leadsLeft / leadsLimit) * 100) : 0;
 
-  const daysRemaining = userDoc?.planExpiresAt
-    ? Math.max(0, Math.ceil((userDoc.planExpiresAt.toDate().getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+  const expiry = userDoc?.planExpiresAt;
+  const daysRemaining = expiry && typeof expiry.toDate === "function"
+    ? Math.max(0, Math.ceil((expiry.toDate().getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : null;
 
   const rawMaxLeads = parseInt(maxLeadsStr, 10) || 0;

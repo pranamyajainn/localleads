@@ -17,6 +17,7 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://localleads.sahajta.com"),
   title: "LocalLeads — Find businesses that need you",
   description:
     "LocalLeads surfaces local Indian businesses with no website and a live phone number. Ready to call in minutes.",

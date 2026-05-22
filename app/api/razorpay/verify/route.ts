@@ -14,8 +14,14 @@ export async function POST(req: NextRequest) {
   try {
     const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature, plan } = await req.json();
 
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    if (!secret) {
+      console.error("RAZORPAY_KEY_SECRET is not set");
+      return NextResponse.json({ error: "Payment configuration error" }, { status: 500 });
+    }
+
     // Subscription signature: HMAC-SHA256(payment_id + "|" + subscription_id)
-    const expectedSignature = createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+    const expectedSignature = createHmac("sha256", secret)
       .update(`${razorpay_payment_id}|${razorpay_subscription_id}`)
       .digest("hex");
 

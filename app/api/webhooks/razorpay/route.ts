@@ -30,9 +30,12 @@ export async function POST(req: NextRequest) {
   }
 
   const event = payload.event as string;
-  const subscriptionPayload = (payload.payload as Record<string, unknown>)?.subscription as Record<string, unknown> | undefined;
+  const innerPayload = payload.payload as Record<string, unknown>;
+  const subscriptionPayload = innerPayload?.subscription as Record<string, unknown> | undefined;
   const subscriptionEntity = subscriptionPayload?.entity as Record<string, unknown> | undefined;
   const subscriptionId = subscriptionEntity?.id as string | undefined;
+  const paymentEntity = (innerPayload?.payment as Record<string, unknown> | undefined)?.entity as Record<string, unknown> | undefined;
+  const paymentId = paymentEntity?.id as string | undefined;
 
   if (!subscriptionId) {
     return NextResponse.json({ ok: true });
@@ -48,6 +51,12 @@ export async function POST(req: NextRequest) {
 
   if (event === "subscription.charged") {
     const planData = snap.docs[0].data();
+
+    // Idempotency: skip if we already processed this exact charge
+    if (paymentId && planData.lastChargeId === paymentId) {
+      return NextResponse.json({ ok: true });
+    }
+
     const plan = planData.plan as Plan;
     const planExpiresAt = Timestamp.fromDate(
       new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
@@ -57,14 +66,16 @@ export async function POST(req: NextRequest) {
       leadsLimit: PLAN_LIMITS[plan] ?? planData.leadsLimit,
       planExpiresAt,
       subscriptionStatus: "active",
+      ...(paymentId ? { lastChargeId: paymentId } : {}),
     });
 
     // Server-side Purchase event via CAPI
+    // eventId is deterministic on paymentId so Meta deduplicates correctly
     const userEmail = planData.email as string | undefined;
     const planAmountINR = (PLAN_PRICES[plan] ?? 0) / 100;
     sendCAPIEvent({
       eventName: "Purchase",
-      eventId: `purchase_${subscriptionId}_${Date.now()}`,
+      eventId: `purchase_${paymentId ?? subscriptionId}`,
       eventSourceUrl: "https://localleads.sahajta.com/pricing",
       userData: { email: userEmail },
       customData: { value: planAmountINR, currency: "INR", content_name: plan },
