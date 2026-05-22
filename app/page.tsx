@@ -673,7 +673,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Pitch Script ─────────────────────────────────────────────────────── */}
-      <section style={{ padding: "100px 40px", background: "#0D0D0D", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+      <section className="section-pad" style={{ padding: "100px 40px", background: "#0D0D0D", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
         <div style={{ maxWidth: 780, margin: "0 auto", textAlign: "center" }}>
           <ScrollReveal>
             <p style={{
@@ -702,7 +702,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Global Leads ─────────────────────────────────────────────────────── */}
-      <section style={{ padding: "100px 40px", background: "#111", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+      <section className="section-pad" style={{ padding: "100px 40px", background: "#111", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
         <div style={{ maxWidth: 860, margin: "0 auto" }}>
           <ScrollReveal>
             <h2 style={{
