@@ -15,30 +15,6 @@ import { SearchTicker } from "@/components/SearchTicker";
 
 // ─ Data ───────────────────────────────────────────────────────────────────────
 
-const TESTIMONIALS = [
-  {
-    initials: "AV",
-    name: "Arjun V.",
-    role: "Web Designer · Pune",
-    result: "₹36,000 in 10 days",
-    quote: "Found 23 restaurants in Pune with no website. Called 8. Three said yes immediately. Built all three with AI tools in 4 days. ₹12,000 each.",
-  },
-  {
-    initials: "PS",
-    name: "Priya S.",
-    role: "Freelance Developer · Bangalore",
-    result: "₹20,000 first week",
-    quote: "I had no idea this many local businesses had no website. Found 40 salons in Indiranagar and HSR. My pitch: I found you on Maps, you have no website, want one? It worked.",
-  },
-  {
-    initials: "VT",
-    name: "Varun T.",
-    role: "Agency Founder · Mumbai",
-    result: "8 clients in one month",
-    quote: "₹10,000 per website is the minimum. We average ₹18,000 now. LocalLeads is our main lead source. Eight clients last month from searches that took 20 minutes.",
-  },
-];
-
 const PLANS = [
   {
     name: "Free",
@@ -57,6 +33,7 @@ const PLANS = [
     period: "/month",
     note: "Most popular · first sale pays this back 20×",
     highlight: "Most popular",
+    perLeadNote: "₹1 per qualified lead",
     features: ["500 leads / month", "CSV export", "All cities & categories"],
     missing: [],
     cta: "Get Starter — ₹499/mo",
@@ -68,6 +45,7 @@ const PLANS = [
     price: "₹999",
     period: "/month",
     note: "For freelancers closing 5-10 sites/month",
+    perLeadNote: "₹0.50 per qualified lead",
     features: ["2,000 leads / month", "CSV export", "All cities & categories"],
     missing: [],
     cta: "Get Growth",
@@ -79,6 +57,7 @@ const PLANS = [
     price: "₹2,499",
     period: "/month",
     note: "For full-time freelancers & small agencies",
+    perLeadNote: "₹0.25 per qualified lead",
     features: ["10,000 leads / month", "CSV export", "Priority support", "All cities"],
     missing: [],
     cta: "Get Pro",
@@ -90,6 +69,7 @@ const PLANS = [
     price: "₹4,999",
     period: "/month",
     note: "For agencies running multi-city campaigns",
+    perLeadNote: "₹0.10 per qualified lead",
     features: ["50,000 leads / month", "CSV export", "Priority support", "Dedicated onboarding", "All cities"],
     missing: [],
     cta: "Get Agency",
@@ -100,16 +80,20 @@ const PLANS = [
 
 const FAQS = [
   {
+    q: "Is the data real? Will I get active phone numbers or junk?",
+    a: "Every number we surface comes directly from Google Maps — the same listing a customer would call to book a table or an appointment. These businesses put their number there because they want calls. We filter out businesses that already have a website, so every result you see is a genuine gap in the market. The Google Maps link is included with every lead so you can verify with your own eyes before you call.",
+  },
+  {
     q: "How do I actually sell a website to these businesses?",
     a: "Call them and say: I found you on Google Maps — you have no website, I build them for local businesses starting at ₹10,000, interested? That is it. About 1 in 5 calls becomes a real conversation. About 1 in 5 of those becomes a paying client. That is 1 client per 25 calls — and each call takes 2 minutes.",
   },
   {
-    q: "What price should I charge for a website?",
-    a: "₹10,000–₹25,000 is the standard market rate for a small business website in India. A restaurant, salon, or CA firm with no online presence will happily pay ₹10,000–15,000 for a clean, professional site. If you're using AI tools (Framer, Webflow, Cursor), you can build one in 4–8 hours.",
+    q: "Can I search for businesses outside India?",
+    a: "Yes. LocalLeads works on Google Maps globally. You can search restaurants in New York, salons in London, or travel agencies in Dubai — and get the same output: business name, phone number, Google Maps link, and no-website confirmation. Many freelancers in India are using LocalLeads to pitch Western businesses at Western price points — charging in dollars while living in India.",
   },
   {
-    q: "Do these businesses actually answer calls?",
-    a: "Yes — because they're listed on Google Maps for business purposes. About 95% of phone numbers we surface are active. These businesses want customers to call them. You're not interrupting them; you're a potential vendor they'd want to talk to.",
+    q: "What price should I charge for a website?",
+    a: "₹10,000–₹25,000 is the standard market rate for a small business website in India. A restaurant, salon, or CA firm with no online presence will happily pay ₹10,000–15,000 for a clean, professional site. If you're using AI tools (Framer, Webflow, Cursor), you can build one in 4–8 hours.",
   },
   {
     q: "How is this different from Just Dial or Sulekha?",
@@ -192,15 +176,15 @@ export default function LandingPage() {
           {/* Editorial label */}
           <div
             style={{
-              display: "flex", alignItems: "center", gap: 12, marginBottom: 44,
-              fontFamily: "var(--font-sans)", fontSize: 12, color: "#444", letterSpacing: "0.03em",
+              marginBottom: 24,
+              fontFamily: "var(--font-sans)", fontSize: 12, color: "#22C55E",
+              letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600,
             }}
           >
-            <span style={{ display: "block", width: 28, height: 1, background: "#22C55E", flexShrink: 0 }} />
-            For Indian web freelancers who are tired of guessing who to pitch
+            For web freelancers tired of guessing who to pitch
           </div>
 
-          {/* H1 — architectural, commanding */}
+          {/* H1 */}
           <h1
             className="animate-fade-up"
             style={{
@@ -211,11 +195,9 @@ export default function LandingPage() {
               margin: "0 0 32px",
             }}
           >
-            Every day, businesses in your city
+            100 qualified leads in one click —
             <br />
-            need a website.
-            <br />
-            <span style={{ color: "#22C55E", fontStyle: "italic" }}>They just don't know you yet.</span>
+            <span style={{ color: "#22C55E", fontStyle: "italic" }}>businesses that actually need a website.</span>
           </h1>
 
           {/* Body */}
@@ -228,7 +210,7 @@ export default function LandingPage() {
           >
             LocalLeads scans Google Maps and shows you local businesses
             with a phone number and no website. Call them with a reason,
-            not a guess. Build one with AI. Charge ₹10,000 and beyond.
+            not a guess.
           </p>
 
           {/* CTAs */}
@@ -690,6 +672,105 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Pitch Script ─────────────────────────────────────────────────────── */}
+      <section style={{ padding: "100px 40px", background: "#0D0D0D", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div style={{ maxWidth: 780, margin: "0 auto", textAlign: "center" }}>
+          <ScrollReveal>
+            <p style={{
+              fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700,
+              letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 32,
+            }}>
+              The only pitch you need — copy this word for word
+            </p>
+            <blockquote style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(26px, 3.5vw, 48px)",
+              fontWeight: 700, lineHeight: 1.2,
+              color: "#EDEDED", margin: "0 0 32px",
+              letterSpacing: "-0.02em",
+            }}>
+              "I found you on Google Maps — you have no website, I build them for businesses like yours starting at ₹10,000. Interested?"
+            </blockquote>
+            <p style={{
+              fontFamily: "var(--font-sans)", fontSize: 14, color: "#444",
+              lineHeight: 1.7, margin: 0,
+            }}>
+              About 1 in 25 calls becomes a paying client. That is ₹400 in potential revenue per call you make.
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── Global Leads ─────────────────────────────────────────────────────── */}
+      <section style={{ padding: "100px 40px", background: "#111", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <ScrollReveal>
+            <h2 style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(32px, 4vw, 56px)",
+              fontWeight: 700, color: "#EDEDED",
+              lineHeight: 1.1, letterSpacing: "-0.025em",
+              margin: "0 0 36px",
+            }}>
+              Your city. Any city. Any country.
+            </h2>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.82, marginBottom: 48 }}>
+              <p style={{ margin: "0 0 20px" }}>
+                Most freelancers limit themselves to the city they live in. LocalLeads has no such limit.
+              </p>
+              <p style={{ margin: "0 0 20px", color: "#888" }}>
+                Search restaurants in Austin, Texas.<br />
+                Find salons in Manchester, UK.<br />
+                Pull CA firms in Dubai, UAE.
+              </p>
+              <p style={{ margin: "0 0 20px" }}>
+                Every search returns the same thing — businesses with no website and a live phone number. Except now the phone number has a +1, +44, or +971 in front of it.
+              </p>
+              <p style={{ margin: 0, color: "#EDEDED", fontWeight: 500 }}>
+                Sit in Bangalore. Work with clients in the West. Charge in dollars.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          {/* Example result cards */}
+          <ScrollReveal>
+            <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "rgba(255,255,255,0.06)", marginBottom: 24 }}>
+              {[
+                { name: "Mario's Pizzeria", location: "Austin, Texas", phone: "+1 512 XXX XXXX" },
+                { name: "The Hair Lounge", location: "Manchester, UK", phone: "+44 161 XXX XXXX" },
+                { name: "Al Noor Travel Agency", location: "Dubai, UAE", phone: "+971 4 XXX XXXX" },
+              ].map((card, i) => (
+                <div key={i} style={{
+                  background: "#0D0D0D", padding: "18px 24px",
+                  display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap",
+                }}>
+                  <div>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, color: "#EDEDED" }}>
+                      {card.name}
+                    </span>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555", marginLeft: 10 }}>
+                      · {card.location} ·
+                    </span>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#EF4444", marginLeft: 6, fontWeight: 600 }}>
+                      No website
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+                    <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 13, color: "#22C55E" }}>
+                      {card.phone}
+                    </span>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444" }}>Maps ↗</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444", textAlign: "center", margin: 0 }}>
+              Same tool. Same search. Anywhere on earth.
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ── Marquee ──────────────────────────────────────────────────────────── */}
       <div style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", overflow: "hidden", padding: "13px 0", background: "#050505" }}>
         <div className="marquee-track" style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: "#222" }}>
@@ -703,101 +784,34 @@ export default function LandingPage() {
 
       {/* ── Testimonials ─────────────────────────────────────────────────────── */}
       <section className="section-pad" style={{ padding: "100px 40px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#0A0A0A" }}>
-        <div style={{ maxWidth: 1040, margin: "0 auto" }}>
+        <div style={{ maxWidth: 680, margin: "0 auto" }}>
           <ScrollReveal>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#22C55E", marginBottom: 52 }}>
-              Real results
+              What freelancers are saying on WhatsApp
             </p>
           </ScrollReveal>
 
-          {/* Mega-quote — Arjun's story, editorial treatment */}
           <ScrollReveal>
             <div style={{
-              paddingBottom: 64,
-              borderBottom: "1px solid rgba(255,255,255,0.07)",
-              marginBottom: 48,
+              background: "#25D366",
+              borderRadius: "18px 18px 18px 4px",
+              padding: "24px 28px",
+              maxWidth: 540,
             }}>
-              {/* Result badge */}
-              <div style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                padding: "4px 12px",
-                border: "1px solid rgba(34,197,94,0.25)",
-                background: "rgba(34,197,94,0.06)",
-                fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "#22C55E",
-                marginBottom: 28,
+              <p style={{
+                fontFamily: "var(--font-sans)", fontSize: 16, color: "#fff",
+                lineHeight: 1.65, margin: 0,
               }}>
-                {TESTIMONIALS[0].result}
-              </div>
-
-              <blockquote style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "clamp(22px, 2.8vw, 36px)",
-                fontWeight: 400, lineHeight: 1.35,
-                color: "#EDEDED", margin: "0 0 32px",
-                letterSpacing: "-0.015em", maxWidth: 800,
-              }}>
-                "{TESTIMONIALS[0].quote}"
-              </blockquote>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{
-                  width: 40, height: 40,
-                  background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.16)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "#22C55E", flexShrink: 0,
-                }}>
-                  {TESTIMONIALS[0].initials}
-                </div>
-                <div>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, color: "#EDEDED", margin: 0 }}>
-                    {TESTIMONIALS[0].name}
-                  </p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#555", margin: 0 }}>
-                    {TESTIMONIALS[0].role}
-                  </p>
-                </div>
-              </div>
+                "this saves me a lot of time and gets me 100 leads in 1 click that too qualified who actually need a website"
+              </p>
             </div>
+            <p style={{
+              fontFamily: "var(--font-sans)", fontSize: 13, color: "#444",
+              marginTop: 14, marginLeft: 4, marginBottom: 0,
+            }}>
+              Rahul, freelance web designer, Pune — after his first week on LocalLeads
+            </p>
           </ScrollReveal>
-
-          {/* Two supporting cards */}
-          <div className="testimonial-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "rgba(255,255,255,0.06)" }}>
-            {TESTIMONIALS.slice(1).map((t, i) => (
-              <ScrollReveal key={i} delay={i * 80}>
-                <div style={{
-                  background: "#0A0A0A", padding: "32px 32px",
-                  display: "flex", flexDirection: "column",
-                }}>
-                  <div style={{
-                    display: "inline-block",
-                    padding: "3px 10px",
-                    border: "1px solid rgba(34,197,94,0.2)",
-                    fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "#22C55E",
-                    marginBottom: 18, alignSelf: "flex-start",
-                  }}>
-                    {t.result}
-                  </div>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#777", lineHeight: 1.72, margin: "0 0 24px", flex: 1 }}>
-                    "{t.quote}"
-                  </p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{
-                      width: 34, height: 34,
-                      background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.14)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "#22C55E", flexShrink: 0,
-                    }}>
-                      {t.initials}
-                    </div>
-                    <div>
-                      <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: "#EDEDED", margin: 0 }}>{t.name}</p>
-                      <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#555", margin: 0 }}>{t.role}</p>
-                    </div>
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -854,11 +868,18 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-                    <span style={{ fontFamily: "var(--font-serif)", fontSize: plan.featured ? 54 : 40, fontWeight: plan.featured ? 400 : 300, color: plan.featured ? "#EDEDED" : "#444", lineHeight: 1 }}>
-                      {plan.price}
-                    </span>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555" }}>{plan.period}</span>
+                  <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: "perLeadNote" in plan ? 8 : 0 }}>
+                      <span style={{ fontFamily: "var(--font-serif)", fontSize: plan.featured ? 54 : 40, fontWeight: plan.featured ? 400 : 300, color: plan.featured ? "#EDEDED" : "#444", lineHeight: 1 }}>
+                        {plan.price}
+                      </span>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555" }}>{plan.period}</span>
+                    </div>
+                    {"perLeadNote" in plan && (
+                      <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "#555", margin: 0, letterSpacing: "0.01em" }}>
+                        {(plan as typeof plan & { perLeadNote: string }).perLeadNote}
+                      </p>
+                    )}
                   </div>
 
                   <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1012,11 +1033,14 @@ export default function LandingPage() {
               If you make one call and it goes nowhere, you have lost nothing.
               If it goes somewhere, you know what to do next.
             </p>
-            <Link href="/auth" className="btn-gold" style={{ display: "inline-block", marginBottom: 30 }}>
+            <Link href="/auth" className="btn-gold" style={{ display: "inline-block", marginBottom: 14 }}>
               Find My First Leads — It's Free
             </Link>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444", margin: "0 0 20px" }}>
+              Every lead includes a Google Maps link — verify with your own eyes before you call
+            </p>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#3A3A3A", margin: "0 0 20px" }}>
-              Join <strong style={{ color: "#555" }}>847+ Indian freelancers</strong> already using LocalLeads
+              Used by freelancers across Mumbai, Pune, Bangalore, Delhi and Hyderabad
             </p>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap", fontFamily: "var(--font-sans)", fontSize: 12, color: "#333" }}>
               <span>✓ Google Sign-in only</span>
@@ -1034,16 +1058,18 @@ export default function LandingPage() {
         borderTop: "1px solid rgba(255,255,255,0.07)",
         padding: "24px 40px",
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
+        flexWrap: "wrap",
       }}>
         <span style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", color: "#EDEDED" }}>
           Local<span style={{ color: "#22C55E" }}>Leads</span>
         </span>
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#2E2E2E" }}>
-          Built by <span style={{ color: "#3A3A3A" }}>Sahajta AI Solutions</span>
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#2E2E2E", margin: 0 }}>
+          © 2026 Sahajta AI Solutions Pvt. Ltd. All rights reserved.
         </p>
-        <div style={{ display: "flex", gap: 24, fontFamily: "var(--font-sans)", fontSize: 13 }}>
-          <Link href="/pricing" className="footer-link">Pricing</Link>
-          <Link href="/auth" className="footer-link">Sign In</Link>
+        <div style={{ display: "flex", gap: 24, fontFamily: "var(--font-sans)", fontSize: 13, flexWrap: "wrap" }}>
+          <Link href="/privacy" className="footer-link">Privacy Policy</Link>
+          <Link href="/refund" className="footer-link">Refund Policy</Link>
+          <a href="mailto:contact@sahajta.com" className="footer-link">Contact Us</a>
         </div>
       </footer>
 
