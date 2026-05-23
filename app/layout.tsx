@@ -55,10 +55,10 @@ export default function RootLayout({
 {`
   !function(){var n=window.namyah=function(){(n.q=n.q||[]).push(arguments)};
     var s=document.createElement("script");
-    s.src="https://smartbudget.qzz.io/api/pixel/namyah.js?id=pxl_vo0kG1fhb2PAmS";
+    s.src="https://smartbudget.qzz.io/api/pixel/namyah.js?id=pxl_9GhdtEf5fcfmdp";
     s.async=true;document.head.appendChild(s);
   }();
-  namyah("init","pxl_vo0kG1fhb2PAmS");
+  namyah("init","pxl_9GhdtEf5fcfmdp");
 `}
         </Script>
       </body>
