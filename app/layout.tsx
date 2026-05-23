@@ -51,6 +51,16 @@ export default function RootLayout({
           fbq('init', '909588332098654');
           fbq('track', 'PageView');
         `}</Script>
+        <Script id="namyah-pixel" strategy="afterInteractive">
+{`
+  !function(){var n=window.namyah=function(){(n.q=n.q||[]).push(arguments)};
+    var s=document.createElement("script");
+    s.src="https://smartbudget.qzz.io/api/pixel/namyah.js?id=pxl_vo0kG1fhb2PAmS";
+    s.async=true;document.head.appendChild(s);
+  }();
+  namyah("init","pxl_vo0kG1fhb2PAmS");
+`}
+        </Script>
       </body>
     </html>
   );
