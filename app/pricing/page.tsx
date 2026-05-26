@@ -2,18 +2,12 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { fireEvent } from "@/lib/metaPixel";
-
-const PLAN_AMOUNTS_INR: Record<string, number> = {
-  starter: 499,
-  growth: 999,
-  pro: 2499,
-  agency: 4999,
-};
+import { useRazorpayCheckout } from "@/hooks/useRazorpayCheckout";
 
 const PLANS = [
   {
@@ -83,105 +77,14 @@ const PLANS = [
   },
 ];
 
-declare global {
-  interface Window {
-    Razorpay: new (options: Record<string, unknown>) => { open: () => void };
-  }
-}
-
-function loadRazorpayScript(): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (document.getElementById("razorpay-script")) return resolve(true);
-    const script = document.createElement("script");
-    script.id = "razorpay-script";
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-}
-
 export default function PricingPage() {
   const { user, userDoc, loading } = useAuth();
   const router = useRouter();
-  const [paying, setPaying] = useState<string | null>(null);
-  const [payError, setPayError] = useState<string | null>(null);
+  const { handleSelectPlan, paying, payError } = useRazorpayCheckout(user, router);
 
   useEffect(() => {
     fireEvent("ViewContent", { content_name: "Pricing Plans" });
   }, []);
-
-  const handleSelectPlan = async (planId: string) => {
-    if (planId === "free") {
-      router.push("/auth");
-      return;
-    }
-    if (!user) {
-      router.push(`/auth?plan=${planId}`);
-      return;
-    }
-
-    if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
-      setPayError("Payment configuration error. Please contact support.");
-      return;
-    }
-
-    setPaying(planId);
-    setPayError(null);
-    try {
-      const loaded = await loadRazorpayScript();
-      if (!loaded) throw new Error("Failed to load payment gateway.");
-
-      const token = await user.getIdToken();
-      const subRes = await fetch("/api/razorpay/create-subscription", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planId }),
-      });
-      if (!subRes.ok) {
-        const errBody = await subRes.text().catch(() => "(unreadable)");
-        console.error("Subscription creation failed:", subRes.status, errBody);
-        throw new Error("Failed to create subscription.");
-      }
-
-      const { subscription_id } = await subRes.json();
-
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        subscription_id,
-        name: "LocalLeads",
-        description: `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan — Monthly`,
-        prefill: { email: user.email },
-        theme: { color: "#22C55E" },
-        handler: async (response: { razorpay_payment_id: string; razorpay_subscription_id: string; razorpay_signature: string }) => {
-          try {
-            const verifyRes = await fetch("/api/razorpay/verify", {
-              method: "POST",
-              headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-              body: JSON.stringify({ ...response, plan: planId }),
-            });
-            if (!verifyRes.ok) throw new Error("Payment verification failed.");
-            router.push("/payment/success");
-          } catch {
-            setPayError("Payment succeeded but verification failed. Please contact support.");
-          }
-        },
-        modal: { ondismiss: () => setPaying(null) },
-      };
-
-      await fireEvent(
-        "InitiateCheckout",
-        { value: PLAN_AMOUNTS_INR[planId] || 0, currency: "INR", content_name: planId },
-        { email: user.email || undefined }
-      );
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (err) {
-      setPayError(err instanceof Error ? err.message : "Payment failed.");
-      setPaying(null);
-    }
-  };
 
   const currentPlan = userDoc?.plan;
 

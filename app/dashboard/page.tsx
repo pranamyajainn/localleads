@@ -10,6 +10,7 @@ import { collection, getDocs, orderBy, query, limit } from "firebase/firestore";
 import { firebaseAuth, firebaseDb } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
 import { useLeadSearch } from "@/hooks/useLeadSearch";
+import { useRazorpayCheckout } from "@/hooks/useRazorpayCheckout";
 import type { Lead, SearchHistoryEntry } from "@/lib/types";
 
 const UPGRADE_PLANS = [
@@ -18,6 +19,13 @@ const UPGRADE_PLANS = [
   { id: "pro", name: "Pro", price: "₹2,499", leads: "10,000 leads / mo" },
   { id: "agency", name: "Agency", price: "₹4,999", leads: "50,000 leads / mo" },
 ];
+
+const NEXT_PLAN: Record<string, string> = {
+  free: "starter",
+  starter: "growth",
+  growth: "pro",
+  pro: "agency",
+};
 
 function ResultCard({ lead, index }: { lead: Lead; index: number }) {
   return (
@@ -40,7 +48,7 @@ function ResultCard({ lead, index }: { lead: Lead; index: number }) {
           Maps
         </a>
       </div>
-      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 14 }}>
+      <div className="lead-actions" style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 14 }}>
         <span className="lead-phone">{lead.phone}</span>
         <a
           href={`tel:${lead.phone.replace(/[^0-9+]/g, "")}`}
@@ -56,7 +64,7 @@ function ResultCard({ lead, index }: { lead: Lead; index: number }) {
 function GhostCards() {
   return (
     <div style={{ marginTop: 32 }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 2, opacity: 0.42 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2, opacity: 0.7 }}>
         {[68, 50, 80].map((w, i) => (
           <div
             key={i}
@@ -72,7 +80,7 @@ function GhostCards() {
         ))}
       </div>
       <p style={{
-        fontFamily: "var(--font-sans)", fontSize: 12, color: "#222",
+        fontFamily: "var(--font-sans)", fontSize: 12, color: "#444",
         textAlign: "center", marginTop: 18, letterSpacing: "0.02em",
       }}>
         Enter a business type above to reveal real contacts.
@@ -103,6 +111,7 @@ export default function DashboardPage() {
     status, results, isSearching, phoneCount, error,
     performSearch, stopSearch, clearResults, exportCSV,
   } = useLeadSearch();
+  const { handleSelectPlan, paying, payError } = useRazorpayCheckout(user, router);
 
   const [bType, setBType] = useState("");
   const [city, setCity] = useState("");
@@ -117,7 +126,6 @@ export default function DashboardPage() {
     if (!loading && !user) router.replace("/auth");
   }, [user, loading, router]);
 
-  // Load search history
   useEffect(() => {
     if (!user) return;
     const q = query(
@@ -130,7 +138,6 @@ export default function DashboardPage() {
     }).catch(() => {});
   }, [user]);
 
-  // Refresh user doc + history after search finishes
   useEffect(() => {
     if (!isSearching && results.length > 0 && user) {
       refreshUserDoc();
@@ -151,7 +158,6 @@ export default function DashboardPage() {
     }
   }, [results.length]);
 
-  // Initialize maxLeadsStr to min(50, leadsLeft) once user doc loads
   const leadsUsed = userDoc ? (userDoc.leadsUsed ?? 0) : 0;
   const leadsLimit = userDoc ? (userDoc.leadsLimit ?? 20) : 20;
   const leadsLeft = Math.max(0, leadsLimit - leadsUsed);
@@ -206,6 +212,9 @@ export default function DashboardPage() {
     ? userDoc.plan.charAt(0).toUpperCase() + userDoc.plan.slice(1)
     : "Free";
 
+  const nextPlan = userDoc?.plan ? NEXT_PLAN[userDoc.plan] : "starter";
+  const nextPlanData = nextPlan ? UPGRADE_PLANS.find((p) => p.id === nextPlan) : undefined;
+
   const handleSearch = () => performSearch(bType, city, localities, maxLeads);
   const hasResults = results.length > 0;
   const creditsBarColor = leadsLeft > leadsLimit * 0.2 ? "#22C55E" : leadsLeft > 0 ? "#F59E0B" : "#EF4444";
@@ -238,6 +247,27 @@ export default function DashboardPage() {
             {leadsLeft} left
           </span>
         </div>
+        {nextPlanData && (
+          <button
+            onClick={() => handleSelectPlan(nextPlan!)}
+            disabled={!!paying}
+            style={{
+              background: "rgba(34,197,94,0.06)",
+              border: "1px solid rgba(34,197,94,0.15)",
+              color: "#22C55E",
+              borderRadius: 999,
+              padding: "4px 12px",
+              fontSize: 11,
+              fontFamily: "var(--font-sans)",
+              fontWeight: 600,
+              cursor: paying ? "not-allowed" : "pointer",
+              letterSpacing: "0.02em",
+              flexShrink: 0,
+            }}
+          >
+            ↑ {nextPlanData.name} {nextPlanData.price}
+          </button>
+        )}
         <button
           onClick={handleSignOut}
           className="icon-btn"
@@ -282,12 +312,12 @@ export default function DashboardPage() {
                 {leadsUsed}<span style={{ color: "#2A2A2A", fontWeight: 400 }}>/{leadsLimit}</span>
               </span>
             </div>
-            <div style={{ height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 999, overflow: "hidden" }}>
               <div style={{
                 height: "100%",
                 width: `${leadsPct}%`,
                 background: creditsBarColor,
-                borderRadius: 2,
+                borderRadius: 999,
                 transition: "width 0.55s ease",
               }} />
             </div>
@@ -299,23 +329,29 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Upgrade CTA */}
-          <Link
-            href="/pricing"
-            className="upgrade-cta"
-            style={{
-              display: "block", marginTop: 16,
-              padding: "9px 12px",
-              background: "rgba(34,197,94,0.05)",
-              border: "1px solid rgba(34,197,94,0.18)",
-              fontFamily: "var(--font-sans)", fontSize: 10,
-              fontWeight: 700, color: "#22C55E",
-              textDecoration: "none", textAlign: "center",
-              letterSpacing: "0.1em", textTransform: "uppercase",
-            }}
-          >
-            {isPaidPlan ? "Change plan" : "Upgrade plan"}
-          </Link>
+          {/* Upgrade CTA — hidden for Agency */}
+          {nextPlanData && (
+            <button
+              onClick={() => handleSelectPlan(nextPlan!)}
+              disabled={!!paying}
+              className="upgrade-cta"
+              style={{
+                display: "block", marginTop: 16,
+                padding: "9px 12px",
+                background: "rgba(34,197,94,0.05)",
+                border: "1px solid rgba(34,197,94,0.18)",
+                fontFamily: "var(--font-sans)", fontSize: 10,
+                fontWeight: 700, color: "#22C55E",
+                textAlign: "center",
+                letterSpacing: "0.1em", textTransform: "uppercase",
+                cursor: paying ? "not-allowed" : "pointer",
+                width: "100%",
+                borderRadius: 8,
+              }}
+            >
+              {isPaidPlan ? "Change plan" : "Upgrade plan"}
+            </button>
+          )}
 
           {/* Cancel plan */}
           {isPaidPlan && userDoc?.subscriptionStatus === "active" && (
@@ -325,7 +361,7 @@ export default function DashboardPage() {
               style={{
                 background: "none", border: "none", padding: "8px 0 0",
                 fontFamily: "var(--font-sans)", fontSize: 9,
-                color: "#2A2A2A", cursor: cancelling ? "not-allowed" : "pointer",
+                color: "#888", cursor: cancelling ? "not-allowed" : "pointer",
                 textAlign: "left", letterSpacing: "0.08em", textTransform: "uppercase",
                 opacity: cancelling ? 0.5 : 1,
               }}
@@ -365,7 +401,7 @@ export default function DashboardPage() {
               style={{
                 background: "none", border: "none", padding: 0,
                 fontFamily: "var(--font-sans)", fontSize: 10,
-                color: "#2E2E2E", cursor: "pointer",
+                color: "#666", cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 7,
                 letterSpacing: "0.1em", textTransform: "uppercase",
               }}
@@ -396,7 +432,7 @@ export default function DashboardPage() {
 
         <div className="main-inner">
 
-          {/* ── Usage progress bar (always visible) ──────────────── */}
+          {/* ── Usage progress bar ────────────────────────────────── */}
           <div style={{ marginBottom: 28 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 7 }}>
               <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: leadsLeft === 0 ? "#EF4444" : "#555" }}>
@@ -406,16 +442,73 @@ export default function DashboardPage() {
                 {planLabel}{daysRemaining !== null ? ` · ${daysRemaining}d left` : ""}
               </span>
             </div>
-            <div style={{ height: 4, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
+            <div style={{ height: 4, background: "rgba(255,255,255,0.05)", borderRadius: 10, overflow: "hidden" }}>
               <div style={{
                 height: "100%",
                 width: `${usedPct}%`,
                 background: creditsBarColor,
-                borderRadius: 2,
+                borderRadius: 999,
                 transition: "width 0.55s ease",
               }} />
             </div>
           </div>
+
+          {/* ── Payment error ──────────────────────────────────────── */}
+          {payError && (
+            <div style={{
+              marginBottom: 16, padding: "11px 14px",
+              border: "1px solid rgba(239,68,68,0.28)",
+              background: "rgba(239,68,68,0.05)",
+              borderRadius: 10,
+              fontFamily: "var(--font-sans)", fontSize: 12, color: "#F87171",
+            }}>
+              {payError}
+            </div>
+          )}
+
+          {/* ── Free plan persistent banner ────────────────────────── */}
+          {userDoc?.plan === "free" && (
+            <div style={{
+              background: "rgba(34,197,94,0.08)",
+              border: "1px solid rgba(34,197,94,0.2)",
+              borderRadius: 12,
+              padding: "12px 16px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 20,
+              gap: 12,
+              flexWrap: "wrap",
+            }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#22C55E" }}>
+                Free plan · {leadsLimit} leads lifetime
+              </span>
+              <button
+                onClick={() => handleSelectPlan("starter")}
+                disabled={!!paying}
+                style={{
+                  background: "#22C55E",
+                  color: "#000",
+                  fontWeight: 700,
+                  borderRadius: 8,
+                  padding: "8px 14px",
+                  fontSize: 13,
+                  border: "none",
+                  cursor: paying ? "not-allowed" : "pointer",
+                  fontFamily: "var(--font-sans)",
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                {paying === "starter" && (
+                  <span style={{ width: 10, height: 10, border: "1.5px solid currentColor", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
+                )}
+                Upgrade to Starter →
+              </button>
+            </div>
+          )}
 
           {/* ── Upgrade wall (hard block when limit hit) ──────────── */}
           {hitLimit ? (
@@ -423,6 +516,7 @@ export default function DashboardPage() {
               background: "#0D0D0D",
               border: "1px solid rgba(239,68,68,0.2)",
               padding: "36px 28px 32px",
+              borderRadius: 12,
             }}>
               <div style={{ marginBottom: 28 }}>
                 <p style={{
@@ -443,52 +537,66 @@ export default function DashboardPage() {
 
               <div className="wall-grid">
                 {UPGRADE_PLANS.map((p) => (
-                  <Link
+                  <div
                     key={p.id}
-                    href="/pricing"
-                    style={{ textDecoration: "none" }}
+                    className={p.featured ? "wall-card wall-card-featured" : "wall-card"}
                   >
-                    <div className={p.featured ? "wall-card wall-card-featured" : "wall-card"}>
-                      {p.featured && (
-                        <div style={{
-                          position: "absolute", top: 0, left: 0, right: 0,
-                          background: "#22C55E", padding: "3px 0", textAlign: "center",
-                          fontFamily: "var(--font-sans)", fontSize: 8, fontWeight: 800,
-                          letterSpacing: "0.14em", color: "#080808", textTransform: "uppercase",
-                        }}>
-                          Popular
-                        </div>
-                      )}
-                      <p style={{
-                        fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 700,
-                        letterSpacing: "0.12em", textTransform: "uppercase",
-                        color: p.featured ? "#22C55E" : "#555",
-                        margin: p.featured ? "16px 0 6px" : "0 0 6px",
-                      }}>
-                        {p.name}
-                      </p>
-                      <p style={{
-                        fontFamily: "var(--font-serif)", fontSize: 26, fontWeight: 400,
-                        color: p.featured ? "#EDEDED" : "#777",
-                        margin: "0 0 4px", lineHeight: 1,
-                      }}>
-                        {p.price}
-                      </p>
-                      <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, color: "#444", margin: "0 0 14px" }}>
-                        {p.leads}
-                      </p>
+                    {p.featured && (
                       <div style={{
-                        padding: "7px 0",
-                        background: p.featured ? "rgba(34,197,94,0.12)" : "rgba(255,255,255,0.04)",
-                        border: `1px solid ${p.featured ? "rgba(34,197,94,0.35)" : "rgba(255,255,255,0.08)"}`,
-                        fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700,
-                        color: p.featured ? "#22C55E" : "#444",
-                        textAlign: "center", letterSpacing: "0.08em", textTransform: "uppercase",
+                        position: "absolute", top: 0, left: 0, right: 0,
+                        background: "#22C55E", padding: "3px 0", textAlign: "center",
+                        fontFamily: "var(--font-sans)", fontSize: 8, fontWeight: 800,
+                        letterSpacing: "0.14em", color: "#080808", textTransform: "uppercase",
+                        borderRadius: "12px 12px 0 0",
                       }}>
-                        Upgrade
+                        Popular
                       </div>
-                    </div>
-                  </Link>
+                    )}
+                    <p style={{
+                      fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 700,
+                      letterSpacing: "0.12em", textTransform: "uppercase",
+                      color: p.featured ? "#22C55E" : "#555",
+                      margin: p.featured ? "16px 0 6px" : "0 0 6px",
+                    }}>
+                      {p.name}
+                    </p>
+                    <p style={{
+                      fontFamily: "var(--font-serif)", fontSize: 26, fontWeight: 400,
+                      color: p.featured ? "#EDEDED" : "#777",
+                      margin: "0 0 4px", lineHeight: 1,
+                    }}>
+                      {p.price}
+                    </p>
+                    <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, color: "#444", margin: "0 0 14px" }}>
+                      {p.leads}
+                    </p>
+                    <button
+                      onClick={() => handleSelectPlan(p.id)}
+                      disabled={paying === p.id || !!paying}
+                      style={{
+                        background: "#22C55E",
+                        color: "#000000",
+                        fontWeight: 700,
+                        borderRadius: 8,
+                        width: "100%",
+                        padding: "14px",
+                        fontSize: 14,
+                        border: "none",
+                        cursor: (paying === p.id || !!paying) ? "not-allowed" : "pointer",
+                        opacity: (paying === p.id || !!paying) ? 0.7 : 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        fontFamily: "var(--font-sans)",
+                      }}
+                    >
+                      {paying === p.id && (
+                        <span style={{ width: 12, height: 12, border: "1.5px solid currentColor", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
+                      )}
+                      Upgrade
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -579,11 +687,15 @@ export default function DashboardPage() {
                   marginTop: 16, padding: "11px 14px",
                   border: "1px solid rgba(239,68,68,0.28)",
                   background: "rgba(239,68,68,0.05)",
+                  borderRadius: 10,
                   fontFamily: "var(--font-sans)", fontSize: 12, color: "#F87171", lineHeight: 1.55,
                 }}>
                   {error}
                   {error.toLowerCase().includes("limit") && (
-                    <>{" "}<Link href="/pricing" style={{ textDecoration: "underline", color: "#22C55E" }}>Upgrade now</Link></>
+                    <>{" "}<button
+                      onClick={() => handleSelectPlan(nextPlan || "starter")}
+                      style={{ background: "none", border: "none", textDecoration: "underline", color: "#22C55E", cursor: "pointer", padding: 0, font: "inherit", fontSize: "inherit" }}
+                    >Upgrade now</button></>
                   )}
                 </div>
               )}
@@ -622,9 +734,18 @@ export default function DashboardPage() {
                     </svg>
                   </button>
                 ) : (
-                  <Link href="/pricing" className="btn-gold" style={{ width: "100%", textAlign: "center", display: "block" }}>
-                    Upgrade to Continue
-                  </Link>
+                  <button
+                    onClick={() => handleSelectPlan(nextPlan || "starter")}
+                    disabled={!!paying}
+                    className="btn-gold"
+                    style={{
+                      width: "100%", textAlign: "center", display: "block",
+                      cursor: paying ? "not-allowed" : "pointer",
+                      opacity: paying ? 0.7 : 1,
+                    }}
+                  >
+                    {paying ? "Processing…" : "Upgrade to Continue"}
+                  </button>
                 )}
               </div>
 
@@ -670,8 +791,15 @@ export default function DashboardPage() {
               {isPaidPlan ? (
                 <button
                   onClick={exportCSV}
-                  className="btn-ghost"
-                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                  className="export-csv-btn"
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    background: "#22C55E", color: "#000000", fontWeight: 700,
+                    borderRadius: 8, border: "none", padding: "14px 0",
+                    fontFamily: "var(--font-sans)", fontSize: 13,
+                    letterSpacing: "0.05em", textTransform: "uppercase",
+                    cursor: "pointer",
+                  }}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -681,10 +809,22 @@ export default function DashboardPage() {
                   Export CSV — {phoneCount} leads
                 </button>
               ) : (
-                <Link
-                  href="/pricing"
-                  className="btn-ghost"
-                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: 0.35, textDecoration: "none" }}
+                <button
+                  onClick={() => handleSelectPlan(nextPlan || "starter")}
+                  disabled={!!paying}
+                  className="locked-csv-btn"
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    background: "rgba(34,197,94,0.08)",
+                    border: "1px solid rgba(34,197,94,0.2)",
+                    color: "#22C55E",
+                    borderRadius: 8, fontWeight: 600,
+                    padding: "14px 0",
+                    fontFamily: "var(--font-sans)", fontSize: 13,
+                    letterSpacing: "0.05em", textTransform: "uppercase",
+                    cursor: paying ? "not-allowed" : "pointer",
+                    opacity: paying ? 0.7 : 1,
+                  }}
                   title="Upgrade to export"
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -692,7 +832,7 @@ export default function DashboardPage() {
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
                   Export CSV — upgrade to unlock
-                </Link>
+                </button>
               )}
               <button
                 onClick={clearResults}
@@ -700,7 +840,7 @@ export default function DashboardPage() {
                 style={{
                   width: "100%", padding: "10px 0",
                   border: "none", background: "transparent",
-                  color: "#252525", fontFamily: "var(--font-sans)", fontSize: 11,
+                  color: "#555", fontFamily: "var(--font-sans)", fontSize: 11,
                   fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase",
                   cursor: "pointer",
                 }}
@@ -721,10 +861,10 @@ export default function DashboardPage() {
                 }}
               >
                 <div style={{ height: 1, flex: 1, background: "rgba(255,255,255,0.05)" }} />
-                <span style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2E2E2E", flexShrink: 0 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#666", flexShrink: 0 }}>
                   Past Searches
                   <svg
-                    width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#2E2E2E" strokeWidth="2"
+                    width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2"
                     style={{ transition: "transform 0.2s ease", transform: historyOpen ? "rotate(180deg)" : "rotate(0deg)" }}
                   >
                     <path d="m6 9 6 6 6-6" />
@@ -741,6 +881,7 @@ export default function DashboardPage() {
                       style={{
                         background: "#0D0D0D",
                         border: "1px solid rgba(255,255,255,0.055)",
+                        borderRadius: 8,
                         padding: "14px 18px",
                         display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
                       }}
@@ -771,9 +912,10 @@ export default function DashboardPage() {
                             flexShrink: 0,
                             background: "none",
                             border: "1px solid rgba(255,255,255,0.08)",
+                            borderRadius: 6,
                             padding: "5px 12px",
                             fontFamily: "var(--font-sans)", fontSize: 10,
-                            fontWeight: 600, color: "#444",
+                            fontWeight: 600, color: "#666",
                             letterSpacing: "0.08em", textTransform: "uppercase",
                             cursor: "pointer",
                             display: "flex", alignItems: "center", gap: 6,
@@ -850,12 +992,14 @@ export default function DashboardPage() {
           padding: 18px 16px 16px;
           display: flex; flex-direction: column;
           transition: background 0.15s ease;
-          cursor: pointer;
+          cursor: default;
+          border-radius: 12px;
         }
         .wall-card:hover { background: #111; }
         .wall-card-featured {
           background: rgba(34,197,94,0.04);
           border: 1px solid rgba(34,197,94,0.25);
+          border-radius: 12px;
         }
         .wall-card-featured:hover { background: rgba(34,197,94,0.07); }
 
@@ -864,6 +1008,8 @@ export default function DashboardPage() {
           background: #0D0D0D;
           border: 1px solid rgba(255,255,255,0.07);
           padding: 32px 28px 28px;
+          border-radius: 16px;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.4);
           transition: box-shadow 0.5s ease;
         }
         .search-scanning { animation: searchGlow 2.5s ease-in-out infinite; }
@@ -889,11 +1035,16 @@ export default function DashboardPage() {
         }
 
         /* ── Ghost cards ──────────────────────────────────────────── */
-        .ghost-card { background: #0D0D0D; border: 1px solid rgba(255,255,255,0.04); }
+        .ghost-card {
+          background: #0D0D0D;
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 10px;
+        }
         .ghost-line, .ghost-pill {
-          background: linear-gradient(90deg, #111 25%, #191919 50%, #111 75%);
+          background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
           background-size: 200% 100%;
-          animation: shimmer 2.4s ease-in-out infinite; border-radius: 2px;
+          animation: shimmer 2.4s ease-in-out infinite;
+          border-radius: 2px;
         }
         @keyframes shimmer {
           0%   { background-position: 200% 0; }
@@ -902,13 +1053,21 @@ export default function DashboardPage() {
 
         /* ── Result cards ─────────────────────────────────────────── */
         .result-card {
-          border: 1px solid rgba(255,255,255,0.055); border-left: 2px solid transparent;
-          background: #0D0D0D; padding: 16px 20px;
+          border: 1px solid rgba(255,255,255,0.055);
+          border-left: 2px solid transparent;
+          background: #0D0D0D;
+          padding: 16px 20px;
           display: flex; align-items: center; justify-content: space-between; gap: 16px;
           opacity: 0; animation: fadeUp 0.22s ease forwards;
-          transition: border-left-color 0.18s ease, background 0.18s ease;
+          border-radius: 12px;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+          transition: border-left-color 0.18s ease, border-color 0.15s ease, background 0.15s ease;
         }
-        .result-card:hover { border-left-color: rgba(34,197,94,0.65); background: #0F0F0F; }
+        .result-card:hover {
+          border-left-color: rgba(34,197,94,0.65);
+          border-color: rgba(34,197,94,0.25);
+          background: rgba(34,197,94,0.02);
+        }
         .lead-name {
           font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: #5A5A5A;
           margin: 0 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -918,6 +1077,7 @@ export default function DashboardPage() {
           color: #282828; font-size: 10px; text-decoration: none;
           font-family: var(--font-sans); letter-spacing: 0.03em;
           transition: color 0.15s ease;
+          min-height: 28px;
         }
         .maps-link:hover { color: #555; }
         .lead-phone {
@@ -931,6 +1091,7 @@ export default function DashboardPage() {
           text-decoration: none; font-family: var(--font-sans);
           letter-spacing: 0.1em; text-transform: uppercase;
           transition: background 0.15s ease, border-color 0.15s ease;
+          border-radius: 6px;
         }
         .call-btn:hover { background: rgba(34,197,94,0.13); border-color: rgba(34,197,94,0.35); }
 
@@ -943,12 +1104,12 @@ export default function DashboardPage() {
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
         .pulse-dot { animation: pulse 1.4s ease-in-out infinite; }
 
-        /* ── Hover states ─────────────────────────────────────────── */
+        /* ── Hover / interaction states ───────────────────────────── */
         .search-action:not(:disabled):hover .arrow-icon { transform: translateX(3px); }
         .arrow-icon { transition: transform 0.18s ease; }
         .upgrade-cta:hover { background: rgba(34,197,94,0.1) !important; }
-        .signout-btn:hover { color: #555 !important; }
-        .clear-btn:hover { color: #444 !important; }
+        .signout-btn:hover { color: #888 !important; }
+        .clear-btn:hover { color: #777 !important; }
         .icon-btn:hover { color: #888 !important; }
         .history-dl-btn:hover { color: #888 !important; border-color: rgba(255,255,255,0.18) !important; }
 
@@ -957,16 +1118,35 @@ export default function DashboardPage() {
           .db-root { flex-direction: column; }
           .sidebar { display: none; }
           .mobile-bar {
-            display: flex; height: 52px; padding: 0 18px;
+            display: flex; height: 52px; padding: 0 14px;
             align-items: center; justify-content: space-between;
             border-bottom: 1px solid rgba(255,255,255,0.06);
             background: rgba(6,6,6,0.97);
             position: sticky; top: 0; z-index: 50; flex-shrink: 0;
+            gap: 6px;
           }
           .db-main { min-height: auto; }
           .main-inner { padding: 28px 18px 80px; }
           .search-zone { padding: 22px 18px 20px; }
           .wall-grid { grid-template-columns: 1fr; }
+          .wall-card button { min-height: 48px; }
+
+          /* Prevent iOS zoom on input tap */
+          .input-dark { font-size: 16px !important; }
+
+          /* Stack result card on mobile */
+          .result-card { flex-wrap: wrap; gap: 10px; }
+          .lead-actions { width: 100%; flex-direction: column; gap: 6px; align-items: flex-start; }
+          .lead-phone { display: block; }
+          .call-btn {
+            display: block; width: 100%; text-align: center;
+            min-height: 44px; padding: 12px 14px; box-sizing: border-box;
+          }
+
+          /* Export / clear full-width on mobile */
+          .export-csv-btn { min-height: 48px; }
+          .locked-csv-btn { min-height: 48px; }
+          .clear-btn { min-height: 44px; }
         }
       `}</style>
     </div>
