@@ -156,7 +156,7 @@ export default function LandingPage() {
 
       {/* ── Hero — left-aligned 2-column ────────────────────────────────────── */}
       <section
-        className="dot-grid hero-grid"
+        className="dot-grid hero-grid section-pad"
         style={{
           minHeight: "100vh",
           paddingTop: 60,
@@ -175,6 +175,7 @@ export default function LandingPage() {
         >
           {/* Editorial label */}
           <div
+            className="hero-label"
             style={{
               marginBottom: 24,
               fontFamily: "var(--font-sans)", fontSize: 12, color: "#22C55E",
@@ -186,7 +187,7 @@ export default function LandingPage() {
 
           {/* H1 */}
           <h1
-            className="animate-fade-up"
+            className="animate-fade-up hero-h1"
             style={{
               fontFamily: "var(--font-serif)",
               fontSize: "clamp(52px, 5.2vw, 88px)",
@@ -215,7 +216,7 @@ export default function LandingPage() {
 
           {/* CTAs */}
           <div className="animate-fade-up-delay-2" style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 30 }}>
-            <Link href="/auth" className="btn-gold" style={{ background: "#EF4444", borderColor: "#EF4444" }}>Try for Free — No Credit Card Needed</Link>
+            <Link href="/auth" className="btn-gold hero-cta" style={{ background: "#EF4444", borderColor: "#EF4444" }}>Try for Free — No Credit Card Needed</Link>
             <a href="#how-it-works" className="btn-ghost-sm">See how it works →</a>
           </div>
 
