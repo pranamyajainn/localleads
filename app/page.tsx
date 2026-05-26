@@ -1074,6 +1074,23 @@ export default function LandingPage() {
         </div>
       </footer>
 
+      {/* ── Mobile hero overrides ──────────────────────────────────────────── */}
+      <style>{`
+        @media (max-width: 767px) {
+          .hero-cta {
+            background: #22C55E !important;
+            border-color: #22C55E !important;
+            color: #080808 !important;
+          }
+          .hero-h1 {
+            font-size: clamp(36px, 8vw, 96px) !important;
+          }
+          .hero-label {
+            font-size: 10px !important;
+          }
+        }
+      `}</style>
+
     </div>
   );
 }
