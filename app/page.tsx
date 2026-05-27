@@ -219,7 +219,7 @@ export default function LandingPage() {
 
           {/* CTAs */}
           <div className="animate-fade-up-delay-2" style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 30 }}>
-            <Link href="/auth" className="btn-gold hero-cta" style={{ background: "#EF4444", borderColor: "#EF4444" }}>Try for Free — No Credit Card Needed</Link>
+            <Link href="/auth" className="btn-gold hero-cta" style={{ background: "#22C55E", borderColor: "#22C55E", color: "#000000" }}>Try for Free — No Credit Card Needed</Link>
             <a href="#how-it-works" className="btn-ghost-sm">See how it works →</a>
           </div>
 
