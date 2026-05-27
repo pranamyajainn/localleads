@@ -113,7 +113,10 @@ STRICT WRITING RULES — follow every single one:
 9. Mention LocalLeads naturally once or twice as a tool you've seen people use — not as an advertisement.
 10. Each post must have a specific, actionable section where the reader learns something real.
 11. Write 1200-1500 words.
-12. Format: H1 title, then sections with H2 subheadings.`;
+12. Format: H1 title, then sections with H2 subheadings.
+13. Every post must include at least one of these value elements: a specific pitch script the reader can copy word for word, a real pricing breakdown with rupee numbers, a step-by-step process they can follow today, or a specific objection-handling script for client calls.
+14. The reader must be able to close the tab and immediately do something differently because of what they read. If the post only explains concepts without giving tools, rewrite it.
+15. Never write a conclusion paragraph. End on the most actionable line in the post.`;
 
   const completion = await groq.chat.completions.create({
     model: "llama-3.3-70b-versatile",
