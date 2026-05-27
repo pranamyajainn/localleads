@@ -85,13 +85,18 @@ export async function GET(request: NextRequest) {
     (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) /
       (1000 * 60 * 60 * 24)
   );
-  const scheduledTopic = KEYWORD_TOPICS[dayOfYear % KEYWORD_TOPICS.length];
+  const hour = new Date().getUTCHours();
+  const topicOffset = hour < 12 ? 0 : 16;
+  const scheduledTopic = KEYWORD_TOPICS[
+    (dayOfYear + topicOffset) % KEYWORD_TOPICS.length
+  ];
 
   const trendingTopic = await getTrendingTopic();
   console.log("Topic source:", trendingTopic ? "trending" : "scheduled");
 
   const keyword = trendingTopic ?? scheduledTopic.keyword;
-  const slug = slugify(keyword);
+  const timeSlot = hour < 12 ? "am" : "pm";
+  const slug = slugify(keyword) + "-" + timeSlot;
 
   const db = adminDb();
   const existing = await db.collection("blog_posts").doc(slug).get();
