@@ -21,6 +21,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: "https://localleads.sahajta.com/blog",
+      lastModified: new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    },
+    {
       url: "https://localleads.sahajta.com/pricing",
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
