@@ -30,35 +30,38 @@ export async function POST(req: NextRequest) {
     const email = firebaseUser.email!;
 
     await resend.emails.send({
-      from: "LocalLeads <hello@sahajta.com>",
+      from: "Pranamya from LocalLeads <hello@sahajta.com>",
       to: email,
-      replyTo: "contact@sahajta.com",
       subject: "You're in. Here's how to get your first lead.",
-      html: `<!DOCTYPE html>
-<html>
-<body style="font-family:Arial,sans-serif;color:#333;max-width:560px;margin:0 auto;padding:32px 24px;background:#fff;line-height:1.7;font-size:15px">
-  <div style="margin-bottom: 24px;">
-    <img src="https://localleads.sahajta.com/favicon.png" alt="LocalLeads" width="48" height="48" style="display: block;" />
-  </div>
-  <p>Hi ${firstName},</p>
-  <p>Welcome to LocalLeads.</p>
-  <p>You have 20 free leads waiting. Here is exactly what to do with them:</p>
-  <ol style="padding-left:20px;margin:0 0 20px">
-    <li>Go to your dashboard</li>
-    <li>Type a business type — start with "restaurants" or "salons"</li>
-    <li>Enter your city and one or two localities you know</li>
-    <li>Hit Find Leads</li>
-  </ol>
-  <p>You will see businesses with a live phone number and no website. Pick one. Call them today.</p>
-  <p><strong>The pitch:</strong> "I found you on Google Maps — you have no website, I build them starting at &#8377;10,000. Interested?"</p>
-  <p>One call can pay for months of LocalLeads.</p>
-  <p>If you get stuck, reply to this email. We read every message.</p>
-  <p style="margin-top:32px">— The LocalLeads team<br><span style="color:#888;font-size:13px">Built by Sahajta AI Solutions</span></p>
-</body>
-</html>`,
+      text: `Hey ${firstName},
+
+Welcome to LocalLeads.
+
+You have 20 free leads ready. No card needed.
+
+To get started:
+1. Go to your dashboard
+2. Type any business — restaurant, salon, clinic
+3. Pick your city
+4. Hit find
+
+That is it. Real businesses. Real phone numbers. Every lead has a Google Maps link so you can verify before you call.
+
+Dashboard: https://localleads.sahajta.com/dashboard
+
+Any questions? Just reply to this email.
+
+Pranamya
+LocalLeads
+
+---
+Don't want these emails? Reply with "stop" and I'll remove you.`,
+      headers: {
+        "List-Unsubscribe": "<mailto:hello@sahajta.com?subject=unsubscribe>",
+      },
     });
 
-    await userRef.update({ welcomeEmailSent: true });
+    await userRef.update({ welcomeEmailSent: true, emailsSent: ["welcome"] });
 
     return NextResponse.json({ sent: true });
   } catch (err) {
