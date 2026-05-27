@@ -1,10 +1,6 @@
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
+import { adminDb } from "@/lib/firebaseAdmin";
 import { remark } from "remark";
 import html from "remark-html";
-
-const BLOG_DIR = path.join(process.cwd(), "content/blog");
 
 export interface BlogPost {
   slug: string;
@@ -16,37 +12,52 @@ export interface BlogPost {
   content: string;
 }
 
-export function getAllPosts(): BlogPost[] {
-  if (!fs.existsSync(BLOG_DIR)) return [];
+export async function getAllPosts(): Promise<BlogPost[]> {
+  try {
+    const db = adminDb();
+    const snapshot = await db
+      .collection("blog_posts")
+      .orderBy("date", "desc")
+      .limit(50)
+      .get();
 
-  const files = fs
-    .readdirSync(BLOG_DIR)
-    .filter((f) => f.endsWith(".md"))
-    .sort()
-    .reverse();
+    return snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        slug: data.slug || doc.id,
+        title: data.title || "",
+        date: data.date || "",
+        description: data.description || "",
+        city: data.city || "",
+        keyword: data.keyword || "",
+        content: data.content || "",
+      };
+    });
+  } catch {
+    return [];
+  }
+}
 
-  return files.map((filename) => {
-    const filepath = path.join(BLOG_DIR, filename);
-    const raw = fs.readFileSync(filepath, "utf8");
-    const { data, content } = matter(raw);
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  try {
+    const db = adminDb();
+    const doc = await db.collection("blog_posts").doc(slug).get();
+    if (!doc.exists) return null;
 
-    return {
-      slug: data.slug || filename.replace(".md", ""),
+    const data = doc.data()!;
+    const post: BlogPost = {
+      slug: data.slug || doc.id,
       title: data.title || "",
       date: data.date || "",
       description: data.description || "",
       city: data.city || "",
       keyword: data.keyword || "",
-      content,
+      content: data.content || "",
     };
-  });
-}
 
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  const posts = getAllPosts();
-  const post = posts.find((p) => p.slug === slug);
-  if (!post) return null;
-
-  const processed = await remark().use(html).process(post.content);
-  return { ...post, content: processed.toString() };
+    const processed = await remark().use(html).process(post.content);
+    return { ...post, content: processed.toString() };
+  } catch {
+    return null;
+  }
 }

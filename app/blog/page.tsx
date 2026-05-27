@@ -2,6 +2,9 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { getAllPosts } from "@/lib/blog";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Blog — LocalLeads",
   description:
@@ -9,8 +12,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://localleads.sahajta.com/blog" },
 };
 
-export default function BlogIndex() {
-  const posts = getAllPosts();
+export default async function BlogIndex() {
+  const posts = await getAllPosts();
 
   return (
     <main style={{ minHeight: "100vh", background: "#080808", color: "#EDEDED" }}>

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
-import fs from "fs";
-import path from "path";
+import { adminDb } from "@/lib/firebaseAdmin";
 
 const KEYWORD_TOPICS = [
   { keyword: "how to find clients as a web designer in India", city: "Indore", persona: "arjun" },
@@ -42,6 +41,37 @@ function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, "-").slice(0, 60);
 }
 
+async function getTrendingTopic(): Promise<string | null> {
+  try {
+    const response = await fetch(
+      "https://trends.google.com/trends/trendingsearches/daily/rss?geo=IN",
+      { headers: { "User-Agent": "Mozilla/5.0" } }
+    );
+    const text = await response.text();
+
+    const titles = [...text.matchAll(/<title><!\[CDATA\[([^\]]+)\]\]><\/title>/g)]
+      .map((m) => m[1])
+      .slice(0, 20);
+
+    const relevantKeywords = [
+      "freelance", "website", "web design", "web developer",
+      "digital marketing", "business", "startup", "income",
+      "work from home", "side income", "entrepreneur",
+    ];
+
+    const relevant = titles.find((title) =>
+      relevantKeywords.some((kw) => title.toLowerCase().includes(kw))
+    );
+
+    if (relevant) {
+      return `${relevant} for web designers in India`;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -55,13 +85,17 @@ export async function GET(request: NextRequest) {
     (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) /
       (1000 * 60 * 60 * 24)
   );
-  const topic = KEYWORD_TOPICS[dayOfYear % KEYWORD_TOPICS.length];
-  const slug = slugify(topic.keyword);
-  const filename = `${date}-${slug}.md`;
-  const blogDir = path.join(process.cwd(), "content/blog");
-  const filepath = path.join(blogDir, filename);
+  const scheduledTopic = KEYWORD_TOPICS[dayOfYear % KEYWORD_TOPICS.length];
 
-  if (fs.existsSync(filepath)) {
+  const trendingTopic = await getTrendingTopic();
+  console.log("Topic source:", trendingTopic ? "trending" : "scheduled");
+
+  const keyword = trendingTopic ?? scheduledTopic.keyword;
+  const slug = slugify(keyword);
+
+  const db = adminDb();
+  const existing = await db.collection("blog_posts").doc(slug).get();
+  if (existing.exists) {
     return NextResponse.json({ message: "Already generated today" });
   }
 
@@ -87,7 +121,7 @@ STRICT WRITING RULES — follow every single one:
       { role: "system", content: systemPrompt },
       {
         role: "user",
-        content: `Write a blog post targeting: "${topic.keyword}". City focus: ${topic.city}. Include a LocalLeads mention naturally.`,
+        content: `Write a blog post targeting: "${keyword}". City focus: ${scheduledTopic.city}. Include a LocalLeads mention naturally.`,
       },
     ],
     temperature: 0.8,
@@ -99,26 +133,23 @@ STRICT WRITING RULES — follow every single one:
   const title = lines[0].replace(/^#+\s*/, "").trim();
   const body = lines.slice(1).join("\n").trim();
 
-  if (!fs.existsSync(blogDir)) fs.mkdirSync(blogDir, { recursive: true });
-
-  const frontmatter = `---
-title: "${title.replace(/"/g, "'")}"
-date: "${date}"
-slug: "${slug}"
-keyword: "${topic.keyword}"
-city: "${topic.city}"
-persona: "${topic.persona}"
-description: "${title.replace(/"/g, "'")} — practical guide for Indian web freelancers."
----
-
-${body}`;
-
-  fs.writeFileSync(filepath, frontmatter);
+  await db.collection("blog_posts").doc(slug).set({
+    title: title.replace(/"/g, "'"),
+    date,
+    slug,
+    keyword,
+    city: scheduledTopic.city,
+    persona: scheduledTopic.persona,
+    description: `${title.replace(/"/g, "'")} — practical guide for Indian web freelancers.`,
+    content: body,
+    createdAt: new Date(),
+  });
 
   return NextResponse.json({
     message: "Blog post generated",
     slug,
     title,
     date,
+    topicSource: trendingTopic ? "trending" : "scheduled",
   });
 }
