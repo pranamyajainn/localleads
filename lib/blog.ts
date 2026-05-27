@@ -10,6 +10,9 @@ export interface BlogPost {
   city: string;
   keyword: string;
   content: string;
+  readingTime?: string;
+  wordCount?: number;
+  schemaMarkup?: string;
 }
 
 export async function getAllPosts(): Promise<BlogPost[]> {
@@ -31,6 +34,9 @@ export async function getAllPosts(): Promise<BlogPost[]> {
         city: data.city || "",
         keyword: data.keyword || "",
         content: data.content || "",
+        readingTime: data.readingTime,
+        wordCount: data.wordCount,
+        schemaMarkup: data.schemaMarkup,
       };
     });
   } catch {
@@ -53,6 +59,9 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
       city: data.city || "",
       keyword: data.keyword || "",
       content: data.content || "",
+      readingTime: data.readingTime,
+      wordCount: data.wordCount,
+      schemaMarkup: data.schemaMarkup,
     };
 
     const processed = await remark().use(html).process(post.content);

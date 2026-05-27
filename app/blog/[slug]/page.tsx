@@ -38,6 +38,13 @@ export default async function BlogPost({
 
   return (
     <main style={{ minHeight: "100vh", background: "#080808", color: "#EDEDED" }}>
+      {post.schemaMarkup && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: post.schemaMarkup }}
+        />
+      )}
+
       <nav style={{
         padding: "20px 40px",
         display: "flex",
@@ -71,11 +78,21 @@ export default async function BlogPost({
           fontFamily: "Georgia, serif",
           fontSize: "clamp(26px, 4vw, 42px)",
           fontWeight: 700, color: "#EDEDED",
-          margin: "0 0 40px", lineHeight: 1.2,
+          margin: "0 0 12px", lineHeight: 1.2,
           letterSpacing: "-0.025em",
         }}>
           {post.title}
         </h1>
+
+        {post.readingTime && (
+          <p style={{
+            fontFamily: "sans-serif",
+            fontSize: 13, color: "#333",
+            margin: "0 0 40px",
+          }}>
+            {post.readingTime}
+          </p>
+        )}
 
         <div
           style={{ fontFamily: "sans-serif", fontSize: 17, lineHeight: 1.8, color: "#888" }}

@@ -99,24 +99,29 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Already generated today" });
   }
 
-  const systemPrompt = `You are a no-nonsense Indian freelancing expert who has been in the web design trenches for years. You write for other Indian freelancers — mostly guys in tier 2 cities like Indore, Jaipur, Lucknow who are trying to make freelancing work.
+  const systemPrompt = `You are a friendly Indian freelancer who made it work. You write for other Indian freelancers who are struggling. Your writing style is simple. Very simple. Like you are talking to a 12-year-old.
 
-STRICT WRITING RULES — follow every single one:
-1. Never use em dashes. Not once.
-2. Never start a sentence with "In conclusion", "To summarize", "It's worth noting", "Delve", "Leverage", "Utilize", "Furthermore", "Moreover", "Additionally"
-3. Vary sentence length constantly. Mix very short sentences with longer ones. Two words. Then a longer explanation that goes into detail. Then short again.
-4. Use real rupee numbers. Real city names. Real business types in India.
-5. Write like you are talking to a friend who is struggling. Conversational. Honest.
-6. Include one strong opinion that takes a clear side. Don't be neutral.
-7. Use contractions: don't, can't, won't, you're, it's
-8. No bullet point lists unless absolutely necessary. Write in paragraphs.
-9. Mention LocalLeads naturally once or twice as a tool you've seen people use — not as an advertisement.
-10. Each post must have a specific, actionable section where the reader learns something real.
-11. Write 1200-1500 words.
-12. Format: H1 title, then sections with H2 subheadings.
-13. Every post must include at least one of these value elements: a specific pitch script the reader can copy word for word, a real pricing breakdown with rupee numbers, a step-by-step process they can follow today, or a specific objection-handling script for client calls.
-14. The reader must be able to close the tab and immediately do something differently because of what they read. If the post only explains concepts without giving tools, rewrite it.
-15. Never write a conclusion paragraph. End on the most actionable line in the post.`;
+SIMPLE ENGLISH RULES — follow every single one:
+1. Use short words. Say "use" not "utilize". Say "help" not "leverage". Say "get" not "obtain".
+2. Keep sentences short. Maximum 15 words per sentence most of the time.
+3. Write like you talk. Casual. Friendly. Real.
+4. If a 12-year-old would not understand a word, replace it with a simpler word.
+5. Never use em dashes.
+6. Never write "In conclusion", "To summarize", "It is worth noting", "Furthermore", "Moreover", "Additionally", "Delve", "Leverage", "Utilize", "Comprehensive", "In today's digital landscape".
+7. Mix short and long sentences. Very short. Then one that explains it a bit more. Short again.
+8. Use real rupee numbers. Like ₹499, ₹15,000, ₹28,000. Make it feel real.
+9. Use real Indian city names. Real business types.
+10. Use contractions always: don't, can't, you're, it's, won't, they're.
+11. No bullet lists unless truly needed. Write in paragraphs.
+12. Have one strong opinion. Take a side. Be direct.
+13. Mention LocalLeads (localleads.sahajta.com) once or twice as a tool you have seen people use. Not as an ad. Like a friend recommending it.
+14. Every post must give one thing the reader can DO TODAY. A real script. A real price. A real step.
+15. The reader should feel they got so much value that they want to bookmark the post.
+16. Never write a conclusion paragraph. End on the most useful line.
+17. Write 1200 to 1500 words. Not more. Not less.
+18. Use H1 for title. H2 for sections. Short section titles.
+19. Write the current date naturally in the article. Example: "As of May 2026, most salons in Jaipur..."
+20. Include this exact line somewhere naturally: "Questions? Email hello@sahajta.com and someone will actually reply."`;
 
   const completion = await groq.chat.completions.create({
     model: "llama-3.3-70b-versatile",
@@ -124,7 +129,24 @@ STRICT WRITING RULES — follow every single one:
       { role: "system", content: systemPrompt },
       {
         role: "user",
-        content: `Write a blog post targeting: "${keyword}". City focus: ${scheduledTopic.city}. Include a LocalLeads mention naturally.`,
+        content: `Write a blog post targeting: "${keyword}".
+City focus: ${scheduledTopic.city}.
+Today's date: ${new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}.
+Target reader: Indian web freelancer trying to find clients.
+
+The post must:
+- Use Grade 3 English. Short words. Short sentences.
+- Include today's date naturally in the article body
+- Give one specific script or action they can do today
+- Mention LocalLeads once as a tool recommendation
+- Include "Questions? Email hello@sahajta.com and someone will actually reply." naturally in the post
+- 1200-1500 words exactly
+- H1 title first line, then H2 sections
+
+Naturally link to these LocalLeads pages where relevant (use markdown links):
+- [LocalLeads](https://localleads.sahajta.com) when mentioning the tool
+- [free trial](https://localleads.sahajta.com/auth) when mentioning trying it free
+- [pricing](https://localleads.sahajta.com/pricing) when mentioning ₹499 or cost`,
       },
     ],
     temperature: 0.8,
@@ -136,6 +158,10 @@ STRICT WRITING RULES — follow every single one:
   const title = lines[0].replace(/^#+\s*/, "").trim();
   const body = lines.slice(1).join("\n").trim();
 
+  const wordCount = body.split(/\s+/).length;
+  const readingTimeMinutes = Math.ceil(wordCount / 200);
+  const readingTime = `${readingTimeMinutes} min read`;
+
   await db.collection("blog_posts").doc(slug).set({
     title: title.replace(/"/g, "'"),
     date,
@@ -146,6 +172,30 @@ STRICT WRITING RULES — follow every single one:
     description: `${title.replace(/"/g, "'")} — practical guide for Indian web freelancers.`,
     content: body,
     createdAt: new Date(),
+    wordCount,
+    readingTime,
+    schemaMarkup: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": title.replace(/"/g, "'"),
+      "datePublished": date,
+      "dateModified": date,
+      "author": {
+        "@type": "Organization",
+        "name": "LocalLeads",
+        "url": "https://localleads.sahajta.com"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "LocalLeads by Sahajta AI",
+        "url": "https://localleads.sahajta.com"
+      },
+      "description": title.replace(/"/g, "'") + " — practical guide for Indian web freelancers.",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": `https://localleads.sahajta.com/blog/${slug}`
+      }
+    }),
   });
 
   return NextResponse.json({
