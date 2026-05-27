@@ -81,7 +81,7 @@ const PLANS = [
 const FAQS = [
   {
     q: "Is the data real? Will I get active phone numbers or junk?",
-    a: "Every number we surface comes directly from Google Maps — the same listing a customer would call to book a table or an appointment. These businesses put their number there because they want calls. We filter out businesses that already have a website, so every result you see is a genuine gap in the market. The Google Maps link is included with every lead so you can verify with your own eyes before you call.",
+    a: "Every number and business name comes directly from Google Maps — pulled in real time when you search, not from a cached or purchased list. This is not JustDial. This is not a vendor database. This is Google Maps data — the same source a customer would use to call that business today. Every lead includes a live Google Maps link. Click it. Open the listing. See for yourself that the business exists, that the phone number matches, and that there is no website listed. That verification link is the reason our data quality is fundamentally different from any list you have bought before.",
   },
   {
     q: "How do I actually sell a website to these businesses?",
@@ -178,11 +178,11 @@ export default function LandingPage() {
             className="hero-label"
             style={{
               marginBottom: 24,
-              fontFamily: "var(--font-sans)", fontSize: 12, color: "#22C55E",
-              letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 600,
+              fontFamily: "var(--font-sans)", fontSize: 13, color: "#22C55E",
+              letterSpacing: "0.01em", fontWeight: 600, lineHeight: 1.5,
             }}
           >
-            For web freelancers tired of guessing who to pitch
+            The tool Indian freelancers and agencies use to find businesses that need a website — before competitors do
           </div>
 
           {/* H1 */}
@@ -196,9 +196,11 @@ export default function LandingPage() {
               margin: "0 0 32px",
             }}
           >
-            100 qualified leads in one click —
+            Find local businesses
             <br />
-            <span style={{ color: "#22C55E", fontStyle: "italic" }}>businesses that actually need a website.</span>
+            with no website.
+            <br />
+            <span style={{ color: "#22C55E", fontStyle: "italic" }}>Call them today.</span>
           </h1>
 
           {/* Body */}
@@ -209,9 +211,10 @@ export default function LandingPage() {
               color: "#666", margin: "0 0 36px", maxWidth: 420,
             }}
           >
-            LocalLeads scans Google Maps and shows you local businesses
-            with a phone number and no website. Call them with a reason,
-            not a guess.
+            LocalLeads scans Google Maps in real time and shows you businesses
+            with a live phone number and no website. Not a cached list. Not
+            JustDial data. Live Google Maps results — with a verification link
+            on every lead so you can check with your own eyes before you call.
           </p>
 
           {/* CTAs */}
@@ -256,6 +259,35 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Social proof bar ─────────────────────────────────────────────────── */}
+      <div style={{
+        background: "#0A0A0A",
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        padding: "16px 24px",
+      }}>
+        <div style={{
+          maxWidth: 960, margin: "0 auto",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          gap: 32, flexWrap: "wrap",
+          fontFamily: "var(--font-sans)", fontSize: 13, color: "#555",
+        }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+            Real-time Google Maps data
+          </span>
+          <span style={{ color: "#1E1E1E" }}>·</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+            Every lead verified with a live link
+          </span>
+          <span style={{ color: "#1E1E1E" }}>·</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+            20 free leads — no card needed
+          </span>
+        </div>
+      </div>
 
       {/* ── Stats ────────────────────────────────────────────────────────────── */}
       <section className="section-pad" style={{
@@ -471,6 +503,225 @@ export default function LandingPage() {
                   <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#555", margin: 0 }}>This is what the workflow looks like in practice</p>
                 </div>
               </div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── Section A: Time Problem ──────────────────────────────────────────── */}
+      <section className="section-pad" style={{ padding: "100px 40px", background: "#080808", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <ScrollReveal>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 20 }}>
+              The time problem
+            </p>
+            <h2 style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(28px, 3.8vw, 52px)",
+              fontWeight: 700, color: "#EDEDED",
+              lineHeight: 1.1, letterSpacing: "-0.025em",
+              margin: "0 0 32px",
+            }}>
+              You spent 5 hours on Google Maps.
+              <br />
+              <span style={{ color: "#444" }}>How many calls did you make?</span>
+            </h2>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+              {"You're clicking business after business, checking for websites, copying numbers to a WhatsApp note. Your whole day goes into finding people to call. Not actually calling them."}
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+              LocalLeads does that part in 10 minutes.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 36px", maxWidth: 640 }}>
+              Search your city. Pick your business type. Hit find. Get a list — business name, live phone number, Google Maps link. Every entry verified. Every business confirmed to have no website.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 17, color: "#EDEDED", lineHeight: 1.6, margin: "0 0 48px", maxWidth: 640, fontWeight: 500 }}>
+              You call. You pitch. You close.
+            </p>
+
+            {/* Comparison box */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "rgba(255,255,255,0.06)" }} className="comparison-grid">
+              <div style={{ background: "#0D0D0D", padding: "28px 32px" }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#444", margin: "0 0 16px" }}>
+                  Manual Google Maps
+                </p>
+                {["4–6 hours", "20–30 contacts", "40% already have websites"].map((item, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#555" }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ background: "rgba(34,197,94,0.04)", padding: "28px 32px", border: "1px solid rgba(34,197,94,0.2)" }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#22C55E", margin: "0 0 16px" }}>
+                  LocalLeads
+                </p>
+                {["10 minutes", "500+ contacts", "100% confirmed no website"].map((item, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#EDEDED" }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── Section B: Proof Advantage ───────────────────────────────────────── */}
+      <section className="section-pad" style={{ padding: "100px 40px", background: "#0D0D0D", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <ScrollReveal>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 20 }}>
+              The proof advantage
+            </p>
+            <h2 style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(28px, 3.8vw, 52px)",
+              fontWeight: 700, color: "#EDEDED",
+              lineHeight: 1.1, letterSpacing: "-0.025em",
+              margin: "0 0 32px",
+            }}>
+              Your prospect asked for proof.
+              <br />
+              <span style={{ color: "#444" }}>Here is what you say.</span>
+            </h2>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+              Every lead from LocalLeads includes a Google Maps link showing their business has no website listed.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.8, margin: "0 0 8px", maxWidth: 640 }}>
+              When you call, you say:
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#EDEDED", lineHeight: 1.8, margin: "0 0 20px", maxWidth: 640, fontStyle: "italic" }}>
+              &ldquo;I found you on Google Maps — your business has no website. I build them for businesses like yours starting at ₹10,000.&rdquo;
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+              That is not a cold pitch. That is a verified observation. And it came from Google — not you.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 48px", maxWidth: 640 }}>
+              Your prospect can check it themselves. Most do. Most are impressed that you did your homework. That is the difference between a rejection and a conversation.
+            </p>
+
+            {/* Callout box */}
+            <div style={{
+              padding: "24px 28px",
+              border: "1px solid rgba(34,197,94,0.3)",
+              background: "rgba(34,197,94,0.04)",
+              maxWidth: 520,
+            }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#22C55E", margin: "0 0 14px" }}>
+                Every lead includes
+              </p>
+              {["Business name", "Live phone number", "Google Maps link confirming no website", "Ready to call in minutes"].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#EDEDED" }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── Section C: Feast-Famine ──────────────────────────────────────────── */}
+      <section className="section-pad" style={{ padding: "100px 40px", background: "#111111", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <ScrollReveal>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 20 }}>
+              The feast-famine cycle
+            </p>
+            <h2 style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(28px, 3.8vw, 52px)",
+              fontWeight: 700, color: "#EDEDED",
+              lineHeight: 1.1, letterSpacing: "-0.025em",
+              margin: "0 0 32px",
+            }}>
+              ₹28,000 one month.
+              <br />
+              ₹6,000 the next.
+              <br />
+              <span style={{ color: "#444" }}>Here is the fix.</span>
+            </h2>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+              When you are delivering for one client, you stop looking for the next. When that project ends, you start from zero again.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+              The fix is not working harder. It is having a list ready before you need it.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+              LocalLeads gives you fresh, pre-qualified businesses every time you search. Any city. Any category. 500 businesses that need a website — this month, next month, every month.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#EDEDED", lineHeight: 1.8, margin: "0 0 48px", maxWidth: 640, fontWeight: 500 }}>
+              One client pays ₹15,000–₹25,000 for a website. The tool costs ₹499/month. One closed deal pays for a year of the tool.
+            </p>
+
+            {/* Stat pills */}
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              {["500 leads/month on Starter", "Any Indian city", "One client = 30x ROI"].map((pill, i) => (
+                <div key={i} style={{
+                  padding: "10px 20px",
+                  border: "1px solid rgba(34,197,94,0.25)",
+                  background: "rgba(34,197,94,0.05)",
+                  fontFamily: "var(--font-sans)", fontSize: 13, color: "#22C55E",
+                  fontWeight: 500,
+                }}>
+                  {pill}
+                </div>
+              ))}
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── Agency owner section ─────────────────────────────────────────────── */}
+      <section className="section-pad" style={{ padding: "100px 40px", background: "#0A0A0A", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <ScrollReveal>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 20 }}>
+              For agencies and teams
+            </p>
+            <h2 style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(28px, 3.8vw, 52px)",
+              fontWeight: 700, color: "#EDEDED",
+              lineHeight: 1.1, letterSpacing: "-0.025em",
+              margin: "0 0 32px",
+            }}>
+              Your BD person is spending 3 days
+              <br />
+              <span style={{ color: "#444" }}>on what this does in 20 minutes.</span>
+            </h2>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+              If you run a digital agency, you already know the problem. Your business development depends on finding businesses that genuinely need your services. That research is expensive — either in your personal time or your team&apos;s time.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+              LocalLeads changes the math.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 12px", maxWidth: 640 }}>
+              At ₹25,000/month in team salary for manual prospecting, you are paying approximately ₹500 per qualified lead.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
+              At ₹999/month for the Growth plan, you get 2,000 leads. That is ₹0.50 per verified contact.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#EDEDED", lineHeight: 1.7, margin: "0 0 48px", maxWidth: 640, fontWeight: 500 }}>
+              Your team stops researching. They start calling. Pipeline fills faster. Conversion improves — because every business they reach has been confirmed to need what you sell.
+            </p>
+
+            {/* Plan callout boxes */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "rgba(255,255,255,0.06)" }} className="agency-plan-grid">
+              {[
+                { name: "Starter", price: "₹499/mo", leads: "500 leads", note: "Solo freelancers" },
+                { name: "Growth", price: "₹999/mo", leads: "2,000 leads", note: "Small agencies" },
+                { name: "Pro", price: "₹2,499/mo", leads: "10,000 leads", note: "Growing agencies" },
+              ].map((plan, i) => (
+                <div key={i} style={{ background: "#0D0D0D", padding: "28px 24px", display: "flex", flexDirection: "column", gap: 6 }}>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#22C55E", margin: 0 }}>{plan.name}</p>
+                  <p style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "#EDEDED", margin: 0, letterSpacing: "-0.02em", lineHeight: 1 }}>{plan.price}</p>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555", margin: 0 }}>{plan.leads} · {plan.note}</p>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#22C55E", margin: "8px 0 0", opacity: 0.7 }}>Try free first — no card</p>
+                </div>
+              ))}
             </div>
           </ScrollReveal>
         </div>
@@ -765,9 +1016,26 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444", textAlign: "center", margin: 0 }}>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444", textAlign: "center", margin: "0 0 48px" }}>
               Same tool. Same search. Anywhere on earth.
             </p>
+          </ScrollReveal>
+
+          <ScrollReveal>
+            <div style={{
+              paddingTop: 48,
+              borderTop: "1px solid rgba(255,255,255,0.07)",
+            }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 17, fontWeight: 600, color: "#EDEDED", margin: "0 0 16px", lineHeight: 1.4 }}>
+                Western businesses. Western prices.
+              </p>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.82, margin: "0 0 12px" }}>
+                Many LocalLeads users in India are searching businesses in the US, UK, and UAE — and pitching them at $500–$2,000 per website while living in India.
+              </p>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.82, margin: 0 }}>
+                The tool works identically. Same search. Same no-website filter. Same verified Google Maps link. Different phone prefix.
+              </p>
+            </div>
           </ScrollReveal>
         </div>
       </section>
@@ -811,6 +1079,30 @@ export default function LandingPage() {
               marginTop: 14, marginLeft: 4, marginBottom: 0,
             }}>
               Rahul, freelance web designer, Pune — after his first week on LocalLeads
+            </p>
+          </ScrollReveal>
+
+          <ScrollReveal>
+            <div style={{
+              background: "#25D366",
+              borderRadius: "18px 18px 18px 4px",
+              padding: "24px 28px",
+              maxWidth: 540,
+              marginTop: 28,
+              alignSelf: "flex-start",
+            }}>
+              <p style={{
+                fontFamily: "var(--font-sans)", fontSize: 16, color: "#fff",
+                lineHeight: 1.65, margin: 0,
+              }}>
+                &ldquo;searched restaurants in Jaipur — got 340 leads in 8 minutes. Called 20. Got 3 meetings. Closed 1 for ₹18,000. Tool paid for itself 3 times over.&rdquo;
+              </p>
+            </div>
+            <p style={{
+              fontFamily: "var(--font-sans)", fontSize: 13, color: "#444",
+              marginTop: 14, marginLeft: 4, marginBottom: 0,
+            }}>
+              Rohit, freelance web developer, Jaipur — first week on Starter plan
             </p>
           </ScrollReveal>
         </div>
@@ -1027,12 +1319,18 @@ export default function LandingPage() {
             }}>
               The businesses are already there.
               <br />
-              <span style={{ color: "#22C55E", fontStyle: "italic" }}>Someone is going to call them this week.</span>
+              On Google Maps. Right now.
+              <br />
+              <span style={{ color: "#22C55E", fontStyle: "italic" }}>With no website and a working phone number.</span>
             </h2>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", margin: "0 0 20px", lineHeight: 1.68 }}>
+              Takes 30 seconds to sign in with Google. Your first 20 leads are free — no card, no commitment.
+            </p>
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", margin: "0 0 20px", lineHeight: 1.68 }}>
+              Run one search in your city. See the businesses that need you. Click the Google Maps link on any lead and verify it yourself before you make a single call.
+            </p>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", margin: "0 0 44px", lineHeight: 1.68 }}>
-              Takes 30 seconds to sign in. Your first 20 leads are free — no card needed.
-              If you make one call and it goes nowhere, you have lost nothing.
-              If it goes somewhere, you know what to do next.
+              If you do not see the value in the first 10 minutes, close the tab. You have lost nothing. If you do — you know what to do next.
             </p>
             <Link href="/auth" className="btn-gold" style={{ display: "inline-block", marginBottom: 14 }}>
               Find My First Leads — It's Free
