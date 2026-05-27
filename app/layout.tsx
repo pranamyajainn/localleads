@@ -18,15 +18,53 @@ const cormorant = Cormorant_Garamond({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://localleads.sahajta.com"),
-  title: "LocalLeads — Find businesses that need you",
+  title: {
+    default: "LocalLeads — Find Local Businesses With No Website",
+    template: "%s | LocalLeads",
+  },
   description:
-    "LocalLeads surfaces local Indian businesses with no website and a live phone number. Ready to call in minutes.",
-  keywords: ["local leads", "freelancer India", "business leads", "no website businesses"],
+    "LocalLeads scans Google Maps and finds local businesses with a phone number and no website. Get 20 free leads — no credit card needed. Used by freelancers across Mumbai, Pune, Bangalore, Delhi, Jaipur and Hyderabad.",
+  keywords: [
+    "local business leads india",
+    "find businesses without website",
+    "google maps lead extractor",
+    "website leads for freelancers",
+    "local lead generation india",
+    "businesses without website india",
+    "web design leads",
+    "freelancer lead generation tool",
+    "cold outreach leads india",
+  ],
   openGraph: {
-    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
-    title: "LocalLeads — Find businesses with no website",
+    type: "website",
+    locale: "en_IN",
+    url: "https://localleads.sahajta.com",
+    siteName: "LocalLeads",
+    title: "LocalLeads — Find Local Businesses With No Website",
     description:
-      "Scan Google Maps and find local businesses with a phone number and no website. Ready to call in minutes.",
+      "Scan Google Maps and find businesses with a live phone number and no website. Free trial — no credit card.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LocalLeads — Find Local Businesses With No Website",
+    description:
+      "Scan Google Maps and find businesses with a live phone number and no website. Free trial — no credit card.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "https://localleads.sahajta.com",
   },
 };
 
@@ -37,6 +75,34 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "LocalLeads",
+              applicationCategory: "BusinessApplication",
+              operatingSystem: "Web",
+              description:
+                "LocalLeads scans Google Maps and finds local businesses with a phone number and no website. Used by Indian freelancers and agencies for lead generation.",
+              url: "https://localleads.sahajta.com",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "INR",
+                description: "Free trial with 20 leads, no credit card required",
+              },
+              creator: {
+                "@type": "Organization",
+                name: "Sahajta AI Solutions Pvt. Ltd.",
+                url: "https://sahajta.com",
+              },
+            }),
+          }}
+        />
+      </head>
       <body className="antialiased bg-[#0A0A0A] text-[#F5F0E8]">
         {children}
         <Script id="meta-pixel" strategy="afterInteractive">{`
