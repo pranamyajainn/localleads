@@ -54,10 +54,12 @@ Any questions? Just reply to this email.
 Pranamya
 LocalLeads
 
+To unsubscribe: https://localleads.sahajta.com/unsubscribe?email=${encodeURIComponent(email)}
+
 ---
 Don't want these emails? Reply with "stop" and I'll remove you.`,
       headers: {
-        "List-Unsubscribe": "<mailto:hello@sahajta.com?subject=unsubscribe>",
+        "List-Unsubscribe": `<https://localleads.sahajta.com/unsubscribe?email=${encodeURIComponent(email)}>, <mailto:hello@sahajta.com?subject=unsubscribe>`,
       },
     });
 

@@ -14,6 +14,7 @@ async function notifySubscribers(
     const subscribersSnap = await db
       .collection("newsletter_subscribers")
       .where("active", "==", true)
+      .limit(200)
       .get();
 
     if (subscribersSnap.empty) return;
@@ -21,15 +22,21 @@ async function notifySubscribers(
     const resend = new Resend(process.env.RESEND_API_KEY);
     const postUrl = `https://localleads.sahajta.com/blog/${slug}`;
 
-    for (const doc of subscribersSnap.docs) {
-      const subscriber = doc.data();
-      if (!subscriber.email) continue;
+    const emailList = subscribersSnap.docs
+      .map((doc) => doc.data().email)
+      .filter(Boolean) as string[];
 
-      await resend.emails.send({
-        from: "Pranamya from LocalLeads <hello@sahajta.com>",
-        to: subscriber.email,
-        subject: title,
-        text: `Hey,
+    // Send in batches of 10 concurrently
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < emailList.length; i += BATCH_SIZE) {
+      const batch = emailList.slice(i, i + BATCH_SIZE);
+      await Promise.all(
+        batch.map((email) =>
+          resend.emails.send({
+            from: "Pranamya from LocalLeads <hello@sahajta.com>",
+            to: email,
+            subject: title,
+            text: `Hey,
 
 New post on the LocalLeads blog:
 
@@ -39,17 +46,21 @@ ${description}
 
 Read it here: ${postUrl}
 
----
-Don't want these? Reply with "stop" and I will remove you.`,
-        headers: {
-          "List-Unsubscribe": "<mailto:hello@sahajta.com?subject=unsubscribe>",
-        },
-      });
+To unsubscribe: https://localleads.sahajta.com/unsubscribe?email=${encodeURIComponent(email)}
 
-      await new Promise((r) => setTimeout(r, 200));
+---
+Or reply with "stop".`,
+            headers: {
+              "List-Unsubscribe": `<https://localleads.sahajta.com/unsubscribe?email=${encodeURIComponent(email)}>, <mailto:hello@sahajta.com?subject=unsubscribe>`,
+            },
+          }).catch((err) => {
+            console.error(`Failed to send to ${email}:`, err);
+          })
+        )
+      );
     }
 
-    console.log(`Notified ${subscribersSnap.size} subscribers`);
+    console.log(`Notified ${emailList.length} subscribers`);
   } catch (error) {
     console.error("Subscriber notification error:", error);
   }
@@ -208,8 +219,15 @@ async function getTrendingTopic(): Promise<string | null> {
 // ── Route Handler ─────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET;
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const vercelCronHeader = request.headers.get("x-vercel-cron-signature");
+
+  // Allow both: Vercel's automatic cron calls AND manual curl calls with Bearer token
+  const isVercelCron = vercelCronHeader !== null;
+  const isManualTrigger = authHeader === `Bearer ${cronSecret}`;
+
+  if (!isVercelCron && !isManualTrigger) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -361,7 +379,12 @@ If the keyword contains Hindi or Hinglish words, write the post in Hinglish — 
       }),
     });
 
-    await notifySubscribers(db, title.replace(/"/g, "'"), slug, postDescription);
+    // Fire and forget — don't await
+    // Notification failure must not fail blog creation
+    notifySubscribers(db, title.replace(/"/g, "'"), slug, postDescription)
+      .catch((err) => {
+        console.error("Subscriber notification failed:", err);
+      });
 
     return NextResponse.json({
       message: "Blog post generated",

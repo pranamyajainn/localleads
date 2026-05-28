@@ -4,7 +4,34 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Simple in-memory rate limit: 5 subscribes per IP per hour
+const rateLimitMap = new Map<string, number[]>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const windowMs = 60 * 60 * 1000; // 1 hour
+  const maxRequests = 5;
+
+  const timestamps = rateLimitMap.get(ip) || [];
+  const recent = timestamps.filter((t) => now - t < windowMs);
+
+  if (recent.length >= maxRequests) return true;
+
+  recent.push(now);
+  rateLimitMap.set(ip, recent);
+  return false;
+}
+
 export async function POST(request: NextRequest) {
+  const ip =
+    request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+
+  if (isRateLimited(ip)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   try {
     const { email } = await request.json();
 
@@ -54,10 +81,12 @@ If you ever want to stop getting these, just reply "stop" and I will remove you.
 Pranamya
 LocalLeads — localleads.sahajta.com
 
+To unsubscribe: https://localleads.sahajta.com/unsubscribe?email=${encodeURIComponent(normalized)}
+
 ---
 Don't want these? Reply with "stop".`,
       headers: {
-        "List-Unsubscribe": "<mailto:hello@sahajta.com?subject=unsubscribe>",
+        "List-Unsubscribe": `<https://localleads.sahajta.com/unsubscribe?email=${encodeURIComponent(normalized)}>, <mailto:hello@sahajta.com?subject=unsubscribe>`,
       },
     });
 

@@ -12,20 +12,32 @@ function daysSince(date: Date): number {
 }
 
 function plainEmail(to: string, subject: string, body: string) {
+  const unsubUrl = `https://localleads.sahajta.com/unsubscribe?email=${encodeURIComponent(to)}`;
+  const bodyWithUnsub = body.replace(
+    "\n---\n",
+    `\nTo unsubscribe: ${unsubUrl}\n\n---\n`
+  );
   return resend.emails.send({
     from: "Pranamya from LocalLeads <hello@sahajta.com>",
     to,
     subject,
-    text: body,
+    text: bodyWithUnsub,
     headers: {
-      "List-Unsubscribe": "<mailto:hello@sahajta.com?subject=unsubscribe>",
+      "List-Unsubscribe": `<${unsubUrl}>, <mailto:hello@sahajta.com?subject=unsubscribe>`,
     },
   });
 }
 
 export async function GET(request: NextRequest) {
+  const cronSecret = process.env.CRON_SECRET;
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const vercelCronHeader = request.headers.get("x-vercel-cron-signature");
+
+  // Allow both: Vercel's automatic cron calls AND manual curl calls with Bearer token
+  const isVercelCron = vercelCronHeader !== null;
+  const isManualTrigger = authHeader === `Bearer ${cronSecret}`;
+
+  if (!isVercelCron && !isManualTrigger) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
