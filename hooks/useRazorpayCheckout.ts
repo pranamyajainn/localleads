@@ -47,11 +47,6 @@ export function useRazorpayCheckout(
       return;
     }
 
-    if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
-      setPayError("Payment configuration error. Please contact support.");
-      return;
-    }
-
     setPaying(planId);
     setPayError(null);
     try {
@@ -70,10 +65,12 @@ export function useRazorpayCheckout(
         throw new Error("Failed to create subscription.");
       }
 
-      const { subscription_id } = await subRes.json();
+      const { subscription_id, key_id } = await subRes.json();
+
+      if (!key_id) throw new Error("Payment configuration error. Please contact support.");
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: key_id,
         subscription_id,
         name: "LocalLeads",
         description: `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan — Monthly`,

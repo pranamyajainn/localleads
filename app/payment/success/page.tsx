@@ -37,7 +37,7 @@ export default function PaymentSuccessPage() {
         {/* Logo */}
         <Link href="/" style={{ textDecoration: "none", display: "inline-block", marginBottom: 52 }}>
           <span style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.01em", color: "#EDEDED" }}>
-            Local<span style={{ color: "#22C55E" }}>Leads</span>
+            Local<span style={{ color: "var(--color-gold)" }}>Leads</span>
           </span>
         </Link>
 
@@ -49,13 +49,13 @@ export default function PaymentSuccessPage() {
           margin: "0 auto 32px",
           background: "rgba(34,197,94,0.06)",
         }}>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="1.5">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.5">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
 
         {/* Thin line */}
-        <div style={{ width: 40, height: 1, background: "#22C55E", margin: "0 auto 28px" }} />
+        <div style={{ width: 40, height: 1, background: "var(--color-gold)", margin: "0 auto 28px" }} />
 
         <h1 style={{
           fontFamily: "var(--font-serif)",
@@ -73,7 +73,7 @@ export default function PaymentSuccessPage() {
 
         <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#3A3A3A", margin: "0 0 44px" }}>
           Redirecting to your dashboard in{" "}
-          <span style={{ color: "#22C55E", fontWeight: 600 }}>{countdown}</span> second{countdown !== 1 ? "s" : ""}...
+          <span style={{ color: "var(--color-gold)", fontWeight: 600 }}>{countdown}</span> second{countdown !== 1 ? "s" : ""}...
         </p>
 
         <Link href="/dashboard" className="btn-gold" style={{ display: "inline-block" }}>

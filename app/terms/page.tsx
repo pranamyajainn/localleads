@@ -3,7 +3,7 @@ export default function TermsPage() {
     <div style={{ minHeight: "100vh", background: "#080808", color: "#EDEDED", padding: "80px 40px" }}>
       <div style={{ maxWidth: 680, margin: "0 auto" }}>
         <a href="/" style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.01em", color: "#EDEDED", textDecoration: "none", display: "inline-block", marginBottom: 48 }}>
-          Local<span style={{ color: "#22C55E" }}>Leads</span>
+          Local<span style={{ color: "var(--color-gold)" }}>Leads</span>
         </a>
         <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 36, fontWeight: 700, letterSpacing: "-0.02em", margin: "0 0 8px" }}>
           Terms of Service
@@ -32,7 +32,7 @@ export default function TermsPage() {
           </p>
           <p>
             <strong style={{ color: "#EDEDED" }}>Contact.</strong> For any queries regarding these terms, email{" "}
-            <a href="mailto:contact@sahajta.com" style={{ color: "#22C55E", textDecoration: "none" }}>contact@sahajta.com</a>.
+            <a href="mailto:contact@sahajta.com" style={{ color: "var(--color-gold)", textDecoration: "none" }}>contact@sahajta.com</a>.
           </p>
         </div>
       </div>

@@ -34,7 +34,7 @@ export function ProductMockup() {
     <div
       ref={ref}
       style={{
-        border: "1px solid rgba(34,197,94,0.18)",
+        border: "1px solid rgba(255,230,93,0.18)",
         background: "#0F0F0F",
         boxShadow: "0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04)",
         overflow: "hidden",
@@ -81,7 +81,7 @@ export function ProductMockup() {
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 5, height: 5, background: "#22C55E", display: "inline-block" }} />
+          <span style={{ width: 5, height: 5, background: "var(--color-gold)", display: "inline-block" }} />
           <span
             style={{
               fontFamily: "var(--font-sans)",
@@ -113,7 +113,7 @@ export function ProductMockup() {
               fontSize: 10,
               letterSpacing: "0.15em",
               textTransform: "uppercase",
-              color: "#22C55E",
+              color: "var(--color-gold)",
               marginBottom: 20,
               fontWeight: 600,
             }}
@@ -204,7 +204,7 @@ export function ProductMockup() {
 
           <div
             style={{
-              background: "#22C55E",
+              background: "var(--color-gold)",
               padding: "11px 14px",
               textAlign: "center",
               fontSize: 11,
@@ -230,7 +230,7 @@ export function ProductMockup() {
               style={{
                 fontFamily: "var(--font-sans)",
                 fontSize: 13,
-                color: "#22C55E",
+                color: "var(--color-gold)",
                 fontWeight: 500,
               }}
             >
@@ -300,9 +300,9 @@ export function ProductMockup() {
                       style={{
                         display: "inline-block",
                         padding: "3px 10px",
-                        border: "1px solid rgba(34,197,94,0.3)",
+                        border: "1px solid rgba(255,230,93,0.3)",
                         fontSize: 12,
-                        color: "#22C55E",
+                        color: "var(--color-gold)",
                         fontFamily: "var(--font-sans)",
                         letterSpacing: "0.04em",
                       }}
@@ -352,7 +352,7 @@ export function ProductMockup() {
                   alignItems: "center",
                   gap: 8,
                   padding: "9px 20px",
-                  background: "#22C55E",
+                  background: "var(--color-gold)",
                   color: "#080808",
                   fontFamily: "var(--font-sans)",
                   fontSize: 12,

@@ -60,13 +60,13 @@ export function SearchTicker() {
           className="pulse-dot"
           style={{
             width: 7, height: 7, borderRadius: "50%",
-            background: "#22C55E", display: "inline-block", flexShrink: 0,
+            background: "var(--color-gold)", display: "inline-block", flexShrink: 0,
           }}
         />
         <span style={{ ...MONO, fontSize: 10, color: "#3A3A3A", letterSpacing: "0.08em" }}>
           live searches · right now
         </span>
-        <span style={{ ...MONO, fontSize: 10, color: "#22C55E", marginLeft: "auto", letterSpacing: "0.06em" }}>
+        <span style={{ ...MONO, fontSize: 10, color: "var(--color-gold)", marginLeft: "auto", letterSpacing: "0.06em" }}>
           {shown * 3 + 841} found today
         </span>
       </div>
@@ -100,7 +100,7 @@ export function SearchTicker() {
                 <span style={{ ...MONO, fontSize: 12, color: "#2A2A2A" }}>·</span>
                 <span style={{ ...MONO, fontSize: 12, color: "#444" }}>{item.city}</span>
               </div>
-              <span style={{ ...MONO, fontSize: 11, color: isNewest ? "#22C55E" : "#2E2E2E", flexShrink: 0 }}>
+              <span style={{ ...MONO, fontSize: 11, color: isNewest ? "var(--color-gold)" : "#2E2E2E", flexShrink: 0 }}>
                 {item.n} leads
               </span>
             </div>

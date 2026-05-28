@@ -25,6 +25,8 @@ export default withSentryConfig(nextConfig, {
   sourcemaps: {
     filesToDeleteAfterUpload: [".next/static/**/*.map"],
   },
-  disableLogger: true,
-  automaticVercelMonitors: false,
+  webpack: {
+    treeshake: { removeDebugLogging: true },
+    automaticVercelMonitors: false,
+  },
 });

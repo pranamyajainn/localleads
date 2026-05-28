@@ -1,12 +1,7 @@
-/**
- * LocalLeads landing page
- *
- * Design intent: editorial, not templated.
- * Left-aligned 2-column hero. Bento features. Mega-quote testimonial.
- * A light (cream) section breaks the dark monotony — the "crafted" signal.
- */
+"use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { StatCounter } from "@/components/StatCounter";
 import { LiveScan } from "@/components/LiveScan";
@@ -20,9 +15,9 @@ const PLANS = [
     name: "Free",
     price: "₹0",
     period: "forever",
-    note: "Try LocalLeads, no card needed",
-    features: ["20 leads (lifetime)", "All cities & categories"],
-    missing: ["CSV export", "Priority support"],
+    note: "Try it out, no credit card needed",
+    features: ["Find 20 shops (forever)", "All cities & types of shops"],
+    missing: ["Download list to Excel/CSV", "Quick email support"],
     cta: "Start Free",
     href: "/auth",
     featured: false,
@@ -31,10 +26,10 @@ const PLANS = [
     name: "Starter",
     price: "₹499",
     period: "/month",
-    note: "Most popular · first sale pays this back 20×",
+    note: "Best value · get your money back with just 1 client!",
     highlight: "Most popular",
-    perLeadNote: "₹1 per qualified lead",
-    features: ["500 leads / month", "CSV export", "All cities & categories"],
+    perLeadNote: "Cost: ₹1 per shop phone number",
+    features: ["Find 500 shops / month", "Download list to Excel/CSV", "All cities & types of shops"],
     missing: [],
     cta: "Get Starter — ₹499/mo",
     href: "/auth?plan=starter",
@@ -44,9 +39,9 @@ const PLANS = [
     name: "Growth",
     price: "₹999",
     period: "/month",
-    note: "For freelancers closing 5-10 sites/month",
-    perLeadNote: "₹0.50 per qualified lead",
-    features: ["2,000 leads / month", "CSV export", "All cities & categories"],
+    note: "For people who build 5 to 10 websites every month",
+    perLeadNote: "Cost: ₹0.50 per shop phone number",
+    features: ["Find 2,000 shops / month", "Download list to Excel/CSV", "All cities & types of shops"],
     missing: [],
     cta: "Get Growth",
     href: "/auth?plan=growth",
@@ -56,9 +51,9 @@ const PLANS = [
     name: "Pro",
     price: "₹2,499",
     period: "/month",
-    note: "For full-time freelancers & small agencies",
-    perLeadNote: "₹0.25 per qualified lead",
-    features: ["10,000 leads / month", "CSV export", "Priority support", "All cities"],
+    note: "For busy designers and small teams",
+    perLeadNote: "Cost: ₹0.25 per shop phone number",
+    features: ["Find 10,000 shops / month", "Download list to Excel/CSV", "Quick email support", "All cities"],
     missing: [],
     cta: "Get Pro",
     href: "/auth?plan=pro",
@@ -68,9 +63,9 @@ const PLANS = [
     name: "Agency",
     price: "₹4,999",
     period: "/month",
-    note: "For agencies running multi-city campaigns",
-    perLeadNote: "₹0.10 per qualified lead",
-    features: ["50,000 leads / month", "CSV export", "Priority support", "Dedicated onboarding", "All cities"],
+    note: "For big companies finding shops everywhere",
+    perLeadNote: "Cost: ₹0.10 per shop phone number",
+    features: ["Find 50,000 shops / month", "Download list to Excel/CSV", "Quick email support", "Help with onboarding", "All cities"],
     missing: [],
     cta: "Get Agency",
     href: "/auth?plan=agency",
@@ -80,1311 +75,918 @@ const PLANS = [
 
 const FAQS = [
   {
-    q: "Is the data real? Will I get active phone numbers or junk?",
-    a: "Every number and business name comes directly from Google Maps — pulled in real time when you search, not from a cached or purchased list. This is not JustDial. This is not a vendor database. This is Google Maps data — the same source a customer would use to call that business today. Every lead includes a live Google Maps link. Click it. Open the listing. See for yourself that the business exists, that the phone number matches, and that there is no website listed. That verification link is the reason our data quality is fundamentally different from any list you have bought before.",
+    q: "Is the phone number list real?",
+    a: "Yes! We get the phone numbers straight from Google Maps in real time. We do not use old or fake lists. You can click the Google Maps link for any shop to check it yourself!",
   },
   {
-    q: "How do I actually sell a website to these businesses?",
-    a: "Call them and say: I found you on Google Maps — you have no website, I build them for local businesses starting at ₹10,000, interested? That is it. About 1 in 5 calls becomes a real conversation. About 1 in 5 of those becomes a paying client. That is 1 client per 25 calls — and each call takes 2 minutes.",
+    q: "How do I sell a website to these shops?",
+    a: "Just call them! Say: \"I found you on Google Maps. You do not have a website. I can build one for you for ₹10,000.\" If you call 25 shops, you can easily get 1 shop to say yes!",
   },
   {
-    q: "Can I search for businesses outside India?",
-    a: "Yes. LocalLeads works on Google Maps globally. You can search restaurants in New York, salons in London, or travel agencies in Dubai — and get the same output: business name, phone number, Google Maps link, and no-website confirmation. Many freelancers in India are using LocalLeads to pitch Western businesses at Western price points — charging in dollars while living in India.",
+    q: "Can I find shops in other countries?",
+    a: "Yes! You can search anywhere in the world. You can find shops in New York, London, or Dubai. Many people in India use our tool to find shops in other countries and get paid in US Dollars!",
   },
   {
-    q: "What price should I charge for a website?",
-    a: "₹10,000–₹25,000 is the standard market rate for a small business website in India. A restaurant, salon, or CA firm with no online presence will happily pay ₹10,000–15,000 for a clean, professional site. If you're using AI tools (Framer, Webflow, Cursor), you can build one in 4–8 hours.",
+    q: "How much money should I charge?",
+    a: "You can charge ₹10,000 to ₹25,000 for a simple website. Shops like cafes, salons, or clinics will happily pay this. With modern web tools, you can build a site in just 1 day!",
   },
   {
-    q: "How is this different from Just Dial or Sulekha?",
-    a: "Just Dial shows businesses that already want to be found digitally. LocalLeads finds businesses that haven't built a website yet. These are warmer leads because (1) they have a clear need you can prove, (2) your competitors on Just Dial don't see them, and (3) you're coming in with a specific, valuable offer.",
+    q: "How is this better than other websites?",
+    a: "Other sites show shops that already have websites or run ads. We find shops that have NO website at all. This means they really need your help, and other designers are not calling them yet!",
   },
   {
-    q: "Is the data accurate and legal to use?",
-    a: "LocalLeads surfaces publicly available business information from Google Maps — the same data you'd see if you searched manually. We filter it and make it actionable. All data is public. All use is legitimate.",
+    q: "Is this safe and legal?",
+    a: "Yes! All the shop info is public on Google Maps. We just save you time by finding it for you. It is 100% legal and safe to use.",
   },
 ];
 
-// ─ Page ───────────────────────────────────────────────────────────────────────
-
 export default function LandingPage() {
   return (
-    <div style={{ background: "#080808", color: "#EDEDED", minHeight: "100vh" }}>
+    <div style={{ background: "#0A0A0B", color: "#EDEDED", minHeight: "100vh", fontFamily: "var(--font-sans)" }}>
 
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <nav
         style={{
-          position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
-          height: 60,
+          position: "sticky", top: 0, left: 0, right: 0, zIndex: 100,
+          height: 80,
           display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "0 24px",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
-          background: "rgba(8,8,8,0.92)",
+          background: "rgba(10,10,11,0.92)",
           backdropFilter: "blur(20px)",
         }}
       >
-        <span style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.01em", color: "#EDEDED" }}>
-          Local<span style={{ color: "#22C55E" }}>Leads</span>
+        <span style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.015em", color: "#EDEDED" }}>
+          Local<span style={{ color: "var(--color-gold)" }}>Leads</span>
         </span>
-        <div className="nav-desktop-links" style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          <a href="#how-it-works" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 400 }}>How it works</a>
-          <a href="#pricing" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 400 }}>Pricing</a>
-          <Link href="/auth" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 400 }}>Sign in</Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+          <a href="#benefits" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }}>Benefits</a>
+          <a href="#how-it-works" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }}>How it works</a>
+          <a href="#pricing" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }}>Pricing</a>
+          <Link href="/blog" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }}>Blog</Link>
           <Link
             href="/auth"
             style={{
-              background: "#22C55E", color: "#080808",
-              fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
-              padding: "8px 20px", letterSpacing: "0.03em", textDecoration: "none",
+              background: "var(--color-gold)", color: "#0A0A0B",
+              fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700,
+              padding: "10px 22px", borderRadius: 30, textDecoration: "none",
+              transition: "background 0.2s",
             }}
+            onMouseOver={(e) => e.currentTarget.style.background = "var(--color-gold-light)"}
+            onMouseOut={(e) => e.currentTarget.style.background = "var(--color-gold)"}
           >
-            Start Free
+            Start a free trial
           </Link>
         </div>
-        <Link
-          href="/auth"
-          className="nav-mobile-only"
-          style={{
-            background: "#22C55E", color: "#080808",
-            fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700,
-            padding: "8px 18px", letterSpacing: "0.03em", textDecoration: "none",
-          }}
-        >
-          Start Free
-        </Link>
       </nav>
 
-      {/* ── Hero — left-aligned 2-column ────────────────────────────────────── */}
+      {/* ── Hero Section ────────────────────────────────────────────────────── */}
       <section
-        className="dot-grid hero-grid section-pad"
         style={{
-          minHeight: "100vh",
-          paddingTop: 60,
+          minHeight: "calc(100vh - 80px)",
+          padding: "80px 24px",
           display: "grid",
-          gridTemplateColumns: "55% 45%",
+          gridTemplateColumns: "1.2fr 1fr",
+          alignItems: "center",
+          maxWidth: 1200,
+          margin: "0 auto",
+          gap: 48,
         }}
+        className="hero-grid"
       >
-        {/* Left — copy */}
-        <div
-          className="hero-left-pad"
-          style={{
-            display: "flex", flexDirection: "column", justifyContent: "center",
-            padding: "80px 56px 80px 64px",
-            borderRight: "1px solid rgba(255,255,255,0.05)",
-          }}
-        >
-          {/* Editorial label */}
-          <div
-            className="hero-label"
-            style={{
-              marginBottom: 24,
-              fontFamily: "var(--font-sans)", fontSize: 13, color: "#22C55E",
-              letterSpacing: "0.01em", fontWeight: 600, lineHeight: 1.5,
-            }}
-          >
-            The tool Indian freelancers and agencies use to find businesses that need a website — before competitors do
-          </div>
-
-          {/* H1 */}
+        {/* Left Side Copy */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <span style={{ color: "var(--color-gold)", fontWeight: 700, letterSpacing: "0.1em", fontSize: 12, textTransform: "uppercase" }}>
+            Smarter client finding for web designers
+          </span>
           <h1
-            className="animate-fade-up hero-h1"
             style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "clamp(52px, 5.2vw, 88px)",
-              fontWeight: 700, lineHeight: 0.94,
-              letterSpacing: "-0.038em", color: "#EDEDED",
-              margin: "0 0 32px",
+              fontSize: "clamp(36px, 4.5vw, 68px)",
+              fontWeight: 700,
+              lineHeight: 1.1,
+              letterSpacing: "-0.03em",
+              color: "#FFFFFF",
+              margin: 0,
             }}
           >
-            Find local businesses
+            Find local shops with no website.
             <br />
-            with no website.
-            <br />
-            <span style={{ color: "#22C55E", fontStyle: "italic" }}>Call them today.</span>
+            <span style={{ color: "var(--color-gold)" }}>Call them today.</span>
           </h1>
-
-          {/* Body */}
           <p
-            className="animate-fade-up-delay-1"
             style={{
-              fontFamily: "var(--font-sans)", fontSize: 16, lineHeight: 1.72,
-              color: "#666", margin: "0 0 36px", maxWidth: 420,
+              fontSize: "clamp(16px, 1.8vw, 19px)",
+              lineHeight: 1.6,
+              color: "rgba(210, 210, 211, 1)",
+              maxWidth: 580,
+              margin: 0,
             }}
           >
-            LocalLeads scans Google Maps in real time and shows you businesses
-            with a live phone number and no website. Not a cached list. Not
-            JustDial data. Live Google Maps results — with a verification link
-            on every lead so you can check with your own eyes before you call.
+            We find phone numbers of shops on Google Maps that do not have websites. You get them in 1 click. Stop wasting hours searching by yourself!
           </p>
 
-          {/* CTAs */}
-          <div className="animate-fade-up-delay-2" style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 30 }}>
-            <Link href="/auth" className="btn-gold hero-cta" style={{ background: "#22C55E", borderColor: "#22C55E", color: "#000000" }}>Try for Free — No Credit Card Needed</Link>
-            <a href="#how-it-works" className="btn-ghost-sm">See how it works →</a>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 12 }}>
+            <Link
+              href="/auth"
+              style={{
+                background: "var(--color-gold)", color: "#0A0A0B",
+                fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700,
+                padding: "16px 40px", borderRadius: 30, textDecoration: "none",
+                display: "inline-block", textAlign: "center", width: "fit-content",
+                transition: "background 0.2s",
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = "var(--color-gold-light)"}
+              onMouseOut={(e) => e.currentTarget.style.background = "var(--color-gold)"}
+            >
+              Start a free trial
+            </Link>
+            
+            {/* Checks */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "16px 24px", marginTop: 8 }}>
+              {[
+                "Stop wasting time searching",
+                "Get real phone numbers",
+                "Get maps links",
+              ].map((text, idx) => (
+                <div key={idx} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: "var(--color-gold)", flexShrink: 0 }}>
+                    <path d="M4.77404 9.93175C4.44485 9.93175 4.11565 9.80186 3.86435 9.54044L0.376956 5.91256C-0.125652 5.38974 -0.125652 4.54277 0.376956 4.02145C0.879564 3.49863 1.69226 3.4971 2.19487 4.01994L4.77404 6.70297L10.8406 0.392129C11.3432 -0.13071 12.1559 -0.13071 12.6586 0.392129C13.1611 0.914977 13.1611 1.76193 12.6586 2.28477L5.68371 9.54044C5.43243 9.80186 5.10323 9.93175 4.77404 9.93175Z" fill="currentColor"/>
+                  </svg>
+                  <span style={{ fontSize: 13, color: "rgba(210,210,211,1)", fontWeight: 500 }}>{text}</span>
+                </div>
+              ))}
+            </div>
           </div>
+        </div>
 
-          {/* Trust */}
-          <div
-            className="animate-fade-up-delay-3"
+        {/* Right Side Mockup */}
+        <div className="hero-right" style={{ display: "flex", justifyContent: "center" }}>
+          <Image
+            src="/simplified-hero.png"
+            alt="LocalLeads Dashboard Mockup"
+            width={1024}
+            height={1024}
+            priority
             style={{
-              display: "flex", alignItems: "center", gap: 14,
-              fontFamily: "var(--font-sans)", fontSize: 12, color: "#333",
+              width: "100%",
+              maxWidth: 500,
+              height: "auto",
+              borderRadius: 24,
+              boxShadow: "0 24px 64px rgba(0,0,0,0.6), 0 0 80px rgba(255, 230, 93, 0.08)",
+            }}
+          />
+        </div>
+      </section>
+
+      {/* ── Core Benefits Grid (Define Card Style) ─────────────────────────── */}
+      <section id="benefits" style={{ padding: "100px 24px", maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 60 }}>
+          <h2
+            style={{
+              fontSize: "clamp(28px, 4vw, 44px)",
+              fontWeight: 700,
+              lineHeight: 1.2,
+              letterSpacing: "-0.02em",
+              color: "#FFFFFF",
+              marginBottom: 16,
             }}
           >
-            <span>Free forever</span>
-            <span style={{ color: "#1E1E1E" }}>·</span>
-            <span>Google Sign-in</span>
-            <span style={{ color: "#1E1E1E" }}>·</span>
-            <span>No credit card</span>
-          </div>
+            Get more business from Google Maps
+          </h2>
+          <p style={{ fontSize: 16, color: "rgba(210, 210, 211, 0.7)", maxWidth: 580, margin: "0 auto" }}>
+            Don't waste time copy-pasting phone numbers. Let our tool do the work for you.
+          </p>
         </div>
 
-        {/* Right — live search feed */}
+        {/* 3-Column Visual Cards */}
         <div
-          className="hero-right"
           style={{
-            display: "flex", flexDirection: "column", justifyContent: "center",
-            padding: "80px 48px 80px 32px",
-            position: "relative",
-            backgroundImage: "url(/hero-illustration.png)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div
-            className="animate-fade-up-delay-2"
-            style={{ height: 420 }}
-          >
-            <SearchTicker />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Social proof bar ─────────────────────────────────────────────────── */}
-      <div style={{
-        background: "#0A0A0A",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
-        padding: "16px 24px",
-      }}>
-        <div style={{
-          maxWidth: 960, margin: "0 auto",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          gap: 32, flexWrap: "wrap",
-          fontFamily: "var(--font-sans)", fontSize: 13, color: "#555",
-        }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-            Real-time Google Maps data
-          </span>
-          <span style={{ color: "#1E1E1E" }}>·</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-            Every lead verified with a live link
-          </span>
-          <span style={{ color: "#1E1E1E" }}>·</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-            20 free leads — no card needed
-          </span>
-        </div>
-      </div>
-
-      {/* ── Stats ────────────────────────────────────────────────────────────── */}
-      <section className="section-pad" style={{
-        padding: "64px 24px",
-        background: "#0A0A0A",
-        borderTop: "1px solid rgba(255,255,255,0.07)",
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
-      }}>
-        <div style={{ maxWidth: 960, margin: "0 auto" }}>
-          <ScrollReveal>
-            <div className="stats-3col" style={{
-              display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
-            }}>
-              {[
-                {
-                  val: "10–40",
-                  sub: "qualified leads per search",
-                  note: "Businesses with no website and a live phone number, in any Indian city you pick",
-                },
-                {
-                  val: "2 min",
-                  sub: "Results in under 2 minutes",
-                  note: "Type a business type and city. Get a contact list ready to call",
-                },
-                {
-                  val: "₹10k+",
-                  sub: "is the floor, not the ceiling",
-                  note: "Standard market rate in India for a small business website",
-                },
-              ].map((s, i) => (
-                <div key={i} style={{
-                  padding: "28px 32px",
-                  borderRight: i < 2 ? "1px solid rgba(255,255,255,0.07)" : "none",
-                  textAlign: i === 0 ? "left" : i === 2 ? "right" : "center",
-                }}>
-                  <p style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(28px, 3.5vw, 44px)", fontWeight: 600, color: "#22C55E", margin: "0 0 4px", letterSpacing: "-0.02em", lineHeight: 1 }}>
-                    {s.val}
-                  </p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: "#EDEDED", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                    {s.sub}
-                  </p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444", margin: 0, lineHeight: 1.6 }}>
-                    {s.note}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── Product Mockup — full-width, proud showcase ──────────────────────── */}
-      <section className="section-pad" style={{
-        padding: "80px 40px",
-        background: "#080808",
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
-      }}>
-        <div style={{ maxWidth: 1040, margin: "0 auto" }}>
-          <ScrollReveal>
-            <div style={{ marginBottom: 36 }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#22C55E", marginBottom: 12 }}>
-                The product
-              </p>
-              <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(24px, 3vw, 36px)", fontWeight: 700, color: "#EDEDED", margin: "0 0 8px", lineHeight: 1.15 }}>
-                Search. Get leads. Call. Repeat.
-              </h2>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#555", margin: 0, maxWidth: 460, lineHeight: 1.65 }}>
-                Here's the dashboard. You pick a city and business type. We scan Google Maps and show you everyone with a phone number and no website.
-              </p>
-            </div>
-          </ScrollReveal>
-          <ProductMockup />
-        </div>
-      </section>
-
-      {/* ── Pain ─────────────────────────────────────────────────────────────── */}
-      <section className="section-pad" style={{ padding: "100px 40px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#0A0A0A" }}>
-        <div style={{ maxWidth: 1040, margin: "0 auto" }}>
-          <ScrollReveal>
-            <div className="pain-grid" style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 60, alignItems: "start" }}>
-              {/* Left */}
-              <div>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#22C55E", marginBottom: 16 }}>
-                  The real problem
-                </p>
-                <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(24px, 2.5vw, 34px)", fontWeight: 700, color: "#EDEDED", lineHeight: 1.15, margin: 0 }}>
-                  You know how to build.
-                  <br />
-                  <span style={{ color: "#444" }}>Finding who needs it is the hard part.</span>
-                </h2>
-              </div>
-              {/* Right */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                {[
-                  {
-                    num: "01",
-                    title: "No list of businesses that actually need a website",
-                    body: "You're guessing. Cold messages on Instagram get ignored. Just Dial shows businesses that already know what they want.",
-                  },
-                  {
-                    num: "02",
-                    title: "Cold calling with no proof of need rarely works",
-                    body: "If you can't point to a real gap, the conversation dies. Businesses listed on Maps with no website are different. The gap is visible.",
-                  },
-                  {
-                    num: "03",
-                    title: "Finding warm leads takes hours you don't have",
-                    body: "Manual Google Maps research. Checking each business. Noting down numbers. Two hours for what LocalLeads returns in two minutes.",
-                  },
-                ].map((p, i) => (
-                  <ScrollReveal key={i} delay={i * 60}>
-                    <div style={{
-                      padding: "28px 0",
-                      borderBottom: "1px solid rgba(255,255,255,0.06)",
-                      display: "grid",
-                      gridTemplateColumns: "40px 1fr",
-                      gap: 20,
-                    }}>
-                      <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#2E2E2E", paddingTop: 4, letterSpacing: "0.06em" }}>
-                        {p.num}
-                      </span>
-                      <div>
-                        <h3 style={{ fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 600, color: "#555", margin: "0 0 8px", lineHeight: 1.4 }}>
-                          {p.title}
-                        </h3>
-                        <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#333", lineHeight: 1.7, margin: 0 }}>
-                          {p.body}
-                        </p>
-                      </div>
-                    </div>
-                  </ScrollReveal>
-                ))}
-
-                {/* Bridge */}
-                <ScrollReveal>
-                  <div style={{
-                    padding: "24px 24px",
-                    marginTop: 24,
-                    background: "rgba(34,197,94,0.04)",
-                    borderLeft: "2px solid rgba(34,197,94,0.5)",
-                  }}>
-                    <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#777", lineHeight: 1.72, margin: 0 }}>
-                      A business on Google Maps with no website is already telling you something.{" "}
-                      <strong style={{ color: "#EDEDED" }}>LocalLeads finds them for you</strong>{" "}
-                      so you can call with a reason, not a guess.{" "}
-                      <strong style={{ color: "#22C55E" }}>That changes the whole conversation.</strong>
-                    </p>
-                  </div>
-                </ScrollReveal>
-              </div>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── Story — narrative transportation ────────────────────────────────── */}
-      <section className="section-pad" style={{ padding: "100px 40px", background: "#080808", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ maxWidth: 700, margin: "0 auto" }}>
-          <ScrollReveal>
-            <div className="story-card-pad" style={{
-              position: "relative",
-              padding: "52px 52px 48px",
-              border: "1px solid rgba(255,255,255,0.07)",
-              background: "#0D0D0D",
-              overflow: "hidden",
-            }}>
-              {/* Decorative quote mark */}
-              <div style={{
-                position: "absolute", top: 8, left: 32,
-                fontFamily: "var(--font-serif)", fontSize: 130, lineHeight: 1,
-                color: "rgba(34,197,94,0.06)", userSelect: "none", fontWeight: 700, pointerEvents: "none",
-              }}>
-                "
-              </div>
-
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 28, position: "relative" }}>
-                How it usually goes
-              </p>
-
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", lineHeight: 1.82, margin: "0 0 16px", position: "relative" }}>
-                A web developer in Pune was spending two hours every morning just finding someone to pitch.
-                Instagram DMs. Sulekha. Cold WhatsApp. The work was not the problem. Finding the work was.
-              </p>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.82, margin: "0 0 16px", position: "relative" }}>
-                One morning he searched "restaurants, Pune" on LocalLeads. Thirty-one businesses. No website.
-                Real numbers. People he could call right now — with a reason.
-              </p>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#EDEDED", lineHeight: 1.65, margin: "0 0 8px", fontWeight: 500, position: "relative" }}>
-                He called eight. Three answered. Two had been meaning to get a website for years. He built all three in a week.
-              </p>
-
-              <p style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "#22C55E", margin: "8px 0 24px", fontStyle: "italic", position: "relative", lineHeight: 1.2 }}>
-                ₹36,000. No cold outreach. No guessing.
-              </p>
-
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#555", lineHeight: 1.78, margin: "0 0 36px", position: "relative" }}>
-                That conversation starts differently when you can say: "I found you on Google Maps — you have no website,
-                I build them for businesses like yours starting at ₹10,000." That is not a pitch. That is an observation.
-                Observations are hard to argue with.
-              </p>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative" }}>
-                <div style={{
-                  width: 38, height: 38,
-                  background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.18)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: "#22C55E", flexShrink: 0,
-                }}>
-                  ?
-                </div>
-                <div>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: "#EDEDED", margin: 0 }}>A developer from Pune</p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#555", margin: 0 }}>This is what the workflow looks like in practice</p>
-                </div>
-              </div>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── Section A: Time Problem ──────────────────────────────────────────── */}
-      <section className="section-pad" style={{ padding: "100px 40px", background: "#080808", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ maxWidth: 860, margin: "0 auto" }}>
-          <ScrollReveal>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 20 }}>
-              The time problem
-            </p>
-            <h2 style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "clamp(28px, 3.8vw, 52px)",
-              fontWeight: 700, color: "#EDEDED",
-              lineHeight: 1.1, letterSpacing: "-0.025em",
-              margin: "0 0 32px",
-            }}>
-              You spent 5 hours on Google Maps.
-              <br />
-              <span style={{ color: "#444" }}>How many calls did you make?</span>
-            </h2>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
-              {"You're clicking business after business, checking for websites, copying numbers to a WhatsApp note. Your whole day goes into finding people to call. Not actually calling them."}
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
-              LocalLeads does that part in 10 minutes.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 36px", maxWidth: 640 }}>
-              Search your city. Pick your business type. Hit find. Get a list — business name, live phone number, Google Maps link. Every entry verified. Every business confirmed to have no website.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 17, color: "#EDEDED", lineHeight: 1.6, margin: "0 0 48px", maxWidth: 640, fontWeight: 500 }}>
-              You call. You pitch. You close.
-            </p>
-
-            {/* Comparison box */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "rgba(255,255,255,0.06)" }} className="comparison-grid">
-              <div style={{ background: "#0D0D0D", padding: "28px 32px" }}>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#444", margin: "0 0 16px" }}>
-                  Manual Google Maps
-                </p>
-                {["4–6 hours", "20–30 contacts", "40% already have websites"].map((item, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#555" }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ background: "rgba(34,197,94,0.04)", padding: "28px 32px", border: "1px solid rgba(34,197,94,0.2)" }}>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#22C55E", margin: "0 0 16px" }}>
-                  LocalLeads
-                </p>
-                {["10 minutes", "500+ contacts", "100% confirmed no website"].map((item, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#EDEDED" }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── Section B: Proof Advantage ───────────────────────────────────────── */}
-      <section className="section-pad" style={{ padding: "100px 40px", background: "#0D0D0D", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ maxWidth: 860, margin: "0 auto" }}>
-          <ScrollReveal>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 20 }}>
-              The proof advantage
-            </p>
-            <h2 style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "clamp(28px, 3.8vw, 52px)",
-              fontWeight: 700, color: "#EDEDED",
-              lineHeight: 1.1, letterSpacing: "-0.025em",
-              margin: "0 0 32px",
-            }}>
-              Your prospect asked for proof.
-              <br />
-              <span style={{ color: "#444" }}>Here is what you say.</span>
-            </h2>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
-              Every lead from LocalLeads includes a Google Maps link showing their business has no website listed.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.8, margin: "0 0 8px", maxWidth: 640 }}>
-              When you call, you say:
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#EDEDED", lineHeight: 1.8, margin: "0 0 20px", maxWidth: 640, fontStyle: "italic" }}>
-              &ldquo;I found you on Google Maps — your business has no website. I build them for businesses like yours starting at ₹10,000.&rdquo;
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
-              That is not a cold pitch. That is a verified observation. And it came from Google — not you.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 48px", maxWidth: 640 }}>
-              Your prospect can check it themselves. Most do. Most are impressed that you did your homework. That is the difference between a rejection and a conversation.
-            </p>
-
-            {/* Callout box */}
-            <div style={{
-              padding: "24px 28px",
-              border: "1px solid rgba(34,197,94,0.3)",
-              background: "rgba(34,197,94,0.04)",
-              maxWidth: 520,
-            }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#22C55E", margin: "0 0 14px" }}>
-                Every lead includes
-              </p>
-              {["Business name", "Live phone number", "Google Maps link confirming no website", "Ready to call in minutes"].map((item, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-                  <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#EDEDED" }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── Section C: Feast-Famine ──────────────────────────────────────────── */}
-      <section className="section-pad" style={{ padding: "100px 40px", background: "#111111", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ maxWidth: 860, margin: "0 auto" }}>
-          <ScrollReveal>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 20 }}>
-              The feast-famine cycle
-            </p>
-            <h2 style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "clamp(28px, 3.8vw, 52px)",
-              fontWeight: 700, color: "#EDEDED",
-              lineHeight: 1.1, letterSpacing: "-0.025em",
-              margin: "0 0 32px",
-            }}>
-              ₹28,000 one month.
-              <br />
-              ₹6,000 the next.
-              <br />
-              <span style={{ color: "#444" }}>Here is the fix.</span>
-            </h2>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
-              When you are delivering for one client, you stop looking for the next. When that project ends, you start from zero again.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
-              The fix is not working harder. It is having a list ready before you need it.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
-              LocalLeads gives you fresh, pre-qualified businesses every time you search. Any city. Any category. 500 businesses that need a website — this month, next month, every month.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#EDEDED", lineHeight: 1.8, margin: "0 0 48px", maxWidth: 640, fontWeight: 500 }}>
-              One client pays ₹15,000–₹25,000 for a website. The tool costs ₹499/month. One closed deal pays for a year of the tool.
-            </p>
-
-            {/* Stat pills */}
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              {["500 leads/month on Starter", "Any Indian city", "One client = 30x ROI"].map((pill, i) => (
-                <div key={i} style={{
-                  padding: "10px 20px",
-                  border: "1px solid rgba(34,197,94,0.25)",
-                  background: "rgba(34,197,94,0.05)",
-                  fontFamily: "var(--font-sans)", fontSize: 13, color: "#22C55E",
-                  fontWeight: 500,
-                }}>
-                  {pill}
-                </div>
-              ))}
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── Agency owner section ─────────────────────────────────────────────── */}
-      <section className="section-pad" style={{ padding: "100px 40px", background: "#0A0A0A", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ maxWidth: 860, margin: "0 auto" }}>
-          <ScrollReveal>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 20 }}>
-              For agencies and teams
-            </p>
-            <h2 style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "clamp(28px, 3.8vw, 52px)",
-              fontWeight: 700, color: "#EDEDED",
-              lineHeight: 1.1, letterSpacing: "-0.025em",
-              margin: "0 0 32px",
-            }}>
-              Your BD person is spending 3 days
-              <br />
-              <span style={{ color: "#444" }}>on what this does in 20 minutes.</span>
-            </h2>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
-              If you run a digital agency, you already know the problem. Your business development depends on finding businesses that genuinely need your services. That research is expensive — either in your personal time or your team&apos;s time.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
-              LocalLeads changes the math.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 12px", maxWidth: 640 }}>
-              At ₹25,000/month in team salary for manual prospecting, you are paying approximately ₹500 per qualified lead.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.8, margin: "0 0 16px", maxWidth: 640 }}>
-              At ₹999/month for the Growth plan, you get 2,000 leads. That is ₹0.50 per verified contact.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#EDEDED", lineHeight: 1.7, margin: "0 0 48px", maxWidth: 640, fontWeight: 500 }}>
-              Your team stops researching. They start calling. Pipeline fills faster. Conversion improves — because every business they reach has been confirmed to need what you sell.
-            </p>
-
-            {/* Plan callout boxes */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "rgba(255,255,255,0.06)" }} className="agency-plan-grid">
-              {[
-                { name: "Starter", price: "₹499/mo", leads: "500 leads", note: "Solo freelancers" },
-                { name: "Growth", price: "₹999/mo", leads: "2,000 leads", note: "Small agencies" },
-                { name: "Pro", price: "₹2,499/mo", leads: "10,000 leads", note: "Growing agencies" },
-              ].map((plan, i) => (
-                <div key={i} style={{ background: "#0D0D0D", padding: "28px 24px", display: "flex", flexDirection: "column", gap: 6 }}>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#22C55E", margin: 0 }}>{plan.name}</p>
-                  <p style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "#EDEDED", margin: 0, letterSpacing: "-0.02em", lineHeight: 1 }}>{plan.price}</p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555", margin: 0 }}>{plan.leads} · {plan.note}</p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#22C55E", margin: "8px 0 0", opacity: 0.7 }}>Try free first — no card</p>
-                </div>
-              ))}
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── How it works ─────────────────────────────────────────────────────── */}
-      <section id="how-it-works" className="section-pad" style={{ padding: "100px 40px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ maxWidth: 1040, margin: "0 auto" }}>
-          <ScrollReveal>
-            <div style={{ marginBottom: 44 }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#22C55E", marginBottom: 14 }}>
-                How it works
-              </p>
-              <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(26px, 3.2vw, 42px)", fontWeight: 700, color: "#EDEDED", lineHeight: 1.12, margin: 0 }}>
-                Four steps. Any city.
-              </h2>
-            </div>
-          </ScrollReveal>
-
-          {/* Visual process flow */}
-          <ScrollReveal>
-            <div className="process-flow" style={{ marginBottom: 48 }}>
-              {[
-                { n: "01", title: "Search", desc: "Type a business type and your city" },
-                { n: "02", title: "Get leads", desc: "Businesses on Maps with no website and a live number" },
-                { n: "03", title: "Call", desc: "One honest offer: I build websites, want one?" },
-                { n: "04", title: "Build and earn", desc: "AI website in hours. ₹10,000-25,000 per client" },
-              ].flatMap((step, i, arr) => {
-                const items = [
-                  <div key={step.n} style={{
-                    flex: 1, minWidth: 0,
-                    padding: "22px 20px",
-                    border: "1px solid rgba(255,255,255,0.07)",
-                    background: "#080808",
-                    display: "flex", flexDirection: "column",
-                  }}>
-                    <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 10, color: "#2A2A2A", letterSpacing: "0.1em", marginBottom: 10 }}>{step.n}</span>
-                    <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 600, color: "#EDEDED", margin: "0 0 6px", lineHeight: 1.3 }}>{step.title}</p>
-                    <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#555", margin: 0, lineHeight: 1.6 }}>{step.desc}</p>
-                  </div>
-                ];
-                if (i < arr.length - 1) {
-                  items.push(
-                    <div key={`a${i}`} className="process-flow-arrow" style={{ width: 28, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#2A2A2A" }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="m9 18 6-6-6-6" />
-                      </svg>
-                    </div>
-                  );
-                }
-                return items;
-              })}
-            </div>
-          </ScrollReveal>
-
-          {/* Bento grid */}
-          <div className="bento-grid" style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr 400px",
-            gridTemplateRows: "auto auto",
-            gap: 1,
-            background: "rgba(255,255,255,0.07)",
-          }}>
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 24,
+          }}
+          className="pricing-grid"
+        >
+          {/* Card 1: Blue Background */}
+          <div
+            style={{
+              background: "var(--color-blue)",
+              borderRadius: 24,
+              padding: "40px 32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 24,
+              boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+            }}
+          >
+            <div style={{ borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <Image src="/pipeline-mrr.png" alt="MRR Growth Pipeline" width={1024} height={1024} style={{ width: "100%", height: "auto", display: "block" }} />
+            </div>
+            <h3 style={{ fontSize: 22, fontWeight: 700, color: "#FFFFFF", margin: 0 }}>
+              Get clients every month
+            </h3>
+            <p style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(255,255,255,0.8)", margin: 0 }}>
+              Do you make ₹28,000 one month and ₹0 the next? That is bad. Keep 500 new shops ready to call every month.
+            </p>
+          </div>
 
-            {/* 01 — Search (top left) */}
-            <ScrollReveal>
-              <div className="feature-card" style={{
-                gridColumn: "1 / 2", gridRow: "1 / 2",
-                background: "#080808", padding: "36px 32px",
-                border: "1px solid transparent",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-                  <div style={{
-                    width: 40, height: 40,
-                    background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.14)",
-                    display: "flex", alignItems: "center", justifyContent: "center", color: "#22C55E",
-                  }}>
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                    </svg>
-                  </div>
-                  <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#222", letterSpacing: "0.1em" }}>01</span>
-                </div>
-                <h3 style={{ fontFamily: "var(--font-sans)", fontSize: 17, fontWeight: 600, color: "#EDEDED", margin: "0 0 10px", lineHeight: 1.35 }}>
-                  Search by category and city
-                </h3>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#555", lineHeight: 1.68, margin: 0 }}>
-                  Type "CA firms, Mumbai" or "salons, Indiranagar". Every business in that category with no website and a live phone number. Instant.
-                </p>
-              </div>
-            </ScrollReveal>
+          {/* Card 2: Coral Background */}
+          <div
+            style={{
+              background: "var(--color-coral)",
+              borderRadius: 24,
+              padding: "40px 32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 24,
+              boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+            }}
+          >
+            <div style={{ borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+              <Image src="/maps-verify.png" alt="Google Maps no-website proof" width={1024} height={1024} style={{ width: "100%", height: "auto", display: "block" }} />
+            </div>
+            <h3 style={{ fontSize: 22, fontWeight: 700, color: "#FFFFFF", margin: 0 }}>
+              Show them proof from Google
+            </h3>
+            <p style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(255,255,255,0.8)", margin: 0 }}>
+              Does a shop owner want proof? Tell them: "Look at Google Maps. You have no website link." They will see it is true.
+            </p>
+          </div>
 
-            {/* 03 — Call (spans 2 rows) */}
-            <ScrollReveal delay={80}>
-              <div className="feature-card bento-span-rows" style={{
-                gridColumn: "2 / 3", gridRow: "1 / 3",
-                background: "#080808", padding: "36px 32px",
-                border: "1px solid transparent",
-                display: "flex", flexDirection: "column",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-                  <div style={{
-                    width: 40, height: 40,
-                    background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.14)",
-                    display: "flex", alignItems: "center", justifyContent: "center", color: "#22C55E",
-                  }}>
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.74h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                    </svg>
-                  </div>
-                  <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#222", letterSpacing: "0.1em" }}>03</span>
+          {/* Card 3: Dark Slate Background */}
+          <div
+            style={{
+              background: "var(--color-slate)",
+              borderRadius: 24,
+              padding: "40px 32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 24,
+              boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+            }}
+          >
+            {/* Visual Progress Bar Comparison Block */}
+            <div
+              style={{
+                background: "#1E2024",
+                border: "1px solid rgba(255,255,255,0.06)",
+                padding: "20px",
+                borderRadius: 16,
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+              }}
+            >
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 13 }}>
+                  <span style={{ color: "#EB8251", fontWeight: 600 }}>Manual Copy-Paste</span>
+                  <span style={{ color: "#EB8251", fontWeight: 700 }}>5 Hours</span>
                 </div>
-                <h3 style={{ fontFamily: "var(--font-sans)", fontSize: 17, fontWeight: 600, color: "#EDEDED", margin: "0 0 10px", lineHeight: 1.35 }}>
-                  Call. Pitch. Build. Collect.
-                </h3>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#555", lineHeight: 1.68, margin: "0 0 28px" }}>
-                  Every result has a verified phone number. Call, offer a website.
-                  Build it with AI in a day. Get paid.
-                </p>
-
-                {/* Pitch script box */}
-                <div style={{
-                  background: "#0A0A0A", border: "1px solid rgba(255,255,255,0.07)",
-                  padding: "18px 20px", marginTop: "auto",
-                }}>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#3A3A3A", margin: "0 0 10px" }}>
-                    The exact pitch
-                  </p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#666", lineHeight: 1.65, margin: 0, fontStyle: "italic" }}>
-                    "I found you on Google Maps — you have no website, I build them for local businesses starting at ₹10,000, interested?"
-                  </p>
-                </div>
-
-                {/* ₹ stat */}
-                <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                  <p style={{ fontFamily: "var(--font-serif)", fontSize: 36, fontWeight: 700, color: "#22C55E", margin: "0 0 4px", letterSpacing: "-0.02em" }}>
-                    ₹10k–25k
-                  </p>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444", margin: 0 }}>
-                    per website · standard Indian market rate
-                  </p>
-                </div>
-              </div>
-            </ScrollReveal>
-
-            {/* 02 — LiveScan (spans both rows on right) */}
-            <ScrollReveal delay={40}>
-              <div className="bento-col3 bento-span-rows" style={{
-                gridColumn: "3 / 4", gridRow: "1 / 3",
-                background: "#080808",
-                display: "flex", flexDirection: "column",
-                borderLeft: "1px solid rgba(255,255,255,0.07)",
-              }}>
-                <div style={{ padding: "28px 28px 16px", flexShrink: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                    <div style={{
-                      width: 40, height: 40,
-                      background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.14)",
-                      display: "flex", alignItems: "center", justifyContent: "center", color: "#22C55E",
-                    }}>
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
-                      </svg>
-                    </div>
-                    <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "#222", letterSpacing: "0.1em" }}>02</span>
-                  </div>
-                  <h3 style={{ fontFamily: "var(--font-sans)", fontSize: 17, fontWeight: 600, color: "#EDEDED", margin: "0 0 8px", lineHeight: 1.35 }}>
-                    Google Maps scan, live
-                  </h3>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555", lineHeight: 1.65, margin: 0 }}>
-                    Multi-variant geo-grid across your city. Scroll into view to see it scan.
-                  </p>
-                </div>
-                <div style={{ flex: 1, padding: "0 20px 20px", display: "flex", flexDirection: "column" }}>
-                  <LiveScan />
+                <div style={{ height: 8, background: "rgba(255,255,255,0.06)", borderRadius: 8, overflow: "hidden" }}>
+                  <div style={{ width: "100%", height: "100%", background: "#EB8251", borderRadius: 8 }} />
                 </div>
               </div>
-            </ScrollReveal>
-
-            {/* Bottom-left: stat callout */}
-            <ScrollReveal delay={120}>
-              <div className="feature-card bento-span-rows" style={{
-                gridColumn: "1 / 2", gridRow: "2 / 3",
-                background: "#080808", padding: "28px 32px",
-                border: "1px solid transparent",
-                display: "flex", flexDirection: "column", justifyContent: "center",
-              }}>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "#333", margin: "0 0 12px" }}>
-                  Most freelancers run
-                </p>
-                <p style={{ fontFamily: "var(--font-serif)", fontSize: 28, fontWeight: 700, color: "#22C55E", margin: "0 0 6px", letterSpacing: "-0.02em", lineHeight: 1 }}>
-                  1 search
-                </p>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#444", margin: 0, lineHeight: 1.5 }}>
-                  every Monday morning — and have enough leads for the whole week
-                </p>
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 13 }}>
+                  <span style={{ color: "var(--color-gold)", fontWeight: 600 }}>LocalLeads Scan</span>
+                  <span style={{ color: "var(--color-gold)", fontWeight: 700 }}>10 Mins</span>
+                </div>
+                <div style={{ height: 8, background: "rgba(255,255,255,0.06)", borderRadius: 8, overflow: "hidden" }}>
+                  <div style={{ width: "8.3%", height: "100%", background: "var(--color-gold)", borderRadius: 8 }} />
+                </div>
               </div>
-            </ScrollReveal>
+            </div>
+            
+            <h3 style={{ fontSize: 22, fontWeight: 700, color: "#FFFFFF", margin: 0 }}>
+              Stop searching, start talking
+            </h3>
+            <p style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(255,255,255,0.8)", margin: 0 }}>
+              Get your lead list in 10 minutes. Spend your day making calls. One client pays you ₹10,000+. The tool only costs ₹499.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* ── Pitch Script ─────────────────────────────────────────────────────── */}
-      <section className="section-pad" style={{ padding: "100px 40px", background: "#0D0D0D", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ maxWidth: 780, margin: "0 auto", textAlign: "center" }}>
-          <ScrollReveal>
-            <p style={{
-              fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700,
-              letterSpacing: "0.16em", textTransform: "uppercase", color: "#22C55E", marginBottom: 32,
-            }}>
-              The only pitch you need — copy this word for word
-            </p>
-            <blockquote style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "clamp(26px, 3.5vw, 48px)",
-              fontWeight: 700, lineHeight: 1.2,
-              color: "#EDEDED", margin: "0 0 32px",
+      {/* ── Visual Workflow Section ────────────────────────────────────── */}
+      <section id="how-it-works" style={{ padding: "100px 24px", maxWidth: 1200, margin: "0 auto", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ textAlign: "center", marginBottom: 60 }}>
+          <span style={{ color: "var(--color-gold)", fontWeight: 700, letterSpacing: "0.1em", fontSize: 12, textTransform: "uppercase" }}>
+            The Workflow
+          </span>
+          <h2
+            style={{
+              fontSize: "clamp(28px, 4vw, 44px)",
+              fontWeight: 700,
+              lineHeight: 1.2,
               letterSpacing: "-0.02em",
-            }}>
-              "I found you on Google Maps — you have no website, I build them for businesses like yours starting at ₹10,000. Interested?"
-            </blockquote>
-            <p style={{
-              fontFamily: "var(--font-sans)", fontSize: 14, color: "#444",
-              lineHeight: 1.7, margin: 0,
-            }}>
-              About 1 in 25 calls becomes a paying client. That is ₹400 in potential revenue per call you make.
-            </p>
-          </ScrollReveal>
+              color: "#FFFFFF",
+              marginTop: 16,
+              marginBottom: 16,
+            }}
+          >
+            From Google Maps to a paying client
+          </h2>
+          <p style={{ fontSize: 16, color: "rgba(210, 210, 211, 0.7)", maxWidth: 580, margin: "0 auto" }}>
+            Search any city. Find shops that do not have a website. Call them and offer to build one!
+          </p>
+        </div>
+
+        <div style={{
+          background: "#16161A",
+          borderRadius: 32,
+          border: "1px solid rgba(255,255,255,0.06)",
+          padding: "48px 32px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 40,
+          boxShadow: "0 24px 64px rgba(0,0,0,0.5)"
+        }} className="section-pad">
+          <Image
+            src="/outreach-flow.png"
+            alt="Google Maps to Lead Workflow"
+            width={1024}
+            height={1024}
+            style={{
+              width: "100%",
+              maxWidth: 700,
+              height: "auto",
+              borderRadius: 18,
+            }}
+          />
+          
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 32,
+            width: "100%",
+            textAlign: "left",
+            borderTop: "1px solid rgba(255,255,255,0.05)",
+            paddingTop: 32,
+          }} className="pricing-grid">
+            <div>
+              <span style={{ color: "var(--color-blue)", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>
+                01 · Search Maps
+              </span>
+              <p style={{ fontSize: 14, color: "rgba(210,210,211,0.7)", margin: 0, lineHeight: 1.6 }}>
+                Find shops in any city or neighborhood on Google Maps.
+              </p>
+            </div>
+            <div>
+              <span style={{ color: "var(--color-gold)", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>
+                02 · Filter Websites
+              </span>
+              <p style={{ fontSize: 14, color: "rgba(210,210,211,0.7)", margin: 0, lineHeight: 1.6 }}>
+                Our tool automatically hides shops that already have websites.
+              </p>
+            </div>
+            <div>
+              <span style={{ color: "var(--color-coral)", fontWeight: 800, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 8 }}>
+                03 · Call Them
+              </span>
+              <p style={{ fontSize: 14, color: "rgba(210,210,211,0.7)", margin: 0, lineHeight: 1.6 }}>
+                Call them and show them they have no website on Google Maps.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── Global Leads ─────────────────────────────────────────────────────── */}
-      <section className="section-pad" style={{ padding: "100px 40px", background: "#111", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ maxWidth: 860, margin: "0 auto" }}>
-          <ScrollReveal>
-            <h2 style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "clamp(32px, 4vw, 56px)",
-              fontWeight: 700, color: "#EDEDED",
-              lineHeight: 1.1, letterSpacing: "-0.025em",
-              margin: "0 0 36px",
-            }}>
-              Your city. Any city. Any country.
-            </h2>
-            <div style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.82, marginBottom: 48 }}>
-              <p style={{ margin: "0 0 20px" }}>
-                Most freelancers limit themselves to the city they live in. LocalLeads has no such limit.
-              </p>
-              <p style={{ margin: "0 0 20px", color: "#888" }}>
-                Search restaurants in Austin, Texas.<br />
-                Find salons in Manchester, UK.<br />
-                Pull CA firms in Dubai, UAE.
-              </p>
-              <p style={{ margin: "0 0 20px" }}>
-                Every search returns the same thing — businesses with no website and a live phone number. Except now the phone number has a +1, +44, or +971 in front of it.
-              </p>
-              <p style={{ margin: 0, color: "#EDEDED", fontWeight: 500 }}>
-                Sit in Bangalore. Work with clients in the West. Charge in dollars.
-              </p>
-            </div>
-          </ScrollReveal>
+      {/* ── Google Calendar Connector style ────────────────────────────────── */}
+      <section style={{ padding: "100px 24px", maxWidth: 1200, margin: "0 auto" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            alignItems: "center",
+            gap: 60,
+          }}
+          className="hero-grid"
+        >
+          {/* Left Side widget */}
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Image
+              src="/outreach-feature.png"
+              alt="Outreach Feature Illustration"
+              width={1024}
+              height={1024}
+              style={{
+                width: "100%",
+                maxWidth: 500,
+                height: "auto",
+                borderRadius: 24,
+                boxShadow: "0 24px 64px rgba(0,0,0,0.6), 0 0 80px rgba(75, 92, 209, 0.05)",
+              }}
+            />
+          </div>
 
-          {/* Example result cards */}
-          <ScrollReveal>
-            <div style={{ display: "flex", flexDirection: "column", gap: 1, background: "rgba(255,255,255,0.06)", marginBottom: 24 }}>
-              {[
-                { name: "Mario's Pizzeria", location: "Austin, Texas", phone: "+1 512 XXX XXXX" },
-                { name: "The Hair Lounge", location: "Manchester, UK", phone: "+44 161 XXX XXXX" },
-                { name: "Al Noor Travel Agency", location: "Dubai, UAE", phone: "+971 4 XXX XXXX" },
-              ].map((card, i) => (
-                <div key={i} style={{
-                  background: "#0D0D0D", padding: "18px 24px",
-                  display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap",
-                }}>
-                  <div>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, color: "#EDEDED" }}>
-                      {card.name}
-                    </span>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555", marginLeft: 10 }}>
-                      · {card.location} ·
-                    </span>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#EF4444", marginLeft: 6, fontWeight: 600 }}>
-                      No website
-                    </span>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                    <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 13, color: "#22C55E" }}>
-                      {card.phone}
-                    </span>
-                    <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444" }}>Maps ↗</span>
-                  </div>
-                </div>
-              ))}
+          {/* Right Side Copy */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div
+              style={{
+                width: 48, height: 48, borderRadius: "50%",
+                background: "rgba(75,92,209,0.1)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "var(--color-blue)",
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+              </svg>
             </div>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444", textAlign: "center", margin: "0 0 48px" }}>
-              Same tool. Same search. Anywhere on earth.
+            
+            <h3 style={{ fontSize: "clamp(26px, 3.5vw, 40px)", fontWeight: 700, lineHeight: 1.2, color: "#FFFFFF", margin: 0 }}>
+              Find shops that need your help
+            </h3>
+            <p style={{ fontSize: 16, lineHeight: 1.6, color: "rgba(210,210,211,0.8)", margin: 0 }}>
+              Type any business type (like salons or restaurants) and any city. We show you exactly who does not have a website. Only call people who need you!
             </p>
-          </ScrollReveal>
-
-          <ScrollReveal>
-            <div style={{
-              paddingTop: 48,
-              borderTop: "1px solid rgba(255,255,255,0.07)",
-            }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 17, fontWeight: 600, color: "#EDEDED", margin: "0 0 16px", lineHeight: 1.4 }}>
-                Western businesses. Western prices.
-              </p>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#666", lineHeight: 1.82, margin: "0 0 12px" }}>
-                Many LocalLeads users in India are searching businesses in the US, UK, and UAE — and pitching them at $500–$2,000 per website while living in India.
-              </p>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#777", lineHeight: 1.82, margin: 0 }}>
-                The tool works identically. Same search. Same no-website filter. Same verified Google Maps link. Different phone prefix.
-              </p>
-            </div>
-          </ScrollReveal>
+            
+            <Link
+              href="/auth"
+              style={{
+                background: "var(--color-blue)", color: "#FFFFFF",
+                fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
+                padding: "14px 32px", borderRadius: 30, textDecoration: "none",
+                display: "inline-block", textAlign: "center", width: "fit-content",
+                transition: "background 0.2s",
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = "var(--color-blue-light)"}
+              onMouseOut={(e) => e.currentTarget.style.background = "var(--color-blue)"}
+            >
+              Start a free trial
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ── Marquee ──────────────────────────────────────────────────────────── */}
-      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", overflow: "hidden", padding: "13px 0", background: "#050505" }}>
-        <div className="marquee-track" style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: "#222" }}>
-          {[1, 2].map((_, k) => (
-            <span key={k} style={{ paddingRight: 48, whiteSpace: "nowrap" }}>
-              Restaurants &nbsp;·&nbsp; Salons &nbsp;·&nbsp; CA Firms &nbsp;·&nbsp; Travel Agents &nbsp;·&nbsp; Gyms &nbsp;·&nbsp; Coaching Centers &nbsp;·&nbsp; Boutiques &nbsp;·&nbsp; Clinics &nbsp;·&nbsp; Plumbers &nbsp;·&nbsp; Photographers &nbsp;·&nbsp;
-            </span>
+      {/* ── Benefit List 3-Col ────────────────────────────────────────────── */}
+      <section style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 40 }} className="pricing-grid">
+          {[
+            {
+              title: "Search any city",
+              desc: "Find shops in any city in the world. Get fresh phone numbers in real time.",
+              color: "var(--color-blue)",
+              svg: <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />,
+            },
+            {
+              title: "Save your leads",
+              desc: "Download your leads to your computer in 1 click. Save their details to call them later.",
+              color: "var(--color-coral)",
+              svg: <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />,
+            },
+            {
+              title: "Call 10 shops a day",
+              desc: "Call 10 shops every morning. Even if only 1 says yes, you get a new client!",
+              color: "var(--color-slate)",
+              svg: <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />,
+            },
+          ].map((benefit, idx) => (
+            <div key={idx} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div
+                style={{
+                  width: 48, height: 48, borderRadius: "50%",
+                  background: benefit.color,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "#FFFFFF",
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  {benefit.svg}
+                </svg>
+              </div>
+              <h4 style={{ fontSize: 18, fontWeight: 700, color: "#FFFFFF", margin: 0 }}>
+                {benefit.title}
+              </h4>
+              <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(210,210,211,0.7)", margin: 0 }}>
+                {benefit.desc}
+              </p>
+            </div>
           ))}
         </div>
-      </div>
-
-      {/* ── Testimonials ─────────────────────────────────────────────────────── */}
-      <section className="section-pad" style={{ padding: "100px 40px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#0A0A0A" }}>
-        <div style={{ maxWidth: 680, margin: "0 auto" }}>
-          <ScrollReveal>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#22C55E", marginBottom: 52 }}>
-              What freelancers are saying on WhatsApp
-            </p>
-          </ScrollReveal>
-
-          <ScrollReveal>
-            <div style={{
-              background: "#25D366",
-              borderRadius: "18px 18px 18px 4px",
-              padding: "24px 28px",
-              maxWidth: 540,
-            }}>
-              <p style={{
-                fontFamily: "var(--font-sans)", fontSize: 16, color: "#fff",
-                lineHeight: 1.65, margin: 0,
-              }}>
-                "this saves me a lot of time and gets me 100 leads in 1 click that too qualified who actually need a website"
-              </p>
-            </div>
-            <p style={{
-              fontFamily: "var(--font-sans)", fontSize: 13, color: "#444",
-              marginTop: 14, marginLeft: 4, marginBottom: 0,
-            }}>
-              Rahul, freelance web designer, Pune — after his first week on LocalLeads
-            </p>
-          </ScrollReveal>
-
-          <ScrollReveal>
-            <div style={{
-              background: "#25D366",
-              borderRadius: "18px 18px 18px 4px",
-              padding: "24px 28px",
-              maxWidth: 540,
-              marginTop: 28,
-              alignSelf: "flex-start",
-            }}>
-              <p style={{
-                fontFamily: "var(--font-sans)", fontSize: 16, color: "#fff",
-                lineHeight: 1.65, margin: 0,
-              }}>
-                &ldquo;searched restaurants in Jaipur — got 340 leads in 8 minutes. Called 20. Got 3 meetings. Closed 1 for ₹18,000. Tool paid for itself 3 times over.&rdquo;
-              </p>
-            </div>
-            <p style={{
-              fontFamily: "var(--font-sans)", fontSize: 13, color: "#444",
-              marginTop: 14, marginLeft: 4, marginBottom: 0,
-            }}>
-              Rohit, freelance web developer, Jaipur — first week on Starter plan
-            </p>
-          </ScrollReveal>
-        </div>
       </section>
 
-      {/* ── Pricing ──────────────────────────────────────────────────────────── */}
-      <section id="pricing" className="section-pad" style={{ padding: "100px 40px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-        <div style={{ maxWidth: 1300, margin: "0 auto" }}>
-          <ScrollReveal>
-            <div style={{ marginBottom: 52 }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#22C55E", marginBottom: 14 }}>
-                Pricing
-              </p>
-              <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(26px, 3.2vw, 42px)", fontWeight: 700, color: "#EDEDED", lineHeight: 1.12, margin: "0 0 10px" }}>
-                Start free. Scale when ready.
-              </h2>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#555", margin: 0, lineHeight: 1.65 }}>
-                Pay only for leads that qualify — businesses with a phone number and no website.{" "}
-                <strong style={{ color: "#777" }}>No credit card. Cancel anytime.</strong>
-              </p>
-            </div>
-          </ScrollReveal>
-
-          <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", alignItems: "stretch" }}>
-            {PLANS.map((plan, i) => (
-              <ScrollReveal key={i} delay={i * 60}>
-                <div className={plan.featured ? "pricing-card pricing-card-featured" : "pricing-card"} style={{
-                  padding: plan.featured ? "44px 24px" : "28px 18px",
-                  position: "relative",
-                  display: "flex", flexDirection: "column", height: "100%",
-                  background: plan.featured ? "rgba(34,197,94,0.04)" : "transparent",
-                  border: plan.featured
-                    ? "2px solid rgba(34,197,94,0.45)"
-                    : "1px solid rgba(255,255,255,0.07)",
-                  marginLeft: plan.featured ? -1 : 0,
-                  marginRight: plan.featured ? -1 : 0,
-                  zIndex: plan.featured ? 2 : 1,
-                }}>
-                  {plan.featured && (
-                    <div style={{
-                      position: "absolute", top: 0, left: 0, right: 0,
-                      background: "#22C55E", padding: "6px 0", textAlign: "center",
-                      fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800,
-                      letterSpacing: "0.15em", color: "#080808", textTransform: "uppercase",
-                    }}>
-                      Most popular
-                    </div>
-                  )}
-
-                  <div style={{ marginBottom: 20, marginTop: plan.featured ? 24 : 0 }}>
-                    <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: plan.featured ? "#22C55E" : "#444", margin: "0 0 4px" }}>
-                      {plan.name}
-                    </p>
-                    <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: plan.featured ? "#555" : "#333", margin: 0 }}>
-                      {plan.note}
-                    </p>
-                  </div>
-
-                  <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: "perLeadNote" in plan ? 8 : 0 }}>
-                      <span style={{ fontFamily: "var(--font-serif)", fontSize: plan.featured ? 54 : 40, fontWeight: plan.featured ? 400 : 300, color: plan.featured ? "#EDEDED" : "#444", lineHeight: 1 }}>
-                        {plan.price}
-                      </span>
-                      <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#555" }}>{plan.period}</span>
-                    </div>
-                    {"perLeadNote" in plan && (
-                      <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "#555", margin: 0, letterSpacing: "0.01em" }}>
-                        {(plan as typeof plan & { perLeadNote: string }).perLeadNote}
-                      </p>
-                    )}
-                  </div>
-
-                  <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
-                    {plan.features.map((f) => (
-                      <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-sans)", fontSize: 14, color: plan.featured ? "#EDEDED" : "#555" }}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
-                        {f}
-                      </li>
-                    ))}
-                    {"missing" in plan && plan.missing.map((f) => (
-                      <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontFamily: "var(--font-sans)", fontSize: 14, color: "#2E2E2E" }}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2A2A2A" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link href={plan.href} className={plan.featured ? "btn-gold" : "btn-ghost"} style={{ display: "block", textAlign: "center", fontSize: plan.featured ? 13 : 12 }}>
-                    {plan.cta}
-                  </Link>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
-      <section className="section-pad" style={{ padding: "100px 40px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#0A0A0A" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
-          <ScrollReveal>
-            <div style={{ marginBottom: 52 }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#22C55E", marginBottom: 14 }}>
-                Questions
-              </p>
-              <h2 style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(26px, 3.2vw, 42px)", fontWeight: 700, color: "#EDEDED", lineHeight: 1.12, margin: 0 }}>
-                Every question you have, answered.
-              </h2>
-            </div>
-          </ScrollReveal>
-
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-            {FAQS.map((faq, i) => (
-              <ScrollReveal key={i} delay={i * 40}>
-                <details>
-                  <summary>
-                    <span>{faq.q}</span>
-                    <svg className="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="m6 9 6 6 6-6" />
-                    </svg>
-                  </summary>
-                  <div className="faq-body" dangerouslySetInnerHTML={{ __html: faq.a.replace(/₹[\d,–\-k]+/g, (m) => `<strong>${m}</strong>`) }} />
-                </details>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Anti-Pitch — LIGHT SECTION ───────────────────────────────────────── */}
-      <section className="section-light section-pad" style={{ padding: "100px 40px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <ScrollReveal>
-            <div className="antipitch-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
-
-              {/* Left — not for you */}
-              <div>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#AAA095", marginBottom: 20 }}>
-                  Not for you if
-                </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {[
-                    "You're not willing to make phone calls",
-                    "You expect clients without any effort",
-                    "You want hundreds of instant leads",
-                    "You won't build what you sell",
-                  ].map((item, i) => (
-                    <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8C0B4" strokeWidth="2" style={{ flexShrink: 0, marginTop: 3 }}>
-                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                      <span style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#7A7268", lineHeight: 1.5 }}>{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right — built for you */}
-              <div>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#1A6B3A", marginBottom: 20 }}>
-                  Built for you if
-                </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {[
-                    "You can build a website (with AI or without)",
-                    "You'll call 10 businesses this week",
-                    "₹10,000 per client sounds worth your time",
-                    "You want a system, not just luck",
-                  ].map((item, i) => (
-                    <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" style={{ flexShrink: 0, marginTop: 3 }}>
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      <span style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#3A3530", lineHeight: 1.5 }}>{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Closing line */}
-            <div style={{ marginTop: 60, paddingTop: 48, borderTop: "1px solid rgba(0,0,0,0.08)" }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#6B6560", lineHeight: 1.7, maxWidth: 560, margin: 0 }}>
-                If you read the right column and thought{" "}
-                <strong style={{ color: "#1A1A1A" }}>yes, that's me</strong>{" "}
-                — LocalLeads gives you the one thing missing:{" "}
-                <strong style={{ color: "#16A34A" }}>someone to call.</strong>
-              </p>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── Final CTA ────────────────────────────────────────────────────────── */}
-      <section
-        className="dot-grid"
-        style={{ padding: "140px 40px", textAlign: "center", position: "relative", overflow: "hidden" }}
-      >
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(34,197,94,0.05) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }} />
-        <ScrollReveal>
-          <div style={{ position: "relative", zIndex: 1, maxWidth: 580, margin: "0 auto" }}>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "#22C55E", marginBottom: 22 }}>
-              Start today
-            </p>
-            <h2 style={{
-              fontFamily: "var(--font-serif)",
-              fontSize: "clamp(36px, 5vw, 64px)",
-              fontWeight: 700, color: "#EDEDED", lineHeight: 1.05,
-              letterSpacing: "-0.03em", margin: "0 0 16px",
-            }}>
-              The businesses are already there.
-              <br />
-              On Google Maps. Right now.
-              <br />
-              <span style={{ color: "#22C55E", fontStyle: "italic" }}>With no website and a working phone number.</span>
+      {/* ── Dynamic Shift Indigo Banner ────────────────────────────────────── */}
+      <section style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto" }}>
+        <div
+          style={{
+            background: "var(--color-blue)",
+            borderRadius: 32,
+            padding: "60px 48px",
+            display: "grid",
+            gridTemplateColumns: "1.2fr 1fr",
+            gap: 40,
+            alignItems: "center",
+          }}
+          className="hero-grid"
+        >
+          {/* Left Side */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <h2 style={{ fontSize: "clamp(26px, 3.5vw, 42px)", fontWeight: 700, lineHeight: 1.1, color: "#FFFFFF", margin: 0 }}>
+              Get 500 phone numbers every month
             </h2>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", margin: "0 0 20px", lineHeight: 1.68 }}>
-              Takes 30 seconds to sign in with Google. Your first 20 leads are free — no card, no commitment.
+            <p style={{ fontSize: 16, lineHeight: 1.6, color: "rgba(255,255,255,0.85)", margin: 0 }}>
+              One website client pays you ₹10,000 to ₹30,000. Our tool is only ₹499. Selling just one website pays for the tool for years!
             </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", margin: "0 0 20px", lineHeight: 1.68 }}>
-              Run one search in your city. See the businesses that need you. Click the Google Maps link on any lead and verify it yourself before you make a single call.
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#555", margin: "0 0 44px", lineHeight: 1.68 }}>
-              If you do not see the value in the first 10 minutes, close the tab. You have lost nothing. If you do — you know what to do next.
-            </p>
-            <Link href="/auth" className="btn-gold" style={{ display: "inline-block", marginBottom: 14 }}>
-              Find My First Leads — It's Free
+            <Link
+              href="/auth"
+              style={{
+                background: "var(--color-coral)", color: "#FFFFFF",
+                fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
+                padding: "14px 32px", borderRadius: 30, textDecoration: "none",
+                display: "inline-block", textAlign: "center", width: "fit-content",
+                transition: "background 0.2s",
+                marginTop: 8,
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = "var(--color-coral-light)"}
+              onMouseOut={(e) => e.currentTarget.style.background = "var(--color-coral)"}
+            >
+              Start a free trial
             </Link>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444", margin: "0 0 20px" }}>
-              Every lead includes a Google Maps link — verify with your own eyes before you call
-            </p>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#3A3A3A", margin: "0 0 20px" }}>
-              Used by freelancers across Mumbai, Pune, Bangalore, Delhi and Hyderabad
-            </p>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20, flexWrap: "wrap", fontFamily: "var(--font-sans)", fontSize: 12, color: "#333" }}>
-              <span>✓ Google Sign-in only</span>
-              <span style={{ color: "#1E1E1E" }}>·</span>
-              <span>✓ No spam ever</span>
-              <span style={{ color: "#1E1E1E" }}>·</span>
-              <span>✓ Cancel anytime</span>
+          </div>
+
+          {/* Right Side Visual Block */}
+          <div
+            style={{
+              background: "var(--color-gold)",
+              borderRadius: 24,
+              padding: "36px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              color: "#0A0A0B",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+              <span style={{ fontSize: 44, fontWeight: 700, letterSpacing: "-0.02em" }}>75%</span>
+              <span style={{ fontSize: 16, fontWeight: 600 }}>pipeline built</span>
+            </div>
+            
+            <div style={{ background: "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.06)", padding: "20px", borderRadius: 18 }}>
+              <p style={{ fontSize: 14, fontWeight: 700, margin: "0 0 4px" }}>Monthly Outreach Goal</p>
+              <p style={{ fontSize: 13, margin: 0, opacity: 0.8 }}>3 paying clients target closed</p>
+              <div style={{ height: 6, background: "rgba(0,0,0,0.08)", borderRadius: 8, marginTop: 12, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: "75%", background: "var(--color-coral)", borderRadius: 8 }} />
+              </div>
+            </div>
+            
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 18px", fontSize: 12, fontWeight: 600, opacity: 0.8 }}>
+              <span>✓ CSV exports enabled</span>
+              <span>✓ Verified phone numbers</span>
+              <span>✓ Global geolocation scan</span>
             </div>
           </div>
-        </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── Rebalance / Swipe to Call Section ──────────────────────────────── */}
+      <section style={{ padding: "100px 24px", maxWidth: 1200, margin: "0 auto" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.2fr 1fr",
+            alignItems: "center",
+            gap: 60,
+          }}
+          className="hero-grid"
+        >
+          {/* Left Side */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <h3 style={{ fontSize: "clamp(26px, 3.5vw, 40px)", fontWeight: 700, lineHeight: 1.2, color: "#FFFFFF", margin: 0 }}>
+              What to say when you call
+            </h3>
+            <p style={{ fontSize: 16, lineHeight: 1.6, color: "rgba(210,210,211,0.8)", margin: 0 }}>
+              Call them and say:
+              <br />
+              <strong style={{ color: "#FFFFFF", display: "block", margin: "12px 0", fontSize: 18, fontStyle: "italic", borderLeft: "3px solid var(--color-gold)", paddingLeft: 16 }}>
+                "I saw your shop on Google Maps. You do not have a website listed. I can build a clean website for you for ₹10,000. Would you like one?"
+              </strong>
+              This is very simple. Shop owners will listen because they know they need a website.
+            </p>
+          </div>
+
+          {/* Right Side visual widget */}
+          <div
+            style={{
+              background: "#16161A",
+              border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: 24,
+              padding: "36px",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+            }}
+          >
+            <span style={{ fontSize: 11, color: "var(--color-coral)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              Prospect Contact
+            </span>
+            <h4 style={{ fontSize: 24, fontWeight: 700, color: "#FFFFFF", margin: 0 }}>
+              Rahul's Unisex Salon
+            </h4>
+            
+            <div style={{ display: "flex", gap: 8 }}>
+              {["/avatar1.png", "/avatar2.png", "/avatar3.png"].map((_, i) => (
+                <div key={i} style={{ width: 32, height: 32, borderRadius: "50%", background: "#393D45", border: "2px solid #16161A", marginLeft: i > 0 ? -12 : 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#FFF", fontSize: 10, fontWeight: 700 }}>
+                  {i + 1}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", justifyItems: "center", background: "rgba(235,130,81,0.08)", border: "1px solid rgba(235,130,81,0.2)", borderRadius: 30, padding: "8px 16px", gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--color-coral)", display: "flex", alignItems: "center", justifyContent: "center", color: "#FFFFFF" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.74h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-coral)" }}>Swipe to Dial Prospect</span>
+            </div>
+            
+            <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 16, fontSize: 12, color: "#666" }}>
+              <span>💬 3 closed meetings</span>
+              <span>🔗 Maps link verified</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Create Tasks Coral Banner ──────────────────────────────────────── */}
+      <section style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto" }}>
+        <div
+          style={{
+            background: "var(--color-coral)",
+            borderRadius: 32,
+            padding: "60px 48px",
+            display: "grid",
+            gridTemplateColumns: "1.2fr 1fr",
+            gap: 40,
+            alignItems: "center",
+          }}
+          className="hero-grid"
+        >
+          {/* Left Side */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <h2 style={{ fontSize: "clamp(26px, 3.5vw, 42px)", fontWeight: 700, lineHeight: 1.1, color: "#FFFFFF", margin: 0 }}>
+              Find your first leads now
+            </h2>
+            <p style={{ fontSize: 16, lineHeight: 1.6, color: "rgba(255,255,255,0.85)", margin: 0 }}>
+              Log in with Google. Your first 20 leads are free. See which shops near you need a website today.
+            </p>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
+              <Link
+                href="/auth"
+                style={{
+                  background: "var(--color-gold)", color: "#0A0A0B",
+                  fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
+                  padding: "14px 32px", borderRadius: 30, textDecoration: "none",
+                  display: "inline-block", textAlign: "center", width: "fit-content",
+                  transition: "background 0.2s",
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = "var(--color-gold-light)"}
+                onMouseOut={(e) => e.currentTarget.style.background = "var(--color-gold)"}
+              >
+                Start free trial
+              </Link>
+              
+              {/* Checks */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 18px", fontSize: 12, color: "#FFF", fontWeight: 600 }}>
+                <span>✓ Flexible time blocking</span>
+                <span>✓ Real-time Maps sync</span>
+                <span>✓ Task management</span>
+                <span>✓ CSV export</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side Visual Block */}
+          <div
+            style={{
+              background: "#16161A",
+              borderRadius: 24,
+              padding: "36px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+            }}
+          >
+            <p style={{ fontSize: 11, color: "var(--color-gold)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>
+              Search: Dentists in Jaipur
+            </p>
+            <h4 style={{ fontSize: 24, fontWeight: 700, color: "#FFFFFF", margin: 0 }}>
+              Extracting leads...
+            </h4>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 4 }}>
+              {[
+                { name: "Jaipur Dental Clinic", phone: "+91 94140 XXXXX" },
+                { name: "Pink City Orthodontist", phone: "+91 98290 XXXXX" },
+              ].map((item, idx) => (
+                <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#26262B", padding: "12px 16px", borderRadius: 14 }}>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: "#FFF", margin: 0 }}>{item.name}</p>
+                    <p style={{ fontSize: 11, color: "var(--color-coral)", margin: 0 }}>No website</p>
+                  </div>
+                  <span style={{ fontSize: 12, color: "var(--color-gold)", fontFamily: "ui-monospace" }}>{item.phone}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing Section ─────────────────────────────────────────────────── */}
+      <section id="pricing" style={{ padding: "100px 24px", maxWidth: 1200, margin: "0 auto", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ textAlign: "center", marginBottom: 52 }}>
+          <span style={{ color: "var(--color-gold)", fontWeight: 700, letterSpacing: "0.1em", fontSize: 12, textTransform: "uppercase" }}>
+            Simple Pricing
+          </span>
+          <h2 style={{ fontSize: "clamp(26px, 3.2vw, 42px)", fontWeight: 700, color: "#FFFFFF", lineHeight: 1.12, margin: "12px 0 10px" }}>
+            Try for free first
+          </h2>
+          <p style={{ fontSize: 15, color: "rgba(210,210,211,0.7)", margin: 0, lineHeight: 1.65 }}>
+            Start free. No credit card needed. Cancel whenever you want.
+          </p>
+        </div>
+
+        <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", alignItems: "stretch", gap: 1 }}>
+          {PLANS.map((plan, i) => (
+            <div
+              key={i}
+              className={plan.featured ? "pricing-card-featured" : ""}
+              style={{
+                padding: "36px 20px",
+                position: "relative",
+                display: "flex", flexDirection: "column", height: "100%",
+                background: plan.featured ? "rgba(255, 230, 93, 0.04)" : "#16161A",
+                border: plan.featured
+                  ? "2px solid var(--color-gold)"
+                  : "1px solid rgba(255,255,255,0.07)",
+                borderRadius: 24,
+              }}
+            >
+              {plan.featured && (
+                <div style={{
+                  position: "absolute", top: 0, left: 0, right: 0,
+                  background: "var(--color-gold)", padding: "6px 0", textAlign: "center",
+                  fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 800,
+                  letterSpacing: "0.15em", color: "#080808", textTransform: "uppercase",
+                  borderRadius: "10px 10px 0 0",
+                }}>
+                  Most popular
+                </div>
+              )}
+
+              <div style={{ marginBottom: 20, marginTop: plan.featured ? 12 : 0 }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: plan.featured ? "var(--color-gold)" : "#888", margin: "0 0 4px" }}>
+                  {plan.name}
+                </p>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "rgba(210,210,211,0.6)", margin: 0 }}>
+                  {plan.note}
+                </p>
+              </div>
+
+              <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: "perLeadNote" in plan ? 8 : 0 }}>
+                  <span style={{ fontSize: plan.featured ? 44 : 36, fontWeight: 700, color: "#FFFFFF", lineHeight: 1 }}>
+                    {plan.price}
+                  </span>
+                  <span style={{ fontSize: 13, color: "#666" }}>{plan.period}</span>
+                </div>
+                {"perLeadNote" in plan && (
+                  <p style={{ fontSize: 11, color: "var(--color-gold)", margin: 0, letterSpacing: "0.01em" }}>
+                    {(plan as typeof plan & { perLeadNote: string }).perLeadNote}
+                  </p>
+                )}
+              </div>
+
+              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
+                {plan.features.map((f) => (
+                  <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "#EDEDED" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                    {f}
+                  </li>
+                ))}
+                {"missing" in plan && plan.missing.map((f) => (
+                  <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "#444" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href={plan.href}
+                style={{
+                  display: "block", textAlign: "center", fontSize: 13, fontWeight: 700,
+                  background: plan.featured ? "var(--color-gold)" : "transparent",
+                  color: plan.featured ? "#0A0A0B" : "#FFFFFF",
+                  border: plan.featured ? "none" : "1px solid rgba(255,255,255,0.15)",
+                  padding: "12px 0",
+                  borderRadius: 30,
+                  textDecoration: "none",
+                  transition: "background 0.2s, border-color 0.2s",
+                }}
+                onMouseOver={(e) => {
+                  if (plan.featured) {
+                    e.currentTarget.style.background = "var(--color-gold-light)";
+                  } else {
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)";
+                    e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (plan.featured) {
+                    e.currentTarget.style.background = "var(--color-gold)";
+                  } else {
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)";
+                    e.currentTarget.style.background = "transparent";
+                  }
+                }}
+              >
+                {plan.cta}
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FAQ Section ────────────────────────────────────────────────────── */}
+      <section className="section-pad" style={{ padding: "100px 24px", maxWidth: 800, margin: "0 auto" }}>
+        <div style={{ marginBottom: 48, textAlign: "center" }}>
+          <h2 style={{ fontSize: "clamp(26px, 3.2vw, 42px)", fontWeight: 700, color: "#EDEDED", lineHeight: 1.12, margin: 0 }}>
+            Frequently Asked Questions
+          </h2>
+        </div>
+
+        <div className="faq-container">
+          {FAQS.map((faq, i) => (
+            <ScrollReveal key={i} delay={i * 40}>
+              <details className="faq-card" name="landing-faq">
+                <summary>
+                  <span>{faq.q}</span>
+                  <svg className="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </summary>
+                <div className="faq-body" dangerouslySetInnerHTML={{ __html: faq.a.replace(/₹[\d,–\-k]+/g, (m) => `<strong>${m}</strong>`) }} />
+              </details>
+            </ScrollReveal>
+          ))}
+        </div>
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
       <footer className="footer-responsive" style={{
         borderTop: "1px solid rgba(255,255,255,0.07)",
-        padding: "24px 40px",
+        padding: "32px 24px",
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
         flexWrap: "wrap",
+        maxWidth: 1200,
+        margin: "0 auto",
       }}>
         <span style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", color: "#EDEDED" }}>
-          Local<span style={{ color: "#22C55E" }}>Leads</span>
+          Local<span style={{ color: "var(--color-gold)" }}>Leads</span>
         </span>
-        <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#2E2E2E", margin: 0 }}>
+        <p style={{ fontSize: 12, color: "#555", margin: 0 }}>
           © 2026 Sahajta AI Solutions Pvt. Ltd. All rights reserved.
         </p>
-        <div style={{ display: "flex", gap: 24, fontFamily: "var(--font-sans)", fontSize: 13, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 24, fontSize: 13, flexWrap: "wrap" }}>
+          <Link href="/blog" className="footer-link">Blog</Link>
           <Link href="/privacy" className="footer-link">Privacy Policy</Link>
           <Link href="/refund" className="footer-link">Refund Policy</Link>
           <a href="mailto:contact@sahajta.com" className="footer-link">Contact Us</a>
         </div>
       </footer>
 
-      {/* ── Mobile hero overrides ──────────────────────────────────────────── */}
+      {/* ── Responsive Mobile Overrides ────────────────────────────────────── */}
       <style>{`
         @media (max-width: 767px) {
-          .hero-cta {
-            background: #22C55E !important;
-            border-color: #22C55E !important;
-            color: #080808 !important;
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            padding: 40px 16px !important;
+            gap: 32px !important;
           }
-          .hero-h1 {
-            font-size: clamp(36px, 8vw, 96px) !important;
+          .hero-right {
+            display: flex !important;
+            justify-content: center !important;
+            margin-top: 12px !important;
           }
-          .hero-label {
-            font-size: 10px !important;
+          .pricing-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+          nav {
+            padding: 0 16px !important;
+            height: 70px !important;
+          }
+          nav div {
+            gap: 16px !important;
+          }
+          nav a:not([href="/auth"]) {
+            display: none !important;
           }
         }
       `}</style>

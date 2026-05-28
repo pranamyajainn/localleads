@@ -122,7 +122,7 @@ export function LiveScan() {
             style={{
               ...MONO,
               fontSize: 10,
-              color: "#22C55E",
+              color: "var(--color-gold)",
               marginLeft: "auto",
               letterSpacing: "0.08em",
             }}
@@ -135,7 +135,7 @@ export function LiveScan() {
             style={{
               ...MONO,
               fontSize: 10,
-              color: "#22C55E",
+              color: "var(--color-gold)",
               marginLeft: "auto",
               letterSpacing: "0.08em",
             }}
@@ -150,7 +150,7 @@ export function LiveScan() {
 
         {/* Prompt line */}
         <div style={{ ...MONO, fontSize: 13, lineHeight: "1.8", color: "#555" }}>
-          <span style={{ color: "#22C55E" }}>›</span>{" "}
+          <span style={{ color: "var(--color-gold)" }}>›</span>{" "}
           <span style={{ color: "#444" }}>query:</span>{" "}
           <span style={{ color: "#EDEDED" }}>{typed}</span>
           {(phase === "idle" || phase === "typing") && (
@@ -168,7 +168,7 @@ export function LiveScan() {
                   <span className="cursor" style={{ background: "#555" }} />
                 </>
               ) : (
-                <span style={{ color: "#22C55E" }}>✓ scan complete — 12 businesses found</span>
+                <span style={{ color: "var(--color-gold)" }}>✓ scan complete — 12 businesses found</span>
               )}
             </div>
             <div
@@ -181,8 +181,8 @@ export function LiveScan() {
             >
               <div
                 style={{
-                  height: "100%",
-                  background: "linear-gradient(90deg, rgba(34,197,94,0.6), #22C55E)",
+                  height: 2,
+                  background: "linear-gradient(90deg, rgba(255,230,93,0.6), var(--color-gold))",
                   width: `${pct}%`,
                   transition: "width 0.025s linear",
                 }}
@@ -221,7 +221,7 @@ export function LiveScan() {
                 >
                   <span style={{ color: "#333", minWidth: 20, flexShrink: 0 }}>0{i + 1}</span>
                   <span style={{ color: "#EDEDED", flex: 1, minWidth: 180 }}>{r.n}</span>
-                  <span style={{ color: "#22C55E" }}>{r.p}</span>
+                  <span style={{ color: "var(--color-gold)" }}>{r.p}</span>
                   <span style={{ color: "#555" }}>{r.a}</span>
                 </div>
               ))}

@@ -15,8 +15,8 @@ const PLANS = [
     name: "Free",
     display: "₹0",
     period: "forever",
-    note: "Try LocalLeads, no card needed",
-    leads: "20 leads lifetime",
+    note: "Try it out, no credit card needed",
+    leads: "Find 20 shops total (forever)",
     csv: false,
     support: false,
     onboarding: false,
@@ -28,8 +28,8 @@ const PLANS = [
     name: "Starter",
     display: "₹499",
     period: "/ month",
-    note: "For freelancers just starting out",
-    leads: "500 leads / month",
+    note: "For people starting their design business",
+    leads: "Find 500 shops / month",
     csv: true,
     support: false,
     onboarding: false,
@@ -41,8 +41,8 @@ const PLANS = [
     name: "Growth",
     display: "₹999",
     period: "/ month",
-    note: "Most popular · closes 5–10 sites/month",
-    leads: "2,000 leads / month",
+    note: "Best plan · build 5 to 10 websites every month",
+    leads: "Find 2,000 shops / month",
     csv: true,
     support: false,
     onboarding: false,
@@ -54,8 +54,8 @@ const PLANS = [
     name: "Pro",
     display: "₹2,499",
     period: "/ month",
-    note: "For full-time freelancers & small agencies",
-    leads: "10,000 leads / month",
+    note: "For busy designers and small teams",
+    leads: "Find 10,000 shops / month",
     csv: true,
     support: true,
     onboarding: false,
@@ -67,8 +67,8 @@ const PLANS = [
     name: "Agency",
     display: "₹4,999",
     period: "/ month",
-    note: "For agencies running multi-city campaigns",
-    leads: "50,000 leads / month",
+    note: "For big companies finding shops everywhere",
+    leads: "Find 50,000 shops / month",
     csv: true,
     support: true,
     onboarding: true,
@@ -101,7 +101,7 @@ export default function PricingPage() {
       }}>
         <Link href="/" style={{ textDecoration: "none" }}>
           <span style={{ fontFamily: "var(--font-serif)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.01em", color: "#EDEDED" }}>
-            Local<span style={{ color: "#22C55E" }}>Leads</span>
+            Local<span style={{ color: "var(--color-gold)" }}>Leads</span>
           </span>
         </Link>
         <div>
@@ -121,7 +121,7 @@ export default function PricingPage() {
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 64 }}>
-          <div style={{ width: 40, height: 1, background: "#22C55E", margin: "0 auto 20px" }} />
+          <div style={{ width: 40, height: 1, background: "var(--color-gold)", margin: "0 auto 20px" }} />
           <h1 style={{
             fontFamily: "var(--font-serif)",
             fontSize: "clamp(36px, 5vw, 60px)",
@@ -129,10 +129,10 @@ export default function PricingPage() {
             letterSpacing: "-0.03em", color: "#EDEDED",
             margin: "0 0 12px",
           }}>
-            Pay per lead, not per search.
+            Only pay when we find a shop with no website!
           </h1>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#555", margin: 0, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
-            Every plan charges you only for leads that qualify — businesses with a phone number and no website. Zero waste.
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#888", margin: 0, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
+            You only pay for real shop phone numbers. No website = they need your help! No wasted money.
           </p>
         </div>
 
@@ -141,6 +141,7 @@ export default function PricingPage() {
             marginBottom: 28, padding: "14px 20px",
             border: "1px solid rgba(239,68,68,0.3)",
             background: "rgba(239,68,68,0.06)",
+            borderRadius: 24,
             fontFamily: "var(--font-sans)", fontSize: 13, color: "#F87171", textAlign: "center",
           }}>
             {payError}
@@ -161,11 +162,12 @@ export default function PricingPage() {
                 {plan.featured && (
                   <div style={{
                     position: "absolute", top: 0, left: 0, right: 0,
-                    background: "#22C55E", padding: "5px 0", textAlign: "center",
+                    background: "var(--color-gold)", padding: "5px 0", textAlign: "center",
                     fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 800,
                     letterSpacing: "0.15em", color: "#080808", textTransform: "uppercase",
+                    borderRadius: "22px 22px 0 0",
                   }}>
-                    Most popular
+                    Best Plan
                   </div>
                 )}
 
@@ -173,7 +175,7 @@ export default function PricingPage() {
                   <p style={{
                     fontFamily: "var(--font-sans)", fontSize: 10, fontWeight: 700,
                     letterSpacing: "0.12em", textTransform: "uppercase",
-                    color: plan.featured ? "#22C55E" : "#666",
+                    color: plan.featured ? "var(--color-gold)" : "#666",
                     margin: "0 0 3px",
                   }}>
                     {plan.name}
@@ -200,13 +202,13 @@ export default function PricingPage() {
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 20px", flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
                   {[
                     plan.leads,
-                    plan.csv ? "CSV export" : null,
-                    plan.support ? "Priority support" : null,
-                    plan.onboarding ? "Dedicated onboarding" : null,
+                    plan.csv ? "Download list to Excel/CSV" : null,
+                    plan.support ? "Quick email support" : null,
+                    plan.onboarding ? "Help with onboarding" : null,
                     "All cities",
                   ].filter(Boolean).map((f) => (
                     <li key={f} style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-sans)", fontSize: 12, color: plan.featured ? "#EDEDED" : "#777" }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
                       {f}
                     </li>
                   ))}
@@ -215,10 +217,11 @@ export default function PricingPage() {
                 {isCurrent ? (
                   <div style={{
                     textAlign: "center", padding: "10px 0",
-                    border: "1px solid rgba(34,197,94,0.3)",
+                    border: "1px solid rgba(255,230,93,0.3)",
+                    borderRadius: 30,
                     fontFamily: "var(--font-sans)", fontSize: 10,
                     letterSpacing: "0.12em", textTransform: "uppercase",
-                    color: "#22C55E",
+                    color: "var(--color-gold)",
                   }}>
                     Current Plan
                   </div>
@@ -232,10 +235,15 @@ export default function PricingPage() {
                       width: "100%", opacity: (isPayingThis || !!paying) ? 0.5 : 1,
                       cursor: (isPayingThis || !!paying) ? "not-allowed" : "pointer",
                       fontSize: plan.featured ? 12 : 11,
+                      borderRadius: 30,
                     }}
                   >
                     {isPayingThis && (
-                      <span style={{ width: 12, height: 12, border: "1.5px solid currentColor", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
+                      <span className="premium-dot-loader" style={{ marginRight: 8 }}>
+                        <span />
+                        <span />
+                        <span />
+                      </span>
                     )}
                     {plan.cta}
                   </button>
@@ -246,14 +254,14 @@ export default function PricingPage() {
         </div>
 
         <p style={{ textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 13, color: "#444", marginTop: 32, marginBottom: 4 }}>
-          Need a custom volume plan?{" "}
-          <a href="mailto:contact@sahajta.com" style={{ color: "#22C55E", textDecoration: "none" }}>
+          Need more?{" "}
+          <a href="mailto:contact@sahajta.com" style={{ color: "var(--color-gold)", textDecoration: "none" }}>
             contact@sahajta.com
           </a>
         </p>
 
         <p style={{ textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 12, color: "#2E2E2E", marginTop: 10 }}>
-          Payments processed securely by Razorpay. Cancel anytime.
+          Payments are safe and secure. Stop subscription anytime.
         </p>
       </div>
 
@@ -267,12 +275,10 @@ export default function PricingPage() {
       </footer>
 
       <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-
         .pricing-grid-5 {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
-          gap: 0;
+          gap: 16px;
           align-items: stretch;
         }
         .price-card {
@@ -282,14 +288,14 @@ export default function PricingPage() {
           padding: 24px 18px 20px;
           background: #0D0D0D;
           border: 1px solid rgba(255,255,255,0.1);
-          margin-left: -1px;
+          border-radius: 24px;
         }
         .price-card-featured {
-          background: rgba(34,197,94,0.04);
-          border: 2px solid rgba(34,197,94,0.45);
+          background: rgba(255, 230, 93, 0.04);
+          border: 2px solid var(--color-gold);
           padding: 36px 20px 24px;
           z-index: 2;
-          margin-left: -1px;
+          border-radius: 24px;
         }
 
         @media (max-width: 900px) {
@@ -300,10 +306,6 @@ export default function PricingPage() {
         @media (max-width: 600px) {
           .pricing-grid-5 {
             grid-template-columns: 1fr;
-          }
-          .price-card, .price-card-featured {
-            margin-left: 0;
-            margin-top: -1px;
           }
         }
       `}</style>

@@ -34,10 +34,10 @@ export default function CityPage() {
           color: "#EDEDED", textDecoration: "none",
           letterSpacing: "-0.01em",
         }}>
-          Local<span style={{ color: "#22C55E" }}>Leads</span>
+          Local<span style={{ color: "var(--color-gold)" }}>Leads</span>
         </Link>
         <Link href="/auth" style={{
-          background: "#22C55E", color: "#000",
+          background: "var(--color-gold)", color: "#000",
           padding: "10px 20px", fontFamily: "sans-serif",
           fontSize: 14, fontWeight: 700,
           textDecoration: "none",
@@ -51,7 +51,7 @@ export default function CityPage() {
         <p style={{
           fontFamily: "sans-serif", fontSize: 11,
           fontWeight: 700, letterSpacing: "0.14em",
-          textTransform: "uppercase", color: "#22C55E",
+          textTransform: "uppercase", color: "var(--color-gold)",
           marginBottom: 20,
         }}>
           Mumbai · Lead Generation
@@ -65,7 +65,7 @@ export default function CityPage() {
         }}>
           Find businesses in Mumbai
           <br />
-          <span style={{ color: "#22C55E" }}>with no website.</span>
+          <span style={{ color: "var(--color-gold)" }}>with no website.</span>
         </h1>
         <p style={{
           fontFamily: "sans-serif", fontSize: 17,
@@ -83,7 +83,7 @@ export default function CityPage() {
         </p>
         <Link href="/auth" style={{
           display: "inline-block",
-          background: "#22C55E", color: "#000",
+          background: "var(--color-gold)", color: "#000",
           padding: "16px 32px",
           fontFamily: "sans-serif", fontSize: 15,
           fontWeight: 700, textDecoration: "none",
@@ -160,7 +160,7 @@ export default function CityPage() {
         </p>
         <Link href="/auth" style={{
           display: "inline-block",
-          background: "#22C55E", color: "#000",
+          background: "var(--color-gold)", color: "#000",
           padding: "16px 40px",
           fontFamily: "sans-serif", fontSize: 15,
           fontWeight: 700, textDecoration: "none",
@@ -178,7 +178,7 @@ export default function CityPage() {
         alignItems: "center", flexWrap: "wrap", gap: 12,
       }}>
         <span style={{ fontFamily: "Georgia, serif", fontSize: 16, fontWeight: 700, color: "#EDEDED" }}>
-          Local<span style={{ color: "#22C55E" }}>Leads</span>
+          Local<span style={{ color: "var(--color-gold)" }}>Leads</span>
         </span>
         <span style={{ fontFamily: "sans-serif", fontSize: 12, color: "#2E2E2E" }}>
           © 2026 Sahajta AI Solutions Pvt. Ltd.

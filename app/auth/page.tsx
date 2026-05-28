@@ -89,19 +89,49 @@ export default function AuthPage() {
     return (
       <div
         style={{
-          minHeight: "100vh", background: "#080808",
+          minHeight: "100vh", background: "#0A0A0B",
           display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center", gap: 16,
+          alignItems: "center", justifyContent: "center", gap: 20,
         }}
       >
-        <div
-          style={{
-            width: 20, height: 20,
-            border: "1.5px solid #22C55E", borderTopColor: "transparent",
-            borderRadius: "50%", animation: "spin 0.8s linear infinite",
-          }}
-        />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <span style={{
+          fontFamily: "var(--font-serif)",
+          fontSize: 24,
+          fontWeight: 700,
+          letterSpacing: "-0.015em",
+          color: "#EDEDED",
+          animation: "pulseGlow 1.8s ease-in-out infinite",
+        }}>
+          Local<span style={{ color: "var(--color-gold)", textShadow: "0 0 10px rgba(255, 230, 93, 0.5)" }}>Leads</span>
+        </span>
+        <div style={{
+          width: 120,
+          height: 3,
+          background: "rgba(255, 255, 255, 0.05)",
+          borderRadius: 999,
+          overflow: "hidden",
+          position: "relative"
+        }}>
+          <div style={{
+            position: "absolute",
+            height: "100%",
+            width: "50%",
+            background: "linear-gradient(90deg, transparent, var(--color-gold), transparent)",
+            borderRadius: 999,
+            animation: "glide 1.4s ease-in-out infinite",
+            boxShadow: "0 0 8px var(--color-gold)"
+          }} />
+        </div>
+        <style>{`
+          @keyframes pulseGlow {
+            0%, 100% { opacity: 0.6; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1); }
+          }
+          @keyframes glide {
+            0% { left: -50%; }
+            100% { left: 100%; }
+          }
+        `}</style>
       </div>
     );
   }
@@ -110,7 +140,7 @@ export default function AuthPage() {
     <div
       className="auth-grid"
       style={{
-        minHeight: "100vh", background: "#080808",
+        minHeight: "100vh", background: "#0A0A0B",
         display: "grid", gridTemplateColumns: "45% 55%",
       }}
     >
@@ -129,37 +159,36 @@ export default function AuthPage() {
             position: "absolute", bottom: 0, left: "50%",
             transform: "translateX(-50%)",
             width: "120%", height: "50%",
-            background: "radial-gradient(ellipse at center bottom, rgba(34,197,94,0.07) 0%, transparent 65%)",
+            background: "radial-gradient(ellipse at center bottom, rgba(255,230,93,0.07) 0%, transparent 65%)",
             pointerEvents: "none",
           }}
         />
 
         <Link href="/" style={{ textDecoration: "none", position: "relative" }}>
           <span style={{ fontFamily: "var(--font-serif)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.01em", color: "#EDEDED" }}>
-            Local<span style={{ color: "#22C55E" }}>Leads</span>
+            Local<span style={{ color: "var(--color-gold)" }}>Leads</span>
           </span>
         </Link>
 
         <div style={{ position: "relative" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
-            <span style={{ display: "block", width: 24, height: 1, background: "#22C55E" }} />
+            <span style={{ display: "block", width: 24, height: 1, background: "var(--color-gold)" }} />
             <span style={{ fontFamily: "var(--font-sans)", fontSize: 11, color: "#444", letterSpacing: "0.06em", textTransform: "uppercase" }}>
-              what's waiting for you
+              what you get
             </span>
           </div>
           <p style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(28px, 3vw, 42px)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.025em", color: "#EDEDED", margin: "0 0 24px" }}>
-            Find businesses<br />
+            Find shops<br />
             with no website.<br />
-            <span style={{ color: "#22C55E", fontStyle: "italic" }}>Get paid.</span>
+            <span style={{ color: "var(--color-gold)", fontStyle: "italic" }}>Get paid!</span>
           </p>
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#555", lineHeight: 1.68, margin: "0 0 32px", maxWidth: 320 }}>
-            Google Maps. Live phone numbers. No website — proof they need one.
-            One search takes 2 minutes. Leads take less.
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#888", lineHeight: 1.68, margin: "0 0 32px", maxWidth: 320 }}>
+            Get active phone numbers of shops straight from Google Maps. Only call shops that do not have a website yet!
           </p>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", border: "1px solid rgba(34,197,94,0.15)", background: "rgba(34,197,94,0.04)" }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E", display: "inline-block", flexShrink: 0 }} />
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#666", margin: 0, lineHeight: 1.5 }}>
-              <strong style={{ color: "#EDEDED" }}>847 freelancers</strong> earning with LocalLeads right now
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 18px", border: "1px solid rgba(255,230,93,0.15)", background: "rgba(255,230,93,0.04)", borderRadius: 24 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-gold)", display: "inline-block", flexShrink: 0 }} />
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#888", margin: 0, lineHeight: 1.5 }}>
+              <strong style={{ color: "#EDEDED" }}>847 people</strong> are using this to make money right now!
             </p>
           </div>
         </div>
@@ -175,10 +204,10 @@ export default function AuthPage() {
 
           <div style={{ marginBottom: 40 }}>
             <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(28px, 3vw, 38px)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.025em", color: "#EDEDED", margin: "0 0 10px" }}>
-              Welcome back.
+              Welcome back!
             </h1>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#555", margin: 0 }}>
-              Sign in to access your dashboard.
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#888", margin: 0 }}>
+              Log in to find shop phone numbers.
             </p>
           </div>
 
@@ -195,6 +224,7 @@ export default function AuthPage() {
               display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
               padding: "15px 20px",
               border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 30,
               background: "#0F0F0F",
               color: "#EDEDED",
               fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 500,
@@ -213,15 +243,15 @@ export default function AuthPage() {
 
           <div style={{ margin: "28px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }} />
 
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#333", lineHeight: 1.6, margin: "0 0 24px", textAlign: "center" }}>
-            By continuing, you agree to our{" "}
-            <a href="/terms" style={{ color: "#444", textDecoration: "underline" }}>Terms of Service</a> and{" "}
-            <a href="/privacy" style={{ color: "#444", textDecoration: "underline" }}>Privacy Policy</a>.
+          <p style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "#444", lineHeight: 1.6, margin: "0 0 24px", textAlign: "center" }}>
+            By logging in, you agree to our{" "}
+            <a href="/terms" style={{ color: "#666", textDecoration: "underline" }}>Terms</a> and{" "}
+            <a href="/privacy" style={{ color: "#666", textDecoration: "underline" }}>Privacy Policy</a>.
           </p>
 
           <p style={{ textAlign: "center", margin: 0 }}>
-            <Link href="/" style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#333", textDecoration: "none" }}>
-              ← Back to home
+            <Link href="/" style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#666", textDecoration: "none" }}>
+              ← Go back home
             </Link>
           </p>
         </div>
