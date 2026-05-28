@@ -1,7 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { Resend } from "resend";
 import * as Sentry from "@sentry/nextjs";
+
+async function notifySubscribers(
+  db: ReturnType<typeof adminDb>,
+  title: string,
+  slug: string,
+  description: string
+) {
+  try {
+    const subscribersSnap = await db
+      .collection("newsletter_subscribers")
+      .where("active", "==", true)
+      .get();
+
+    if (subscribersSnap.empty) return;
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const postUrl = `https://localleads.sahajta.com/blog/${slug}`;
+
+    for (const doc of subscribersSnap.docs) {
+      const subscriber = doc.data();
+      if (!subscriber.email) continue;
+
+      await resend.emails.send({
+        from: "Pranamya from LocalLeads <hello@sahajta.com>",
+        to: subscriber.email,
+        subject: title,
+        text: `Hey,
+
+New post on the LocalLeads blog:
+
+${title}
+
+${description}
+
+Read it here: ${postUrl}
+
+---
+Don't want these? Reply with "stop" and I will remove you.`,
+        headers: {
+          "List-Unsubscribe": "<mailto:hello@sahajta.com?subject=unsubscribe>",
+        },
+      });
+
+      await new Promise((r) => setTimeout(r, 200));
+    }
+
+    console.log(`Notified ${subscribersSnap.size} subscribers`);
+  } catch (error) {
+    console.error("Subscriber notification error:", error);
+  }
+}
 
 const KEYWORD_TOPICS = [
   { keyword: "how to find clients as a web designer in India", city: "Indore", persona: "arjun" },
@@ -202,6 +254,8 @@ If the keyword contains Hindi or Hinglish words, write the post in Hinglish — 
   const readingTimeMinutes = Math.ceil(wordCount / 200);
   const readingTime = `${readingTimeMinutes} min read`;
 
+  const postDescription = `${title.replace(/"/g, "'")} — practical guide for Indian web freelancers.`;
+
   await db.collection("blog_posts").doc(slug).set({
     title: title.replace(/"/g, "'"),
     date,
@@ -209,7 +263,7 @@ If the keyword contains Hindi or Hinglish words, write the post in Hinglish — 
     keyword,
     city: scheduledTopic.city,
     persona: scheduledTopic.persona,
-    description: `${title.replace(/"/g, "'")} — practical guide for Indian web freelancers.`,
+    description: postDescription,
     content: body,
     createdAt: new Date(),
     wordCount,
@@ -230,13 +284,15 @@ If the keyword contains Hindi or Hinglish words, write the post in Hinglish — 
         "name": "LocalLeads by Sahajta AI",
         "url": "https://localleads.sahajta.com"
       },
-      "description": title.replace(/"/g, "'") + " — practical guide for Indian web freelancers.",
+      "description": postDescription,
       "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": `https://localleads.sahajta.com/blog/${slug}`
       }
     }),
   });
+
+  await notifySubscribers(db, title.replace(/"/g, "'"), slug, postDescription);
 
   return NextResponse.json({
     message: "Blog post generated",
