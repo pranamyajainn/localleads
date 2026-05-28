@@ -4,6 +4,7 @@ import { createHmac } from "crypto";
 import { Timestamp } from "firebase-admin/firestore";
 import { PLAN_LIMITS, PLAN_PRICES, Plan } from "@/lib/types";
 import { sendCAPIEvent } from "@/lib/metaCapi";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
@@ -41,57 +42,64 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const db = adminDb();
-  const snap = await db.collection("users").where("subscriptionId", "==", subscriptionId).limit(1).get();
-  if (snap.empty) {
-    return NextResponse.json({ ok: true });
-  }
-
-  const userDocRef = snap.docs[0].ref;
-
-  if (event === "subscription.charged") {
-    const planData = snap.docs[0].data();
-
-    // Idempotency: skip if we already processed this exact charge
-    if (paymentId && planData.lastChargeId === paymentId) {
+  try {
+    const db = adminDb();
+    const snap = await db.collection("users").where("subscriptionId", "==", subscriptionId).limit(1).get();
+    if (snap.empty) {
       return NextResponse.json({ ok: true });
     }
 
-    const plan = planData.plan as Plan;
-    const planExpiresAt = Timestamp.fromDate(
-      new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    );
-    await userDocRef.update({
-      leadsUsed: 0,
-      leadsLimit: PLAN_LIMITS[plan] ?? planData.leadsLimit,
-      planExpiresAt,
-      subscriptionStatus: "active",
-      ...(paymentId ? { lastChargeId: paymentId } : {}),
-    });
+    const userDocRef = snap.docs[0].ref;
 
-    // Server-side Purchase event via CAPI
-    // eventId is deterministic on paymentId so Meta deduplicates correctly
-    const userEmail = planData.email as string | undefined;
-    const planAmountINR = (PLAN_PRICES[plan] ?? 0) / 100;
-    sendCAPIEvent({
-      eventName: "Purchase",
-      eventId: `purchase_${paymentId ?? subscriptionId}`,
-      eventSourceUrl: "https://localleads.sahajta.com/pricing",
-      userData: { email: userEmail },
-      customData: { value: planAmountINR, currency: "INR", content_name: plan },
-    }).catch(() => {});
-  } else if (event === "subscription.cancelled") {
-    await userDocRef.update({
-      subscriptionId: null,
-      subscriptionStatus: null,
-      plan: "free",
-      leadsLimit: PLAN_LIMITS.free,
-    });
-  } else if (event === "subscription.halted") {
-    await userDocRef.update({
-      subscriptionStatus: "halted",
-    });
+    if (event === "subscription.charged") {
+      const planData = snap.docs[0].data();
+
+      // Idempotency: skip if we already processed this exact charge
+      if (paymentId && planData.lastChargeId === paymentId) {
+        return NextResponse.json({ ok: true });
+      }
+
+      const plan = planData.plan as Plan;
+      const planExpiresAt = Timestamp.fromDate(
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      );
+      await userDocRef.update({
+        leadsUsed: 0,
+        leadsLimit: PLAN_LIMITS[plan] ?? planData.leadsLimit,
+        planExpiresAt,
+        subscriptionStatus: "active",
+        ...(paymentId ? { lastChargeId: paymentId } : {}),
+      });
+
+      // Server-side Purchase event via CAPI
+      // eventId is deterministic on paymentId so Meta deduplicates correctly
+      const userEmail = planData.email as string | undefined;
+      const planAmountINR = (PLAN_PRICES[plan] ?? 0) / 100;
+      sendCAPIEvent({
+        eventName: "Purchase",
+        eventId: `purchase_${paymentId ?? subscriptionId}`,
+        eventSourceUrl: "https://localleads.sahajta.com/pricing",
+        userData: { email: userEmail },
+        customData: { value: planAmountINR, currency: "INR", content_name: plan },
+      }).catch(() => {});
+    } else if (event === "subscription.cancelled") {
+      await userDocRef.update({
+        subscriptionId: null,
+        subscriptionStatus: null,
+        plan: "free",
+        leadsLimit: PLAN_LIMITS.free,
+      });
+    } else if (event === "subscription.halted") {
+      await userDocRef.update({
+        subscriptionStatus: "halted",
+        plan: "free",
+        leadsLimit: PLAN_LIMITS.free,
+      });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    Sentry.captureException(err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true });
 }

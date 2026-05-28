@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/apiAuth";
 import Razorpay from "razorpay";
+import * as Sentry from "@sentry/nextjs";
 
 const PLAN_ENV_KEYS: Record<string, string> = {
   starter: "RAZORPAY_PLAN_STARTER",
@@ -42,8 +43,12 @@ export async function POST(req: NextRequest) {
       customer_notify: 1,
     });
 
-    return NextResponse.json({ subscription_id: subscription.id });
+    return NextResponse.json({
+      subscription_id: subscription.id,
+      key_id: process.env.RAZORPAY_KEY_ID,
+    });
   } catch (err) {
+    Sentry.captureException(err);
     const rzpErr = err as { error?: { description?: string; code?: string }; message?: string };
     const detail = rzpErr?.error?.description || rzpErr?.error?.code || rzpErr?.message || JSON.stringify(err);
     console.error("Razorpay subscription creation failed:", JSON.stringify(err));

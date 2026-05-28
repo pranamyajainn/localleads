@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { createHmac } from "crypto";
 import { Timestamp } from "firebase-admin/firestore";
 import { PLAN_LIMITS, Plan } from "@/lib/types";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(req: NextRequest) {
   const auth = await verifyToken(req);
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
+    Sentry.captureException(err);
     console.error("Payment verification error:", err);
     return NextResponse.json({ error: "Verification failed" }, { status: 500 });
   }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { Resend } from "resend";
+import * as Sentry from "@sentry/nextjs";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  try {
   const db = adminDb();
   const usersSnap = await db
     .collection("users")
@@ -195,4 +197,9 @@ Don't want these emails? Reply with "stop" and I'll remove you.`
     sent: results.length,
     details: results,
   });
+  } catch (err) {
+    Sentry.captureException(err);
+    console.error("Email sequence error:", err);
+    return NextResponse.json({ error: "Sequence processing failed" }, { status: 500 });
+  }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { adminDb } from "@/lib/firebaseAdmin";
+import * as Sentry from "@sentry/nextjs";
 
 const KEYWORD_TOPICS = [
   { keyword: "how to find clients as a web designer in India", city: "Indore", persona: "arjun" },
@@ -108,6 +109,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  try {
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const date = new Date().toISOString().split("T")[0];
 
@@ -243,4 +245,9 @@ If the keyword contains Hindi or Hinglish words, write the post in Hinglish — 
     date,
     topicSource: trendingTopic ? "trending" : "scheduled",
   });
+  } catch (err) {
+    Sentry.captureException(err);
+    console.error("Blog generation failed:", err);
+    return NextResponse.json({ error: "Blog generation failed" }, { status: 500 });
+  }
 }

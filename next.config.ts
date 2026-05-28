@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   // Proxy Firebase Auth handler through our own origin so the OAuth flow is
@@ -16,4 +17,14 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: "sahajta",
+  project: "localleads",
+  silent: true,
+  widenClientFileUpload: true,
+  sourcemaps: {
+    filesToDeleteAfterUpload: [".next/static/**/*.map"],
+  },
+  disableLogger: true,
+  automaticVercelMonitors: false,
+});
