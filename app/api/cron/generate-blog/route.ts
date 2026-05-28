@@ -55,70 +55,120 @@ Don't want these? Reply with "stop" and I will remove you.`,
   }
 }
 
-const KEYWORD_TOPICS = [
-  { keyword: "how to find clients as a web designer in India", city: "Indore", persona: "arjun" },
-  { keyword: "how to cold call local businesses for website projects", city: "Jaipur", persona: "arjun" },
-  { keyword: "how to make money web design India without experience", city: "Lucknow", persona: "arjun" },
-  { keyword: "how to get first web design client India", city: "Bhopal", persona: "arjun" },
-  { keyword: "how to find businesses without website near me India", city: "Nagpur", persona: "arjun" },
-  { keyword: "how much to charge for website in India", city: "Surat", persona: "arjun" },
-  { keyword: "freelance web design income India tier 2 city", city: "Coimbatore", persona: "arjun" },
-  { keyword: "how to pitch website to local business India", city: "Patna", persona: "arjun" },
-  { keyword: "google maps lead generation for freelancers India", city: "Varanasi", persona: "arjun" },
-  { keyword: "how to escape job and become freelancer India", city: "Indore", persona: "arjun" },
-  { keyword: "how to get web design clients while working full time", city: "Kochi", persona: "priya" },
-  { keyword: "how to build freelance pipeline alongside day job India", city: "Chennai", persona: "priya" },
-  { keyword: "how to quit job and freelance web design India", city: "Bangalore", persona: "priya" },
-  { keyword: "finding local business leads for web design India", city: "Hyderabad", persona: "priya" },
-  { keyword: "how to charge premium for websites in South India", city: "Kochi", persona: "priya" },
-  { keyword: "web design outreach that doesn't feel like spam", city: "Chennai", persona: "priya" },
-  { keyword: "why am I not getting web design clients India", city: "Jaipur", persona: "rohit" },
-  { keyword: "how to get consistent clients as web designer India", city: "Jaipur", persona: "rohit" },
-  { keyword: "freelancing not working what to do India", city: "Jaipur", persona: "rohit" },
-  { keyword: "how to find no website businesses to pitch India", city: "Jaipur", persona: "rohit" },
-  { keyword: "how to scale digital agency India", city: "Pune", persona: "vikram" },
-  { keyword: "lead generation for digital agencies India", city: "Pune", persona: "vikram" },
-  { keyword: "how to build client pipeline for web agency India", city: "Bangalore", persona: "vikram" },
-  { keyword: "outbound sales for web design agency India", city: "Hyderabad", persona: "vikram" },
-  { keyword: "best cities for web design freelancing India", city: "Mumbai", persona: "general" },
-  { keyword: "how many businesses in India don't have a website", city: "Delhi", persona: "general" },
-  { keyword: "website pricing guide India 2025", city: "Mumbai", persona: "general" },
-  { keyword: "cold outreach script for website sales India", city: "Delhi", persona: "general" },
-  { keyword: "how to sell websites to restaurants India", city: "Bangalore", persona: "general" },
-  { keyword: "how to sell websites to CA firms India", city: "Mumbai", persona: "general" },
-  { keyword: "how to sell websites to salons India", city: "Pune", persona: "general" },
-  { keyword: "how to sell websites to gyms India", city: "Hyderabad", persona: "general" },
+// ── Pillar-Cluster Content Architecture ───────────────────────────────────────
 
-  // Hinglish and natural Indian search terms — Jaipur
-  { keyword: "Jaipur mein website banana ka kaam", city: "Jaipur", persona: "arjun" },
-  { keyword: "website banao paisa kamao Jaipur", city: "Jaipur", persona: "arjun" },
-  { keyword: "Jaipur mein website banane wala freelancer", city: "Jaipur", persona: "arjun" },
-  { keyword: "local shop website banana Jaipur", city: "Jaipur", persona: "arjun" },
-  { keyword: "website banana kaise sikhe Jaipur", city: "Jaipur", persona: "arjun" },
-
-  // Natural Indian English — how people actually type
-  { keyword: "how to make website for local business in Jaipur", city: "Jaipur", persona: "arjun" },
-  { keyword: "website making freelance work in Jaipur", city: "Jaipur", persona: "arjun" },
-  { keyword: "how to make websites and earn money in India", city: "Jaipur", persona: "arjun" },
-  { keyword: "website banana ke liye client kaise dhundhe", city: "Jaipur", persona: "arjun" },
-  { keyword: "website banane ka business kaise shuru kare", city: "Indore", persona: "arjun" },
-
-  // Kota — student audience
-  { keyword: "Kota mein website banana ka kaam", city: "Kota", persona: "arjun" },
-  { keyword: "website making side income Kota", city: "Kota", persona: "arjun" },
-  { keyword: "after coaching website banana ka kaam Kota", city: "Kota", persona: "arjun" },
-
-  // General Indian natural search
-  { keyword: "ghar baithe website banao paise kamao", city: "Indore", persona: "arjun" },
-  { keyword: "website banana ka business India", city: "Indore", persona: "arjun" },
-  { keyword: "chhoti dukan ke liye website banana", city: "Jaipur", persona: "arjun" },
-  { keyword: "bina degree website bana ke paisa kamao", city: "Lucknow", persona: "arjun" },
-  { keyword: "website making se paise kaise kamaye", city: "Bhopal", persona: "arjun" },
-  { keyword: "local business ko website kaise becho", city: "Jaipur", persona: "arjun" },
-  { keyword: "restaurant ke liye website banana Jaipur", city: "Jaipur", persona: "general" },
-  { keyword: "salon ke liye website banana India", city: "Indore", persona: "general" },
-  { keyword: "doctor clinic website banana India", city: "Jaipur", persona: "general" },
+const CONTENT_CLUSTERS = [
+  {
+    pillar: {
+      keyword: "Jaipur mein freelance web design se paisa kaise kamaye",
+      city: "Jaipur",
+      isPillar: true,
+      pillarSlug: "jaipur-web-design-freelancing-guide",
+    },
+    clusters: [
+      { keyword: "Jaipur ke restaurants jinhe website chahiye 2026", city: "Jaipur", persona: "arjun" },
+      { keyword: "website banana ka rate kya hona chahiye Jaipur mein", city: "Jaipur", persona: "arjun" },
+      { keyword: "Malviya Nagar Jaipur mein clients kaise dhundhe", city: "Jaipur", persona: "arjun" },
+      { keyword: "Jaipur cold calling script website pitch karna", city: "Jaipur", persona: "arjun" },
+      { keyword: "Vaishali Nagar businesses without website Jaipur", city: "Jaipur", persona: "arjun" },
+      { keyword: "Jaipur freelancer ka pehla client kaise aaya", city: "Jaipur", persona: "rohit" },
+      { keyword: "C-Scheme Jaipur local business website leads", city: "Jaipur", persona: "arjun" },
+      { keyword: "Jaipur mein kitne businesses ke paas website nahi hai", city: "Jaipur", persona: "general" },
+      { keyword: "how to find web design clients in Mansarovar Jaipur", city: "Jaipur", persona: "arjun" },
+      { keyword: "Jaipur salon spa website banana ka kaam", city: "Jaipur", persona: "arjun" },
+    ],
+  },
+  {
+    pillar: {
+      keyword: "Kota mein website banana ka business kaise shuru kare",
+      city: "Kota",
+      isPillar: true,
+      pillarSlug: "kota-website-business-guide",
+    },
+    clusters: [
+      { keyword: "Kota coaching institutes jinhe website chahiye", city: "Kota", persona: "arjun" },
+      { keyword: "Talwandi Kota mein website banana clients", city: "Kota", persona: "arjun" },
+      { keyword: "Kota mein freelancing kaise shuru kare after college", city: "Kota", persona: "arjun" },
+      { keyword: "Kota ke local businesses without website list", city: "Kota", persona: "arjun" },
+      { keyword: "Vigyan Nagar Kota web design clients kaise mile", city: "Kota", persona: "arjun" },
+      { keyword: "website banana side income Kota students", city: "Kota", persona: "arjun" },
+    ],
+  },
+  {
+    pillar: {
+      keyword: "Indore mein web design freelancing se consistent income kaise banaye",
+      city: "Indore",
+      isPillar: true,
+      pillarSlug: "indore-web-design-freelancing-guide",
+    },
+    clusters: [
+      { keyword: "Vijay Nagar Indore businesses without website", city: "Indore", persona: "arjun" },
+      { keyword: "Indore mein website banane wale freelancer ko client kaise milta hai", city: "Indore", persona: "arjun" },
+      { keyword: "Palasia Indore web design leads kaise nikale", city: "Indore", persona: "arjun" },
+      { keyword: "Indore restaurants cafes website banana", city: "Indore", persona: "arjun" },
+      { keyword: "AB Road Indore local business website pitch", city: "Indore", persona: "arjun" },
+      { keyword: "Indore mein kitna milta hai website banana ka kaam", city: "Indore", persona: "rohit" },
+    ],
+  },
+  {
+    pillar: {
+      keyword: "Lucknow mein website design ka freelance kaam kaise kare",
+      city: "Lucknow",
+      isPillar: true,
+      pillarSlug: "lucknow-freelance-web-design-guide",
+    },
+    clusters: [
+      { keyword: "Gomti Nagar Lucknow businesses without website", city: "Lucknow", persona: "arjun" },
+      { keyword: "Hazratganj Lucknow local business website leads", city: "Lucknow", persona: "arjun" },
+      { keyword: "Lucknow mein website banao paisa kamao", city: "Lucknow", persona: "arjun" },
+      { keyword: "Alambagh Lucknow web design clients kaise dhundhe", city: "Lucknow", persona: "arjun" },
+    ],
+  },
+  {
+    pillar: {
+      keyword: "Pune agency ke liye local business leads kaise generate kare",
+      city: "Pune",
+      isPillar: true,
+      pillarSlug: "pune-agency-lead-generation-guide",
+    },
+    clusters: [
+      { keyword: "Baner Pune businesses without website list", city: "Pune", persona: "vikram" },
+      { keyword: "Kothrud Pune local business web design leads", city: "Pune", persona: "vikram" },
+      { keyword: "Pune agency BD pipeline kaise banaye", city: "Pune", persona: "vikram" },
+      { keyword: "Wakad Pune businesses jinhe website chahiye", city: "Pune", persona: "vikram" },
+    ],
+  },
 ];
+
+type TopicEntry = {
+  keyword: string;
+  city: string;
+  persona: string;
+  pillarSlug: string;
+  isPillar?: boolean;
+};
+
+// Flatten: pillar first, then all cluster posts, for each city group
+const allTopics: TopicEntry[] = [];
+for (const cluster of CONTENT_CLUSTERS) {
+  allTopics.push({
+    keyword: cluster.pillar.keyword,
+    city: cluster.pillar.city,
+    isPillar: cluster.pillar.isPillar,
+    pillarSlug: cluster.pillar.pillarSlug,
+    persona: "general",
+  });
+  for (const post of cluster.clusters) {
+    allTopics.push({
+      keyword: post.keyword,
+      city: post.city,
+      persona: post.persona,
+      pillarSlug: cluster.pillar.pillarSlug,
+    });
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, "-").slice(0, 60);
@@ -155,6 +205,8 @@ async function getTrendingTopic(): Promise<string | null> {
   }
 }
 
+// ── Route Handler ─────────────────────────────────────────────────────────────
+
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -162,33 +214,31 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-  const date = new Date().toISOString().split("T")[0];
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    const date = new Date().toISOString().split("T")[0];
 
-  const dayOfYear = Math.floor(
-    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) /
-      (1000 * 60 * 60 * 24)
-  );
-  const hour = new Date().getUTCHours();
-  const topicOffset = hour < 12 ? 0 : 16;
-  const scheduledTopic = KEYWORD_TOPICS[
-    (dayOfYear + topicOffset) % KEYWORD_TOPICS.length
-  ];
+    const dayOfYear = Math.floor(
+      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
+    const hour = new Date().getUTCHours();
+    const topicOffset = hour < 12 ? 0 : Math.floor(allTopics.length / 2);
+    const scheduledTopic = allTopics[(dayOfYear + topicOffset) % allTopics.length];
 
-  const trendingTopic = await getTrendingTopic();
-  console.log("Topic source:", trendingTopic ? "trending" : "scheduled");
+    const trendingTopic = await getTrendingTopic();
+    console.log("Topic source:", trendingTopic ? "trending" : "scheduled");
 
-  const keyword = trendingTopic ?? scheduledTopic.keyword;
-  const timeSlot = hour < 12 ? "am" : "pm";
-  const slug = slugify(keyword) + "-" + timeSlot;
+    const keyword = trendingTopic ?? scheduledTopic.keyword;
+    const timeSlot = hour < 12 ? "am" : "pm";
+    const slug = slugify(keyword) + "-" + timeSlot;
 
-  const db = adminDb();
-  const existing = await db.collection("blog_posts").doc(slug).get();
-  if (existing.exists) {
-    return NextResponse.json({ message: "Already generated today" });
-  }
+    const db = adminDb();
+    const existing = await db.collection("blog_posts").doc(slug).get();
+    if (existing.exists) {
+      return NextResponse.json({ message: "Already generated today" });
+    }
 
-  const systemPrompt = `You are a friendly Indian freelancer who made it work. You write for other Indian freelancers who are struggling. Your writing style is simple. Very simple. Like you are talking to a 12-year-old.
+    const systemPrompt = `You are a friendly Indian freelancer who made it work. You write for other Indian freelancers who are struggling. Your writing style is simple. Very simple. Like you are talking to a 12-year-old.
 
 SIMPLE ENGLISH RULES — follow every single one:
 1. Use short words. Say "use" not "utilize". Say "help" not "leverage". Say "get" not "obtain".
@@ -211,18 +261,35 @@ SIMPLE ENGLISH RULES — follow every single one:
 17. Write 1200 to 1500 words. Not more. Not less.
 18. Use H1 for title. H2 for sections. Short section titles.
 19. Write the current date naturally in the article. Example: "As of May 2026, most salons in Jaipur..."
-20. Include this exact line somewhere naturally: "Questions? Email hello@sahajta.com and someone will actually reply."`;
+20. Include this exact line somewhere naturally: "Questions? Email hello@sahajta.com and someone will actually reply."
+21. You are writing as Pranamya, a Bangalore-based AI founder who grew up understanding the struggles of tier 2 city freelancers. Write from this perspective. First person where natural. Not corporate.
+22. Every post must include ONE real data point or number that feels researched. Example: 'There are over 4,000 restaurants in Jaipur according to Google Maps. Less than 30% have a working website.' Make up a plausible, specific number like this. It makes the post feel researched and authoritative.
+23. Every post must link to the pillar page of its cluster using markdown: '[Complete guide to web design freelancing in ${scheduledTopic.city}](https://localleads.sahajta.com/blog/${scheduledTopic.pillarSlug})' Include this naturally somewhere in the middle of the post.
+24. Every post must have a 'Related Articles' section at the very end before the sign-off. Format it as:
+## Aur padhne ke liye
+- Link to 2 other posts from the same city cluster
+Use these placeholder links for now:
+[Jaipur mein cold calling script](https://localleads.sahajta.com/blog)
+[Jaipur ke restaurants ko website kaise becho](https://localleads.sahajta.com/blog)
+25. The meta description (first 155 characters of the post body, before the first H2) must naturally contain the target keyword.`;
 
-  const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    messages: [
-      { role: "system", content: systemPrompt },
-      {
-        role: "user",
-        content: `Write a blog post targeting: "${keyword}".
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: systemPrompt },
+        {
+          role: "user",
+          content: `Write a blog post targeting: "${keyword}".
 City focus: ${scheduledTopic.city}.
 Today's date: ${new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}.
 Target reader: Indian web freelancer trying to find clients.
+
+This post is part of the '${scheduledTopic.city} web design freelancing' content cluster.
+The pillar page for this cluster is at:
+https://localleads.sahajta.com/blog/${scheduledTopic.pillarSlug}
+
+Link to it naturally once in the article body.
+Include a 'Aur padhne ke liye' section at the end.
 
 The post must:
 - Use Grade 3 English. Short words. Short sentences.
@@ -239,68 +306,72 @@ Naturally link to these LocalLeads pages where relevant (use markdown links):
 - [pricing](https://localleads.sahajta.com/pricing) when mentioning ₹499 or cost
 
 If the keyword contains Hindi or Hinglish words, write the post in Hinglish — mix Hindi and English the way a 22-year-old in Jaipur would actually talk. Example: "Yaar, 5 ghante Google Maps pe waste mat karo. LocalLeads try karo — 10 minute mein 500 leads nikal." If the keyword is fully in English, write in simple English only.`,
-      },
-    ],
-    temperature: 0.8,
-    max_tokens: 2000,
-  });
+        },
+      ],
+      temperature: 0.8,
+      max_tokens: 2000,
+    });
 
-  const content = completion.choices[0].message.content || "";
-  const lines = content.split("\n");
-  const title = lines[0].replace(/^#+\s*/, "").trim();
-  const body = lines.slice(1).join("\n").trim();
+    const content = completion.choices[0].message.content || "";
+    const lines = content.split("\n");
+    const title = lines[0].replace(/^#+\s*/, "").trim();
+    const body = lines.slice(1).join("\n").trim();
 
-  const wordCount = body.split(/\s+/).length;
-  const readingTimeMinutes = Math.ceil(wordCount / 200);
-  const readingTime = `${readingTimeMinutes} min read`;
+    const wordCount = body.split(/\s+/).length;
+    const readingTimeMinutes = Math.ceil(wordCount / 200);
+    const readingTime = `${readingTimeMinutes} min read`;
 
-  const postDescription = `${title.replace(/"/g, "'")} — practical guide for Indian web freelancers.`;
+    const postDescription = `${title.replace(/"/g, "'")} — practical guide for Indian web freelancers.`;
 
-  await db.collection("blog_posts").doc(slug).set({
-    title: title.replace(/"/g, "'"),
-    date,
-    slug,
-    keyword,
-    city: scheduledTopic.city,
-    persona: scheduledTopic.persona,
-    description: postDescription,
-    content: body,
-    createdAt: new Date(),
-    wordCount,
-    readingTime,
-    schemaMarkup: JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Article",
-      "headline": title.replace(/"/g, "'"),
-      "datePublished": date,
-      "dateModified": date,
-      "author": {
-        "@type": "Organization",
-        "name": "LocalLeads",
-        "url": "https://localleads.sahajta.com"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "LocalLeads by Sahajta AI",
-        "url": "https://localleads.sahajta.com"
-      },
-      "description": postDescription,
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": `https://localleads.sahajta.com/blog/${slug}`
-      }
-    }),
-  });
+    await db.collection("blog_posts").doc(slug).set({
+      title: title.replace(/"/g, "'"),
+      date,
+      slug,
+      keyword,
+      city: scheduledTopic.city,
+      persona: scheduledTopic.persona,
+      pillarSlug: scheduledTopic.pillarSlug,
+      isPillar: scheduledTopic.isPillar || false,
+      description: postDescription,
+      content: body,
+      createdAt: new Date(),
+      wordCount,
+      readingTime,
+      schemaMarkup: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": title.replace(/"/g, "'"),
+        "datePublished": date,
+        "dateModified": date,
+        "author": {
+          "@type": "Organization",
+          "name": "LocalLeads",
+          "url": "https://localleads.sahajta.com",
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "LocalLeads by Sahajta AI",
+          "url": "https://localleads.sahajta.com",
+        },
+        "description": postDescription,
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": `https://localleads.sahajta.com/blog/${slug}`,
+        },
+      }),
+    });
 
-  await notifySubscribers(db, title.replace(/"/g, "'"), slug, postDescription);
+    await notifySubscribers(db, title.replace(/"/g, "'"), slug, postDescription);
 
-  return NextResponse.json({
-    message: "Blog post generated",
-    slug,
-    title,
-    date,
-    topicSource: trendingTopic ? "trending" : "scheduled",
-  });
+    return NextResponse.json({
+      message: "Blog post generated",
+      slug,
+      title,
+      date,
+      topicSource: trendingTopic ? "trending" : "scheduled",
+      pillarSlug: scheduledTopic.pillarSlug,
+      isPillar: scheduledTopic.isPillar || false,
+    });
   } catch (err) {
     Sentry.captureException(err);
     console.error("Blog generation failed:", err);
