@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { getPostBySlug, getAllPosts } from "@/lib/blog";
 import { notFound } from "next/navigation";
+import { BlogCTAButton } from "@/components/BlogCTAButton";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600;
@@ -207,26 +208,7 @@ export default async function BlogPost({
             }}>
               Our scan tool searches Google Maps to find shops that do not have websites. You get their exact names, locations, and direct phone numbers instantly.
             </p>
-            <Link href="/auth" className="blog-cta-btn" style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              background: "var(--color-gold)",
-              color: "#0A0A0B",
-              padding: "13px 26px",
-              fontFamily: "var(--font-sans)",
-              fontSize: 14,
-              fontWeight: 700,
-              textDecoration: "none",
-              borderRadius: 30,
-              transition: "background-color 0.2s ease, transform 0.15s ease"
-            }}
-            >
-              Scan 20 free shops now
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-              </svg>
-            </Link>
+            <BlogCTAButton />
           </div>
           {/* Subtle gradient blob behind card */}
           <div style={{ position: "absolute", width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,230,93,0.05) 0%, transparent 70%)", bottom: "-60px", right: "-60px" }} />

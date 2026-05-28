@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "firebase/auth";
 import { fireEvent } from "@/lib/metaPixel";
+import { trackEvent } from "@/lib/gtag";
 
 const PLAN_AMOUNTS_INR: Record<string, number> = {
   starter: 499,
@@ -47,6 +48,7 @@ export function useRazorpayCheckout(
       return;
     }
 
+    trackEvent("begin_checkout", "payment", planId);
     setPaying(planId);
     setPayError(null);
     try {
@@ -88,6 +90,7 @@ export function useRazorpayCheckout(
               body: JSON.stringify({ ...response, plan: planId }),
             });
             if (!verifyRes.ok) throw new Error("Payment verification failed.");
+            trackEvent("purchase", "payment", planId, PLAN_AMOUNTS_INR[planId]);
             router.push("/payment/success");
           } catch {
             setPayError("Payment succeeded but verification failed. Please contact support.");

@@ -12,6 +12,7 @@ import {
 import { firebaseAuth, googleProvider } from "@/lib/firebase";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
+import { trackEvent } from "@/lib/gtag";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -54,8 +55,12 @@ export default function AuthPage() {
     // no async gaps before it. Browsers only allow window.open() inside a
     // synchronous user-gesture handler. Anything before it kills that trust.
     // ──────────────────────────────────────────────────────────────────────
+    trackEvent("begin_signup", "auth", "google_signin");
     signInWithPopup(firebaseAuth(), googleProvider)
-      .then(() => router.replace("/dashboard"))
+      .then(() => {
+        trackEvent("sign_up", "auth", "google_signin_success");
+        router.replace("/dashboard");
+      })
       .catch((err: { code?: string }) => {
         const code = err.code ?? "";
 

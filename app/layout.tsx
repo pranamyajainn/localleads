@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Outfit, DM_Sans } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
+import { GAPageTracker } from "@/components/GAPageTracker";
 import "./globals.css";
 
 const inter = Inter({
@@ -82,6 +84,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable} ${dmSans.variable}`}>
       <head>
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-9Q9B8HK88Z"
+        />
+        <Script id="ga4-init" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-9Q9B8HK88Z');
+        `}</Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -110,6 +122,9 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased bg-[#0A0A0A] text-[#F5F0E8]">
+        <Suspense fallback={null}>
+          <GAPageTracker />
+        </Suspense>
         {children}
         <Script id="meta-pixel" strategy="afterInteractive">{`
           !function(f,b,e,v,n,t,s)

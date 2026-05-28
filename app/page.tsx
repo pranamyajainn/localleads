@@ -7,6 +7,7 @@ import { StatCounter } from "@/components/StatCounter";
 import { LiveScan } from "@/components/LiveScan";
 import { ProductMockup } from "@/components/ProductMockup";
 import { SearchTicker } from "@/components/SearchTicker";
+import { trackEvent } from "@/lib/gtag";
 
 // ─ Data ───────────────────────────────────────────────────────────────────────
 
@@ -121,7 +122,7 @@ export default function LandingPage() {
         </span>
         <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
           <a href="#benefits" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }}>Benefits</a>
-          <a href="#how-it-works" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }}>How it works</a>
+          <a href="#how-it-works" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }} onClick={() => trackEvent("see_how_it_works", "navigation", "nav_link")}>How it works</a>
           <a href="#pricing" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }}>Pricing</a>
           <Link href="/blog" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }}>Blog</Link>
           <Link
@@ -197,6 +198,7 @@ export default function LandingPage() {
               }}
               onMouseOver={(e) => e.currentTarget.style.background = "var(--color-gold-light)"}
               onMouseOut={(e) => e.currentTarget.style.background = "var(--color-gold)"}
+              onClick={() => trackEvent("hero_cta", "landing", "start_free_trial")}
             >
               Start a free trial
             </Link>
@@ -513,6 +515,7 @@ export default function LandingPage() {
               }}
               onMouseOver={(e) => e.currentTarget.style.background = "var(--color-blue-light)"}
               onMouseOut={(e) => e.currentTarget.style.background = "var(--color-blue)"}
+              onClick={() => trackEvent("other_cta", "landing", "features_section")}
             >
               Start a free trial
             </Link>
@@ -601,6 +604,7 @@ export default function LandingPage() {
               }}
               onMouseOver={(e) => e.currentTarget.style.background = "var(--color-coral-light)"}
               onMouseOut={(e) => e.currentTarget.style.background = "var(--color-coral)"}
+              onClick={() => trackEvent("other_cta", "landing", "blue_banner")}
             >
               Start a free trial
             </Link>
@@ -746,6 +750,7 @@ export default function LandingPage() {
                 }}
                 onMouseOver={(e) => e.currentTarget.style.background = "var(--color-gold-light)"}
                 onMouseOut={(e) => e.currentTarget.style.background = "var(--color-gold)"}
+                onClick={() => trackEvent("bottom_cta", "landing", "coral_banner")}
               >
                 Start free trial
               </Link>
@@ -905,6 +910,11 @@ export default function LandingPage() {
                     e.currentTarget.style.background = "transparent";
                   }
                 }}
+                onClick={() => trackEvent(
+                  plan.name === "Agency" ? "agency_cta" : "pricing_cta",
+                  "landing",
+                  plan.name.toLowerCase()
+                )}
               >
                 {plan.cta}
               </Link>
