@@ -35,6 +35,36 @@ const KEYWORD_TOPICS = [
   { keyword: "how to sell websites to CA firms India", city: "Mumbai", persona: "general" },
   { keyword: "how to sell websites to salons India", city: "Pune", persona: "general" },
   { keyword: "how to sell websites to gyms India", city: "Hyderabad", persona: "general" },
+
+  // Hinglish and natural Indian search terms — Jaipur
+  { keyword: "Jaipur mein website banana ka kaam", city: "Jaipur", persona: "arjun" },
+  { keyword: "website banao paisa kamao Jaipur", city: "Jaipur", persona: "arjun" },
+  { keyword: "Jaipur mein website banane wala freelancer", city: "Jaipur", persona: "arjun" },
+  { keyword: "local shop website banana Jaipur", city: "Jaipur", persona: "arjun" },
+  { keyword: "website banana kaise sikhe Jaipur", city: "Jaipur", persona: "arjun" },
+
+  // Natural Indian English — how people actually type
+  { keyword: "how to make website for local business in Jaipur", city: "Jaipur", persona: "arjun" },
+  { keyword: "website making freelance work in Jaipur", city: "Jaipur", persona: "arjun" },
+  { keyword: "how to make websites and earn money in India", city: "Jaipur", persona: "arjun" },
+  { keyword: "website banana ke liye client kaise dhundhe", city: "Jaipur", persona: "arjun" },
+  { keyword: "website banane ka business kaise shuru kare", city: "Indore", persona: "arjun" },
+
+  // Kota — student audience
+  { keyword: "Kota mein website banana ka kaam", city: "Kota", persona: "arjun" },
+  { keyword: "website making side income Kota", city: "Kota", persona: "arjun" },
+  { keyword: "after coaching website banana ka kaam Kota", city: "Kota", persona: "arjun" },
+
+  // General Indian natural search
+  { keyword: "ghar baithe website banao paise kamao", city: "Indore", persona: "arjun" },
+  { keyword: "website banana ka business India", city: "Indore", persona: "arjun" },
+  { keyword: "chhoti dukan ke liye website banana", city: "Jaipur", persona: "arjun" },
+  { keyword: "bina degree website bana ke paisa kamao", city: "Lucknow", persona: "arjun" },
+  { keyword: "website making se paise kaise kamaye", city: "Bhopal", persona: "arjun" },
+  { keyword: "local business ko website kaise becho", city: "Jaipur", persona: "arjun" },
+  { keyword: "restaurant ke liye website banana Jaipur", city: "Jaipur", persona: "general" },
+  { keyword: "salon ke liye website banana India", city: "Indore", persona: "general" },
+  { keyword: "doctor clinic website banana India", city: "Jaipur", persona: "general" },
 ];
 
 function slugify(text: string): string {
@@ -108,6 +138,7 @@ export async function GET(request: NextRequest) {
 
 SIMPLE ENGLISH RULES — follow every single one:
 1. Use short words. Say "use" not "utilize". Say "help" not "leverage". Say "get" not "obtain".
+1b. Use the words people actually use in India. Say "website banana" or "website banao" when writing for Hindi-speaking readers. Say "make a website" not "design a website". Say "earn money" not "generate revenue". Say "get clients" not "acquire customers". Say "local shop" or "dukan" not "SMB" or "small business enterprise". Say "call karke pitch karo" for the Hindi audience posts. Match the language of the keyword — if the keyword has Hindi words, the post should mix Hindi and English naturally the way your reader actually talks.
 2. Keep sentences short. Maximum 15 words per sentence most of the time.
 3. Write like you talk. Casual. Friendly. Real.
 4. If a 12-year-old would not understand a word, replace it with a simpler word.
@@ -151,7 +182,9 @@ The post must:
 Naturally link to these LocalLeads pages where relevant (use markdown links):
 - [LocalLeads](https://localleads.sahajta.com) when mentioning the tool
 - [free trial](https://localleads.sahajta.com/auth) when mentioning trying it free
-- [pricing](https://localleads.sahajta.com/pricing) when mentioning ₹499 or cost`,
+- [pricing](https://localleads.sahajta.com/pricing) when mentioning ₹499 or cost
+
+If the keyword contains Hindi or Hinglish words, write the post in Hinglish — mix Hindi and English the way a 22-year-old in Jaipur would actually talk. Example: "Yaar, 5 ghante Google Maps pe waste mat karo. LocalLeads try karo — 10 minute mein 500 leads nikal." If the keyword is fully in English, write in simple English only.`,
       },
     ],
     temperature: 0.8,
