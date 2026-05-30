@@ -247,6 +247,37 @@ export async function GET(request: NextRequest) {
     console.log("Topic source:", trendingTopic ? "trending" : "scheduled");
 
     const keyword = trendingTopic ?? scheduledTopic.keyword;
+
+    const POST_FORMATS = [
+      {
+        name: "story",
+        instruction: `Write this as a real story. Open with a specific scene — a person in ${scheduledTopic.city} doing something frustrating related to finding clients. Give the person a name. Make it feel like you witnessed this. Then reveal the insight or solution halfway through. No listicles. Pure narrative with one lesson at the end.`,
+      },
+      {
+        name: "numbers",
+        instruction: `This post is data-driven. Lead with a surprising, specific number about ${scheduledTopic.city} — businesses, population, how many lack websites, rupee amounts. Every claim should have a number attached to it. 'Most businesses' becomes '7 out of 10 businesses in ${scheduledTopic.city}'. Make the reader feel like they are reading research, not an opinion piece.`,
+      },
+      {
+        name: "mistake",
+        instruction: `This post is about a specific mistake that ${scheduledTopic.city} freelancers make. Open with the mistake directly — no buildup. Explain exactly why it happens, what it costs, and what to do instead. Be harsh. Take a strong position. Do not hedge or say 'it depends'.`,
+      },
+      {
+        name: "script",
+        instruction: `This post is a practical script or template. The entire value is something the reader can copy and use today in ${scheduledTopic.city}. A cold call script. A WhatsApp message template. A pitch for a specific business type. Explain when to use it, why each line works, and what to say if the person says no. Keep the intro very short — get to the script fast.`,
+      },
+      {
+        name: "myth",
+        instruction: `This post busts a specific myth that ${scheduledTopic.city} freelancers believe. State the myth in the title or first line. Then systematically take it apart with specific examples from ${scheduledTopic.city}. End with what is actually true and what to do instead. Be direct and slightly provocative.`,
+      },
+      {
+        name: "comparison",
+        instruction: `This post compares two approaches to the same problem — the way most ${scheduledTopic.city} freelancers do it vs a better way. Use a clear before/after or old way/new way structure. Include real rupee numbers for both approaches. The reader should finish knowing exactly which approach to switch to and why.`,
+      },
+    ];
+
+    const formatIndex = (dayOfYear + (hour < 12 ? 0 : 3)) % POST_FORMATS.length;
+    const todaysFormat = POST_FORMATS[formatIndex];
+
     const timeSlot = hour < 12 ? "am" : "pm";
     const slug = slugify(keyword) + "-" + timeSlot;
 
@@ -289,7 +320,14 @@ SIMPLE ENGLISH RULES — follow every single one:
 Use these placeholder links for now:
 [Jaipur mein cold calling script](https://localleads.sahajta.com/blog)
 [Jaipur ke restaurants ko website kaise becho](https://localleads.sahajta.com/blog)
-25. The meta description (first 155 characters of the post body, before the first H2) must naturally contain the target keyword.`;
+25. The meta description (first 155 characters of the post body, before the first H2) must naturally contain the target keyword.
+26. The H1 title MUST start with the city name or contain it within the first 3 words.
+Good: 'Jaipur mein website banana: 2026 guide'
+Good: 'Kota freelancers ke liye client dhundne ka tarika'
+Bad: 'How to find clients as a web designer in India'
+Bad: 'Website banana ka business kaise shuru kare'
+The city must be the very first thing Google reads in your title. Non-negotiable.
+27. Every post must feel like a DIFFERENT type of article. You will be told which format to use in the user prompt. Follow it exactly.`;
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
@@ -297,10 +335,17 @@ Use these placeholder links for now:
         { role: "system", content: systemPrompt },
         {
           role: "user",
-          content: `Write a blog post targeting: "${keyword}".
+          content: `FORMAT FOR THIS POST: ${todaysFormat.name}
+${todaysFormat.instruction}
+
+This format overrides default structure. Follow it. The post should feel unmistakably like a '${todaysFormat.name}' post, not a generic blog post that happens to mention ${scheduledTopic.city}.
+
+Write a blog post targeting: "${keyword}".
 City focus: ${scheduledTopic.city}.
 Today's date: ${new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}.
 Target reader: Indian web freelancer trying to find clients.
+
+The H1 title must start with '${scheduledTopic.city}' or have it within the first 3 words. Put the city first. Always.
 
 This post is part of the '${scheduledTopic.city} web design freelancing' content cluster.
 The pillar page for this cluster is at:
