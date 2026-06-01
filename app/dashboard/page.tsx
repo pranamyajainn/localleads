@@ -625,6 +625,7 @@ export default function DashboardPage() {
   }, [leadsLeft]);
 
   const [cancelling, setCancelling] = useState(false);
+  const [pendingPlan, setPendingPlan] = useState<string | null>(null);
 
   const handleSignOut = async () => {
     await signOut(firebaseAuth());
@@ -1008,7 +1009,7 @@ export default function DashboardPage() {
           {/* Upgrade CTA — hidden for Agency */}
           {nextPlanData && (
             <button
-              onClick={() => handleSelectPlan(nextPlan!)}
+              onClick={() => setPendingPlan(nextPlan ?? "starter")}
               disabled={!!paying}
               className="premium-gradient-btn"
             >
@@ -1220,13 +1221,23 @@ export default function DashboardPage() {
               {/* ── Payment error ──────────────────────────────────────── */}
               {payError && (
                 <div style={{
-                  marginBottom: 16, padding: "11px 14px",
-                  border: "1px solid rgba(239,68,68,0.28)",
-                  background: "rgba(239,68,68,0.05)",
-                  borderRadius: 24,
-                  fontFamily: "var(--font-sans)", fontSize: 12, color: "#F87171",
+                  background: "rgba(239,68,68,0.08)",
+                  border: "1px solid rgba(239,68,68,0.3)",
+                  borderRadius: 8,
+                  padding: "14px 20px",
+                  margin: "0 0 16px",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 14, color: "#EF4444",
+                  lineHeight: 1.5,
                 }}>
                   {payError}
+                  {" "}
+                  <a
+                    href="mailto:hello@sahajta.com"
+                    style={{ color: "#EF4444", fontWeight: 700 }}
+                  >
+                    Email us to resolve this.
+                  </a>
                 </div>
               )}
 
@@ -2034,6 +2045,98 @@ export default function DashboardPage() {
           .clear-btn { min-height: 44px; }
         }
       `}</style>
+
+      {pendingPlan && (
+        <div style={{
+          position: "fixed", inset: 0,
+          background: "rgba(0,0,0,0.85)",
+          display: "flex", alignItems: "center",
+          justifyContent: "center",
+          zIndex: 9999, padding: 24,
+        }}>
+          <div style={{
+            background: "#0D0D0D",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 16,
+            padding: "36px 32px",
+            maxWidth: 420, width: "100%",
+          }}>
+            <p style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: 11, fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "#22C55E", margin: "0 0 12px",
+            }}>
+              {pendingPlan === "starter" ? "Starter Plan" :
+               pendingPlan === "growth" ? "Growth Plan" :
+               pendingPlan === "pro" ? "Pro Plan" : "Agency Plan"}
+            </p>
+            <p style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: 36, fontWeight: 700,
+              color: "#EDEDED", margin: "0 0 4px",
+              letterSpacing: "-0.02em",
+            }}>
+              {pendingPlan === "starter" ? "₹499" :
+               pendingPlan === "growth" ? "₹999" :
+               pendingPlan === "pro" ? "₹2,499" : "₹4,999"}
+              <span style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 14, color: "#555",
+                fontWeight: 400,
+              }}>/month</span>
+            </p>
+            <p style={{
+              fontFamily: "var(--font-sans)",
+              fontSize: 14, color: "#555",
+              margin: "0 0 24px",
+            }}>
+              {pendingPlan === "starter" ? "500 leads/month" :
+               pendingPlan === "growth" ? "2,000 leads/month" :
+               pendingPlan === "pro" ? "10,000 leads/month" :
+               "50,000 leads/month"}
+              {" · "}Business name, phone, Google Maps link
+              {" · "}Cancel anytime
+            </p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                onClick={() => {
+                  const plan = pendingPlan;
+                  setPendingPlan(null);
+                  handleSelectPlan(plan);
+                }}
+                style={{
+                  flex: 1, background: "#22C55E",
+                  color: "#000", border: "none",
+                  padding: "14px 0", borderRadius: 8,
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 14, fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Pay {pendingPlan === "starter" ? "₹499" :
+                     pendingPlan === "growth" ? "₹999" :
+                     pendingPlan === "pro" ? "₹2,499" : "₹4,999"}
+              </button>
+              <button
+                onClick={() => setPendingPlan(null)}
+                style={{
+                  flex: 1, background: "transparent",
+                  color: "#555",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  padding: "14px 0", borderRadius: 8,
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 14, fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

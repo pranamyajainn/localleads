@@ -47,6 +47,8 @@ export async function POST(req: NextRequest) {
       subscriptionStatus: "active",
     });
 
+    console.log("verify success", { uid, plan, subscriptionId: razorpay_subscription_id });
+
     return NextResponse.json({ success: true });
   } catch (err) {
     Sentry.captureException(err);

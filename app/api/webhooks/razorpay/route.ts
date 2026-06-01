@@ -63,13 +63,23 @@ export async function POST(req: NextRequest) {
       const planExpiresAt = Timestamp.fromDate(
         new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       );
-      await userDocRef.update({
+
+      const updateData: Record<string, unknown> = {
         leadsUsed: 0,
         leadsLimit: PLAN_LIMITS[plan] ?? planData.leadsLimit,
         planExpiresAt,
         subscriptionStatus: "active",
         ...(paymentId ? { lastChargeId: paymentId } : {}),
-      });
+      };
+
+      // Recovery: subscription.charged only fires for active paid subscriptions.
+      // If verify previously failed and plan is still "free", upgrade it now.
+      if (planData.plan === "free") {
+        updateData.plan = "starter";
+        updateData.leadsLimit = PLAN_LIMITS.starter;
+      }
+
+      await userDocRef.update(updateData);
 
       // Server-side Purchase event via CAPI
       // eventId is deterministic on paymentId so Meta deduplicates correctly

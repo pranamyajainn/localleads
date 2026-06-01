@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function PaymentSuccessPage() {
-  const router = useRouter();
   const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
@@ -13,7 +11,7 @@ export default function PaymentSuccessPage() {
       setCountdown((c) => {
         if (c <= 1) {
           clearInterval(interval);
-          router.replace("/dashboard");
+          window.location.href = "/dashboard";
           return 0;
         }
         return c - 1;
@@ -21,7 +19,7 @@ export default function PaymentSuccessPage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [router]);
+  }, []);
 
   return (
     <div style={{ minHeight: "100vh", background: "#080808", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", position: "relative", overflow: "hidden" }}>
