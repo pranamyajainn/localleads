@@ -148,6 +148,16 @@ export default function RootLayout({
   namyah("init","pxl_9GhdtEf5fcfmdp");
 `}
         </Script>
+        <Script id="namyah-pixel-2" strategy="afterInteractive">
+  {`
+    !function(){var n=window.namyah=function(){(n.q=n.q||[]).push(arguments)};
+      var s=document.createElement("script");
+      s.src="https://smartbudget.qzz.io/api/pixel/namyah.js?id=pxl_fPYiNkxUTTqzc0";
+      s.async=true;document.head.appendChild(s);
+    }();
+    namyah("init","pxl_fPYiNkxUTTqzc0");
+  `}
+        </Script>
         <Script id="microsoft-clarity" strategy="afterInteractive">
 {`
   (function(c,l,a,r,i,t,y){
