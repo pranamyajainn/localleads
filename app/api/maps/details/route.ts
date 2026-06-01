@@ -1,11 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/apiAuth";
+import { adminDb } from "@/lib/firebaseAdmin";
 
 const MAPS_BASE = "https://maps.googleapis.com/maps/api/place/details/json";
 
 export async function GET(req: NextRequest) {
   const auth = await verifyToken(req);
   if (auth instanceof NextResponse) return auth;
+
+  const { uid } = auth;
+
+  const db = adminDb();
+  const userRef = db.collection("users").doc(uid);
+  const userSnap = await userRef.get();
+
+  if (!userSnap.exists) {
+    return NextResponse.json({ error: "User not found" }, { status: 403 });
+  }
+
+  const userData = userSnap.data()!;
+  const leadsUsed = userData.leadsUsed ?? userData.searchesUsed ?? 0;
+  const leadsLimit = userData.leadsLimit ?? userData.searchesLimit ?? 20;
+
+  if (leadsUsed >= leadsLimit) {
+    return NextResponse.json({ error: "Lead limit reached" }, { status: 403 });
+  }
 
   const { searchParams } = req.nextUrl;
   const placeId = searchParams.get("placeId");

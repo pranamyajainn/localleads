@@ -9,15 +9,18 @@ export async function POST(req: NextRequest) {
 
   const { uid } = auth;
 
-  let amount = 1;
+  let body: Record<string, unknown>;
   try {
-    const body = await req.json();
-    if (typeof body?.amount === "number" && body.amount > 0) {
-      amount = body.amount;
-    }
+    body = await req.json();
   } catch {
-    // no body or non-JSON — use default of 1
+    return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
   }
+
+  if (body.amount !== 1) {
+    return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
+  }
+
+  const amount = 1;
 
   const db = adminDb();
   const userRef = db.collection("users").doc(uid);
