@@ -60,9 +60,11 @@ export async function GET(request: NextRequest) {
       : new Date(user.createdAt);
 
     const days = daysSince(createdAt);
-    const leadsLeft = user.leadsLeft ?? 20;
-    const hasSearched = leadsLeft < 20;
-    const allUsed = leadsLeft === 0;
+    const leadsUsed = user.leadsUsed ?? 0;
+    const leadsLimit = user.leadsLimit ?? 20;
+    const leadsLeft = leadsLimit - leadsUsed;
+    const hasSearched = leadsUsed > 0;
+    const allUsed = leadsUsed >= leadsLimit;
     const emailsSent = user.emailsSent || [];
 
     // Day 2 — has not searched yet

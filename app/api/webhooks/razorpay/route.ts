@@ -46,7 +46,12 @@ export async function POST(req: NextRequest) {
     const db = adminDb();
     const snap = await db.collection("users").where("subscriptionId", "==", subscriptionId).limit(1).get();
     if (snap.empty) {
-      return NextResponse.json({ ok: true });
+      console.error("No user found for subscription:", subscriptionId);
+      Sentry.captureMessage(
+        `Webhook: no user found for subscriptionId ${subscriptionId}`,
+        "error"
+      );
+      return NextResponse.json({ received: true });
     }
 
     const userDocRef = snap.docs[0].ref;
@@ -104,6 +109,7 @@ export async function POST(req: NextRequest) {
         subscriptionStatus: "halted",
         plan: "free",
         leadsLimit: PLAN_LIMITS.free,
+        leadsUsed: 0,
       });
     }
 

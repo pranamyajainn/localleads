@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/apiAuth";
 import { adminDb } from "@/lib/firebaseAdmin";
+import * as Sentry from "@sentry/nextjs";
 
 const MAPS_BASE = "https://maps.googleapis.com/maps/api/place/details/json";
 
@@ -44,6 +45,11 @@ export async function GET(req: NextRequest) {
     const data = await res.json();
 
     if (data.status !== "OK" || !data.result) {
+      const errorStatus = data.status ?? "UNKNOWN";
+      if (errorStatus !== "ZERO_RESULTS" && errorStatus !== "NOT_FOUND") {
+        Sentry.captureMessage(`Maps API error: ${errorStatus}`, "warning");
+        console.error("Maps API error:", errorStatus);
+      }
       return NextResponse.json({ result: null, status: data.status });
     }
 
@@ -57,7 +63,9 @@ export async function GET(req: NextRequest) {
       },
       status: data.status,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
+    console.error("Maps API request failed:", err);
     return NextResponse.json({ error: "Maps API request failed" }, { status: 502 });
   }
 }

@@ -626,6 +626,7 @@ export default function DashboardPage() {
 
   const [cancelling, setCancelling] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<string | null>(null);
+  const [hideWall, setHideWall] = useState(false);
 
   const handleSignOut = async () => {
     await signOut(firebaseAuth());
@@ -740,7 +741,7 @@ export default function DashboardPage() {
       {showGuide && <OnboardingCarousel onClose={handleCloseGuide} />}
 
       {/* Full-Screen Credit Limit Blocker Overlay */}
-      {hitLimit && (
+      {hitLimit && !hideWall && (
         <div style={{
           position: "fixed",
           inset: 0,
@@ -754,6 +755,23 @@ export default function DashboardPage() {
           padding: "40px 24px",
           overflowY: "auto",
         }}>
+          <button
+            onClick={() => setHideWall(true)}
+            style={{
+              position: "absolute",
+              top: 16, right: 16,
+              background: "transparent",
+              border: "none",
+              color: "#444",
+              fontSize: 24,
+              cursor: "pointer",
+              lineHeight: 1,
+              padding: 4,
+            }}
+            aria-label="Close"
+          >
+            ×
+          </button>
           <div style={{
             maxWidth: 680,
             width: "100%",

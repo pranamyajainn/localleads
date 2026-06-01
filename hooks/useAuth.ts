@@ -26,34 +26,39 @@ export function useAuth() {
       setUser(firebaseUser);
 
       if (firebaseUser) {
-        const db = firebaseDb();
-        const ref = doc(db, "users", firebaseUser.uid);
-        const snap = await getDoc(ref);
+        try {
+          const db = firebaseDb();
+          const ref = doc(db, "users", firebaseUser.uid);
+          const snap = await getDoc(ref);
 
-        if (!snap.exists()) {
-          const newDoc = {
-            email: firebaseUser.email!,
-            plan: "free",
-            leadsUsed: 0,
-            leadsLimit: 20,
-            planExpiresAt: null,
-            createdAt: serverTimestamp(),
-          };
-          await setDoc(ref, newDoc);
-          setUserDoc(newDoc as unknown as UserDoc);
-          // Fire CompleteRegistration pixel + CAPI event
-          fireEvent("CompleteRegistration", {}, { email: firebaseUser.email || undefined }).catch(() => {});
-          firebaseUser.getIdToken().then((token) => {
-            fetch("/api/email/welcome", { method: "POST", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
-          }).catch(() => {});
-        } else {
-          setUserDoc(normalizeUserDoc(snap.data() as Record<string, unknown>));
+          if (!snap.exists()) {
+            const newDoc = {
+              email: firebaseUser.email!,
+              plan: "free",
+              leadsUsed: 0,
+              leadsLimit: 20,
+              planExpiresAt: null,
+              createdAt: serverTimestamp(),
+            };
+            await setDoc(ref, newDoc);
+            setUserDoc(newDoc as unknown as UserDoc);
+            // Fire CompleteRegistration pixel + CAPI event
+            fireEvent("CompleteRegistration", {}, { email: firebaseUser.email || undefined }).catch(() => {});
+            firebaseUser.getIdToken().then((token) => {
+              fetch("/api/email/welcome", { method: "POST", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+            }).catch(() => {});
+          } else {
+            setUserDoc(normalizeUserDoc(snap.data() as Record<string, unknown>));
+          }
+        } catch (error) {
+          console.error("Firestore auth error:", error);
+        } finally {
+          setLoading(false);
         }
       } else {
         setUserDoc(null);
+        setLoading(false);
       }
-
-      setLoading(false);
     });
 
     return unsub;
