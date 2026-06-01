@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "firebase/auth";
 import { collection, getDocs, orderBy, query, limit } from "firebase/firestore";
@@ -424,6 +424,8 @@ function exportHistoryCSV(entry: SearchHistoryEntry) {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const paymentPending = searchParams.get("payment") === "pending";
   const { user, userDoc, loading, refreshUserDoc } = useAuth();
   const {
     status, results, isSearching, phoneCount, error,
@@ -1235,6 +1237,27 @@ export default function DashboardPage() {
                   }} />
                 </div>
               </div>
+
+              {/* ── UPI payment pending banner ─────────────────────────── */}
+              {paymentPending && userDoc?.plan === "free" && (
+                <div style={{
+                  background: "rgba(234,179,8,0.08)",
+                  border: "1px solid rgba(234,179,8,0.35)",
+                  borderRadius: 8,
+                  padding: "14px 20px",
+                  margin: "0 0 16px",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 14,
+                  color: "#FBBF24",
+                  lineHeight: 1.5,
+                }}>
+                  Payment received — your plan upgrade is being confirmed. This usually takes under a minute. Please refresh the page in a moment.
+                  {" "}
+                  <a href="mailto:hello@sahajta.com" style={{ color: "#FBBF24", fontWeight: 700 }}>
+                    Contact us if it doesn't update.
+                  </a>
+                </div>
+              )}
 
               {/* ── Payment error ──────────────────────────────────────── */}
               {payError && (

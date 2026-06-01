@@ -19,6 +19,24 @@ declare global {
   }
 }
 
+async function pollForPlanUpdate(token: string, maxAttempts = 10): Promise<boolean> {
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise((r) => setTimeout(r, 3000));
+    try {
+      const res = await fetch("/api/razorpay/status", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.plan && data.plan !== "free") return true;
+      }
+    } catch {
+      // network error — keep polling
+    }
+  }
+  return false;
+}
+
 function loadRazorpayScript(): Promise<boolean> {
   return new Promise((resolve) => {
     if (document.getElementById("razorpay-script")) return resolve(true);
@@ -97,6 +115,8 @@ export function useRazorpayCheckout(
           }
         },
         modal: { ondismiss: () => setPaying(null) },
+        callback_url: `${window.location.origin}/api/razorpay/verify-redirect`,
+        redirect: false,
       };
 
       await fireEvent(
@@ -107,6 +127,11 @@ export function useRazorpayCheckout(
 
       const rzp = new window.Razorpay(options);
       rzp.open();
+
+      // Background poll: catches UPI flows where Android kills the JS callback
+      pollForPlanUpdate(token).then((upgraded) => {
+        if (upgraded) window.location.href = "/payment/success";
+      });
     } catch (err) {
       setPayError(err instanceof Error ? err.message : "Payment failed.");
       setPaying(null);
