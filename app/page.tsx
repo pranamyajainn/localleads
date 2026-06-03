@@ -22,7 +22,6 @@ const PLANS = [
     features: ["Find 20 shops (forever)", "All cities & types of shops"],
     missing: ["Download list to Excel/CSV", "Quick email support"],
     cta: "Start Free",
-    href: "/auth",
     featured: false,
   },
   {
@@ -35,7 +34,6 @@ const PLANS = [
     features: ["Find 500 shops / month", "Download list to Excel/CSV", "All cities & types of shops"],
     missing: [],
     cta: "Get Starter — ₹499/mo",
-    href: "/auth?plan=starter",
     featured: true,
   },
   {
@@ -47,7 +45,6 @@ const PLANS = [
     features: ["Find 2,000 shops / month", "Download list to Excel/CSV", "All cities & types of shops"],
     missing: [],
     cta: "Get Growth",
-    href: "/auth?plan=growth",
     featured: false,
   },
   {
@@ -59,7 +56,6 @@ const PLANS = [
     features: ["Find 10,000 shops / month", "Download list to Excel/CSV", "Quick email support", "All cities"],
     missing: [],
     cta: "Get Pro",
-    href: "/auth?plan=pro",
     featured: false,
   },
   {
@@ -71,7 +67,6 @@ const PLANS = [
     features: ["Find 50,000 shops / month", "Download list to Excel/CSV", "Quick email support", "Help with onboarding", "All cities"],
     missing: [],
     cta: "Get Agency",
-    href: "/auth?plan=agency",
     featured: false,
   },
 ];

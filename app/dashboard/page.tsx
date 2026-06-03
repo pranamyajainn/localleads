@@ -641,6 +641,8 @@ export default function DashboardPage() {
   const [cancelling, setCancelling] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<string | null>(null);
   const [hideWall, setHideWall] = useState(false);
+  const [cancellingTrial, setCancellingTrial] = useState(false);
+  const [trialCancelled, setTrialCancelled] = useState(false);
 
   const handleSignOut = async () => {
     await signOut(firebaseAuth());
@@ -1286,18 +1288,73 @@ export default function DashboardPage() {
                       You will be charged after the trial ends.
                     </span>
                   </div>
-                  <a
-                    href="mailto:hello@sahajta.com?subject=Cancel trial"
-                    style={{
+                  {trialCancelled ? (
+                    <span style={{
                       fontFamily: "var(--font-sans)",
                       fontSize: 12,
-                      color: "#666",
-                      textDecoration: "underline",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Cancel trial
-                  </a>
+                      color: "#22C55E",
+                    }}>
+                      Trial cancelled. Access ends in{" "}
+                      {trialDaysLeft} days.
+                    </span>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        if (cancellingTrial) return;
+                        const confirmed = window.confirm(
+                          "Cancel your free trial? You will keep " +
+                          "access until the trial period ends, " +
+                          "and will not be charged."
+                        );
+                        if (!confirmed) return;
+                        setCancellingTrial(true);
+                        try {
+                          const token = await user!.getIdToken();
+                          const res = await fetch(
+                            "/api/razorpay/cancel-subscription",
+                            {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`,
+                              },
+                              body: JSON.stringify({ immediate: false }),
+                            }
+                          );
+                          if (res.ok) {
+                            setTrialCancelled(true);
+                          } else {
+                            alert(
+                              "Could not cancel. " +
+                              "Email hello@sahajta.com for help."
+                            );
+                          }
+                        } catch {
+                          alert(
+                            "Could not cancel. " +
+                            "Email hello@sahajta.com for help."
+                          );
+                        } finally {
+                          setCancellingTrial(false);
+                        }
+                      }}
+                      disabled={cancellingTrial}
+                      style={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: 12,
+                        color: cancellingTrial ? "#333" : "#555",
+                        background: "transparent",
+                        border: "none",
+                        cursor: cancellingTrial ? "wait" : "pointer",
+                        textDecoration: "underline",
+                        padding: 0,
+                      }}
+                    >
+                      {cancellingTrial
+                        ? "Cancelling..."
+                        : "Cancel trial"}
+                    </button>
+                  )}
                 </div>
               )}
 
