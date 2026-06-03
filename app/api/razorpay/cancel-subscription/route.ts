@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/apiAuth";
 import { adminDb } from "@/lib/firebaseAdmin";
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
+    Sentry.captureException(err);
     console.error("Cancel subscription failed:", err);
     return NextResponse.json({ error: "Failed to cancel subscription" }, { status: 500 });
   }
