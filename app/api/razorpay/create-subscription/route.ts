@@ -36,11 +36,14 @@ export async function POST(req: NextRequest) {
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
+    const trialEndDate = Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60);
+
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
       total_count: 12,
       quantity: 1,
       customer_notify: 1,
+      start_at: trialEndDate,
     });
 
     return NextResponse.json({

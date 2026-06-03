@@ -426,6 +426,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentPending = searchParams.get("payment") === "pending";
+  const planFromUrl = searchParams.get("plan");
+  const trialFromUrl = searchParams.get("trial");
   const { user, userDoc, loading, refreshUserDoc } = useAuth();
   const {
     status, results, isSearching, phoneCount, error,
@@ -447,6 +449,7 @@ export default function DashboardPage() {
   };
   const maxLeadsInitialized = useRef(false);
   const resultsEndRef = useRef<HTMLDivElement>(null);
+  const autoTrialFiredRef = useRef(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const confettiParticlesRef = useRef<ConfettiParticle[]>([]);
@@ -626,6 +629,15 @@ export default function DashboardPage() {
     }
   }, [leadsLeft]);
 
+  // Auto-trigger checkout when coming from trial modal → auth → dashboard?plan=X&trial=true
+  useEffect(() => {
+    if (autoTrialFiredRef.current) return;
+    if (!user || !userDoc || trialFromUrl !== "true" || !planFromUrl) return;
+    if (userDoc.plan !== "free") return;
+    autoTrialFiredRef.current = true;
+    handleSelectPlan(planFromUrl);
+  }, [user, userDoc]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [cancelling, setCancelling] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<string | null>(null);
   const [hideWall, setHideWall] = useState(false);
@@ -659,6 +671,10 @@ export default function DashboardPage() {
   const expiry = userDoc?.planExpiresAt;
   const daysRemaining = expiry && typeof expiry.toDate === "function"
     ? Math.max(0, Math.ceil((expiry.toDate().getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null;
+
+  const trialDaysLeft = userDoc?.trialEndsAt && typeof (userDoc.trialEndsAt as { toDate?: () => Date }).toDate === "function"
+    ? Math.max(0, Math.ceil(((userDoc.trialEndsAt as { toDate: () => Date }).toDate().getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : null;
 
   const rawMaxLeads = parseInt(maxLeadsStr, 10) || 0;
@@ -1237,6 +1253,53 @@ export default function DashboardPage() {
                   }} />
                 </div>
               </div>
+
+              {/* ── Trial status banner ────────────────────────────────── */}
+              {userDoc?.subscriptionStatus === "trialing" && trialDaysLeft !== null && (
+                <div style={{
+                  background: "rgba(234,179,8,0.08)",
+                  border: "1px solid rgba(234,179,8,0.25)",
+                  borderRadius: 8,
+                  padding: "10px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  marginBottom: 16,
+                  flexWrap: "wrap",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{
+                      width: 6, height: 6,
+                      borderRadius: "50%",
+                      background: "#EAB308",
+                      boxShadow: "0 0 6px #EAB308",
+                      flexShrink: 0,
+                    }} />
+                    <span style={{
+                      fontFamily: "var(--font-sans)",
+                      fontSize: 13,
+                      color: "#EAB308",
+                      fontWeight: 500,
+                    }}>
+                      Free trial — {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} left.
+                      You will be charged after the trial ends.
+                    </span>
+                  </div>
+                  <a
+                    href="mailto:hello@sahajta.com?subject=Cancel trial"
+                    style={{
+                      fontFamily: "var(--font-sans)",
+                      fontSize: 12,
+                      color: "#666",
+                      textDecoration: "underline",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Cancel trial
+                  </a>
+                </div>
+              )}
 
               {/* ── UPI payment pending banner ─────────────────────────── */}
               {paymentPending && userDoc?.plan === "free" && (

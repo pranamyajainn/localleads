@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   signInWithPopup,
   signInWithRedirect,
@@ -16,6 +16,12 @@ import { trackEvent } from "@/lib/gtag";
 
 export default function AuthPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const planParam = searchParams.get("plan");
+  const trialParam = searchParams.get("trial");
+  const postSignInPath = planParam
+    ? `/dashboard?plan=${planParam}${trialParam === "true" ? "&trial=true" : ""}`
+    : "/dashboard";
   const { user, loading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   // True while we're waiting for a redirect result to resolve —
@@ -28,7 +34,7 @@ export default function AuthPage() {
     getRedirectResult(firebaseAuth())
       .then((result) => {
         if (result?.user) {
-          router.replace("/dashboard");
+          router.replace(postSignInPath);
         }
       })
       .catch((err: { code?: string }) => {
@@ -46,8 +52,8 @@ export default function AuthPage() {
 
   // Redirect once auth resolves (fresh login or returning from redirect)
   useEffect(() => {
-    if (!loading && user) router.replace("/dashboard");
-  }, [user, loading, router]);
+    if (!loading && user) router.replace(postSignInPath);
+  }, [user, loading, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleGoogleSignIn = () => {
     // ─── CRITICAL ─────────────────────────────────────────────────────────
@@ -59,7 +65,7 @@ export default function AuthPage() {
     signInWithPopup(firebaseAuth(), googleProvider)
       .then(() => {
         trackEvent("sign_up", "auth", "google_signin_success");
-        router.replace("/dashboard");
+        router.replace(postSignInPath);
       })
       .catch((err: { code?: string }) => {
         const code = err.code ?? "";

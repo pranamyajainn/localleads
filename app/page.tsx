@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ScrollReveal } from "@/components/ScrollReveal";
@@ -8,6 +9,7 @@ import { LiveScan } from "@/components/LiveScan";
 import { ProductMockup } from "@/components/ProductMockup";
 import { SearchTicker } from "@/components/SearchTicker";
 import { trackEvent } from "@/lib/gtag";
+import TrialModal from "@/components/TrialModal";
 
 // ─ Data ───────────────────────────────────────────────────────────────────────
 
@@ -102,6 +104,8 @@ const FAQS = [
 ];
 
 export default function LandingPage() {
+  const [trialModalOpen, setTrialModalOpen] = useState(false);
+
   return (
     <div style={{ background: "#0A0A0B", color: "#EDEDED", minHeight: "100vh", fontFamily: "var(--font-sans)" }}>
 
@@ -125,19 +129,19 @@ export default function LandingPage() {
           <a href="#how-it-works" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }} onClick={() => trackEvent("see_how_it_works", "navigation", "nav_link")}>How it works</a>
           <a href="#pricing" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }}>Pricing</a>
           <Link href="/blog" className="nav-link" style={{ letterSpacing: "normal", fontSize: 14, textTransform: "none", fontWeight: 500 }}>Blog</Link>
-          <Link
-            href="/auth"
+          <button
+            onClick={() => setTrialModalOpen(true)}
             style={{
               background: "var(--color-gold)", color: "#0A0A0B",
               fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700,
-              padding: "10px 22px", borderRadius: 30, textDecoration: "none",
-              transition: "background 0.2s",
+              padding: "10px 22px", borderRadius: 30, border: "none",
+              cursor: "pointer", transition: "background 0.2s",
             }}
             onMouseOver={(e) => e.currentTarget.style.background = "var(--color-gold-light)"}
             onMouseOut={(e) => e.currentTarget.style.background = "var(--color-gold)"}
           >
-            Start a free trial
-          </Link>
+            Start Free Trial
+          </button>
         </div>
       </nav>
 
@@ -187,21 +191,20 @@ export default function LandingPage() {
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 12 }}>
-            <Link
-              href="/auth"
+            <button
+              onClick={() => { trackEvent("hero_cta", "landing", "start_free_trial"); setTrialModalOpen(true); }}
               style={{
                 background: "var(--color-gold)", color: "#0A0A0B",
                 fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700,
-                padding: "16px 40px", borderRadius: 30, textDecoration: "none",
-                display: "inline-block", textAlign: "center", width: "fit-content",
+                padding: "16px 40px", borderRadius: 30, border: "none",
+                cursor: "pointer", textAlign: "center",
                 transition: "background 0.2s",
               }}
               onMouseOver={(e) => e.currentTarget.style.background = "var(--color-gold-light)"}
               onMouseOut={(e) => e.currentTarget.style.background = "var(--color-gold)"}
-              onClick={() => trackEvent("hero_cta", "landing", "start_free_trial")}
             >
-              Start a free trial
-            </Link>
+              Start Free Trial
+            </button>
             
             {/* Checks */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "16px 24px", marginTop: 8 }}>
@@ -504,21 +507,20 @@ export default function LandingPage() {
               Type any business type (like salons or restaurants) and any city. We show you exactly who does not have a website. Only call people who need you!
             </p>
             
-            <Link
-              href="/auth"
+            <button
+              onClick={() => { trackEvent("other_cta", "landing", "features_section"); setTrialModalOpen(true); }}
               style={{
                 background: "var(--color-blue)", color: "#FFFFFF",
                 fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
-                padding: "14px 32px", borderRadius: 30, textDecoration: "none",
-                display: "inline-block", textAlign: "center", width: "fit-content",
+                padding: "14px 32px", borderRadius: 30, border: "none",
+                cursor: "pointer", textAlign: "center",
                 transition: "background 0.2s",
               }}
               onMouseOver={(e) => e.currentTarget.style.background = "var(--color-blue-light)"}
               onMouseOut={(e) => e.currentTarget.style.background = "var(--color-blue)"}
-              onClick={() => trackEvent("other_cta", "landing", "features_section")}
             >
-              Start a free trial
-            </Link>
+              Start Free Trial
+            </button>
           </div>
         </div>
       </section>
@@ -592,22 +594,21 @@ export default function LandingPage() {
             <p style={{ fontSize: 16, lineHeight: 1.6, color: "rgba(255,255,255,0.85)", margin: 0 }}>
               One website client pays you ₹10,000 to ₹30,000. Our tool is only ₹499. Selling just one website pays for the tool for years!
             </p>
-            <Link
-              href="/auth"
+            <button
+              onClick={() => { trackEvent("other_cta", "landing", "blue_banner"); setTrialModalOpen(true); }}
               style={{
                 background: "var(--color-coral)", color: "#FFFFFF",
                 fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
-                padding: "14px 32px", borderRadius: 30, textDecoration: "none",
-                display: "inline-block", textAlign: "center", width: "fit-content",
+                padding: "14px 32px", borderRadius: 30, border: "none",
+                cursor: "pointer", textAlign: "center",
                 transition: "background 0.2s",
                 marginTop: 8,
               }}
               onMouseOver={(e) => e.currentTarget.style.background = "var(--color-coral-light)"}
               onMouseOut={(e) => e.currentTarget.style.background = "var(--color-coral)"}
-              onClick={() => trackEvent("other_cta", "landing", "blue_banner")}
             >
-              Start a free trial
-            </Link>
+              Start Free Trial
+            </button>
           </div>
 
           {/* Right Side Visual Block */}
@@ -739,21 +740,20 @@ export default function LandingPage() {
             </p>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 8 }}>
-              <Link
-                href="/auth"
+              <button
+                onClick={() => { trackEvent("bottom_cta", "landing", "coral_banner"); setTrialModalOpen(true); }}
                 style={{
                   background: "var(--color-gold)", color: "#0A0A0B",
                   fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700,
-                  padding: "14px 32px", borderRadius: 30, textDecoration: "none",
-                  display: "inline-block", textAlign: "center", width: "fit-content",
+                  padding: "14px 32px", borderRadius: 30, border: "none",
+                  cursor: "pointer", textAlign: "center",
                   transition: "background 0.2s",
                 }}
                 onMouseOver={(e) => e.currentTarget.style.background = "var(--color-gold-light)"}
                 onMouseOut={(e) => e.currentTarget.style.background = "var(--color-gold)"}
-                onClick={() => trackEvent("bottom_cta", "landing", "coral_banner")}
               >
-                Start free trial
-              </Link>
+                Start Free Trial
+              </button>
               
               {/* Checks */}
               <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 18px", fontSize: 12, color: "#FFF", fontWeight: 600 }}>
@@ -882,8 +882,8 @@ export default function LandingPage() {
                 ))}
               </ul>
 
-              <Link
-                href={plan.href}
+              <button
+                onClick={() => { trackEvent(plan.name === "Agency" ? "agency_cta" : "pricing_cta", "landing", plan.name.toLowerCase()); setTrialModalOpen(true); }}
                 style={{
                   display: "block", textAlign: "center", fontSize: 13, fontWeight: 700,
                   background: plan.featured ? "var(--color-gold)" : "transparent",
@@ -891,7 +891,8 @@ export default function LandingPage() {
                   border: plan.featured ? "none" : "1px solid rgba(255,255,255,0.15)",
                   padding: "12px 0",
                   borderRadius: 30,
-                  textDecoration: "none",
+                  cursor: "pointer",
+                  width: "100%",
                   transition: "background 0.2s, border-color 0.2s",
                 }}
                 onMouseOver={(e) => {
@@ -910,14 +911,9 @@ export default function LandingPage() {
                     e.currentTarget.style.background = "transparent";
                   }
                 }}
-                onClick={() => trackEvent(
-                  plan.name === "Agency" ? "agency_cta" : "pricing_cta",
-                  "landing",
-                  plan.name.toLowerCase()
-                )}
               >
-                {plan.cta}
-              </Link>
+                Start Free Trial
+              </button>
             </div>
           ))}
         </div>
@@ -970,6 +966,8 @@ export default function LandingPage() {
           <a href="mailto:contact@sahajta.com" className="footer-link">Contact Us</a>
         </div>
       </footer>
+
+      <TrialModal isOpen={trialModalOpen} onClose={() => setTrialModalOpen(false)} />
 
       {/* ── Responsive Mobile Overrides ────────────────────────────────────── */}
       <style>{`

@@ -97,6 +97,12 @@ export async function POST(req: NextRequest) {
         userData: { email: userEmail },
         customData: { value: planAmountINR, currency: "INR", content_name: plan },
       }).catch(() => {});
+    } else if (event === "subscription.activated") {
+      // Trial has converted to paid subscription
+      await userDocRef.update({
+        subscriptionStatus: "active",
+        trialEndsAt: null,
+      });
     } else if (event === "subscription.cancelled") {
       await userDocRef.update({
         subscriptionId: null,

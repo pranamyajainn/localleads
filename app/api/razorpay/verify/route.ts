@@ -38,13 +38,16 @@ export async function POST(req: NextRequest) {
       new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
     );
 
+    const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
     await adminDb().collection("users").doc(uid).update({
       plan,
       leadsUsed: 0,
       leadsLimit: PLAN_LIMITS[plan as Plan],
       planExpiresAt,
       subscriptionId: razorpay_subscription_id,
-      subscriptionStatus: "active",
+      subscriptionStatus: "trialing",
+      trialEndsAt: Timestamp.fromDate(trialEndsAt),
     });
 
     console.log("verify success", { uid, plan, subscriptionId: razorpay_subscription_id });
